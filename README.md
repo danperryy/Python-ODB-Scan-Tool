@@ -50,6 +50,7 @@ Next, download the OBD-Pi Software direct from GitHub (https://github.com/Pbarte
 Or using the command:
 #  cd ~
 #  git clone https://github.com/Pbartek/pyobd-pi.git
+
 Vehicle Installation
 The vehicle installation is quite simple.
 
