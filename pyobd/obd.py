@@ -15,8 +15,6 @@ class OBD():
     def __init__(self, portstr=None):
         self.port = None
         self.sensors = []
-        self.supportedSensors = []
-        self.unsupportedSensors = []
 
         # initialize by connecting and loading sensors
         if self.connect(portstr):
@@ -54,30 +52,32 @@ class OBD():
         """ queries for available sensors, and compiles lists of indices and sensor objects """
 
         self.sensors = []
-        self.supportedSensors = []
-        self.unsupportedSensors = []
 
         # Find supported sensors - by getting PIDs from OBD (sensor zero)
         # its a string of binary 01010101010101 
         # 1 means the sensor is supported
-        supported = self.port.get_sensor_value(sensors[0])
+        supported = self.valueOf(sensors.PIDS)
 
         # loop through PIDs binary
         for i in range(len(supported)):
             if supported[i] == "1":
-                self.supportedSensors.append(i)
-                self.sensors.append(sensors[i])
-            else:
-                self.unsupportedSensors.append(i)
+                sensor = sensors.by_PID[i]
+                sensor.supported = True
+                self.supportedSensors.append(sensor)
 
 
     def printSensors(self):
         for sensor in self.sensors:
             print str(sensor)
 
+    def hasSensor(sensor):
+        return sensor.supported
 
     def valueOf(sensor):
-        return self.port.get_sensor_value(sensor)
+        if self.hasSensor(sensor):
+            return self.port.get_sensor_value(sensor)
+        else:
+            return "Unsupported Sensor"
 
 
 
