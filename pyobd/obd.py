@@ -2,8 +2,8 @@
 
 import time
 
-from obd_io import State
-from obd_io import OBDPort
+from obd_port import State
+from obd_port import OBDPort
 from obd_sensors import sensors
 from obd_utils import scanSerial
 
