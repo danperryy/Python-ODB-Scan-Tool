@@ -25,52 +25,20 @@
 import serial
 import string
 import time
-from math import ceil
-from datetime import datetime
 
 import obd_sensors
+from obd_utils import hex_to_int
 
-from obd_sensors import hex_to_int
 
 GET_DTC_COMMAND   = "03"
 CLEAR_DTC_COMMAND = "04"
 GET_FREEZE_DTC_COMMAND = "07"
 
 
-#__________________________________________________________________________
-def decrypt_dtc_code(code):
-    """Returns the 5-digit DTC code from hex encoding"""
-    dtc = []
-    current = code
-    for i in range(0,3):
-        if len(current)<4:
-            raise "Tried to decode bad DTC: %s" % code
-
-        tc = obd_sensors.hex_to_int(current[0]) #typecode
-        tc = tc >> 2
-        if   tc == 0:
-            type = "P"
-        elif tc == 1:
-            type = "C"
-        elif tc == 2:
-            type = "B"
-        elif tc == 3:
-            type = "U"
-        else:
-            raise tc
-
-        dig1 = str(obd_sensors.hex_to_int(current[0]) & 3)
-        dig2 = str(obd_sensors.hex_to_int(current[1]))
-        dig3 = str(obd_sensors.hex_to_int(current[2]))
-        dig4 = str(obd_sensors.hex_to_int(current[3]))
-        dtc.append(type+dig1+dig2+dig3+dig4)
-        current = current[4:]
-    return dtc
-#__________________________________________________________________________
 
 class OBDPort:
      """ OBDPort abstracts all communication with OBD-II device."""
-     def __init__(self,portnum,_notify_window,SERTIMEOUT,RECONNATTEMPTS):
+     def __init__(self, portnum, SERTIMEOUT, RECONNATTEMPTS):
          """Initializes port by resetting device and gettings supported PIDs. """
          # These should really be set by the user.
          baud     = 38400
@@ -81,13 +49,16 @@ class OBDPort:
          self.ELMver = "Unknown"
          self.State = 1 #state SERIAL is 1 connected, 0 disconnected (connection failed)
          self.port = None
-         
-         self._notify_window=_notify_window
+
          print "Opening interface (serial port)"
 
          try:
-             self.port = serial.Serial(portnum,baud, \
-             parity = par, stopbits = sb, bytesize = databits,timeout = to)
+             self.port = serial.Serial(portnum, \
+                                       baud, \
+                                       parity = par, \
+                                       stopbits = sb, \
+                                       bytesize = databits, \
+                                       timeout = to)
              
          except serial.SerialException as e:
              print e
@@ -193,7 +164,7 @@ class OBDPort:
                  if buffer != "" or c != ">": #if something is in buffer, add everything
                     buffer = buffer + c
                     
-             #print(self._notify_window, 3, "Get result:" + buffer)
+             #print "Get result:" + buffer
              if(buffer == ""):
                 return None
              return buffer
@@ -322,4 +293,3 @@ class OBDPort:
                     line = "%.6f,\t%s\n" % (now - start_time, data[1])
                     file.write(line)
                     file.flush()
-          
