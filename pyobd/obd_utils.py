@@ -1,5 +1,4 @@
 import serial
-import platform
 import errno
 
 # returns boolean for port availability

@@ -36,7 +36,6 @@ GET_DTC_COMMAND   = "03"
 CLEAR_DTC_COMMAND = "04"
 GET_FREEZE_DTC_COMMAND = "07"
 
-from debugEvent import debug_display
 
 #__________________________________________________________________________
 def decrypt_dtc_code(code):
@@ -84,7 +83,7 @@ class OBDPort:
          self.port = None
          
          self._notify_window=_notify_window
-         debug_display(self._notify_window, 1, "Opening interface (serial port)")
+         print "Opening interface (serial port)"
 
          try:
              self.port = serial.Serial(portnum,baud, \
@@ -95,8 +94,8 @@ class OBDPort:
              self.State = 0
              return None
              
-         debug_display(self._notify_window, 1, "Interface successfully " + self.port.portstr + " opened")
-         debug_display(self._notify_window, 1, "Connecting to ECU...")
+         print "Interface successfully " + self.port.portstr + " opened"
+         print "Connecting to ECU..."
          
          try:
             self.send_command("atz")   # initialize
@@ -110,9 +109,9 @@ class OBDPort:
             self.State = 0
             return None
          
-         debug_display(self._notify_window, 2, "atz response:" + self.ELMver)
+         print "atz response:" + self.ELMver
          self.send_command("ate0")  # echo off
-         debug_display(self._notify_window, 2, "ate0 response:" + self.get_result())
+         print "ate0 response:" + self.get_result()
          self.send_command("0100")
          ready = self.get_result()
          
@@ -120,7 +119,7 @@ class OBDPort:
             self.State = 0
             return None
             
-         debug_display(self._notify_window, 2, "0100 response:" + ready)
+         print "0100 response:" + ready
          return None
               
      def close(self):
@@ -141,7 +140,7 @@ class OBDPort:
              for c in cmd:
                  self.port.write(c)
              self.port.write("\r\n")
-             #debug_display(self._notify_window, 3, "Send command:" + cmd)
+             #print "Send command:" + cmd
 
      def interpret_result(self,code):
          """Internal use only: not a public interface"""
@@ -194,12 +193,12 @@ class OBDPort:
                  if buffer != "" or c != ">": #if something is in buffer, add everything
                     buffer = buffer + c
                     
-             #debug_display(self._notify_window, 3, "Get result:" + buffer)
+             #print(self._notify_window, 3, "Get result:" + buffer)
              if(buffer == ""):
                 return None
              return buffer
          else:
-            debug_display(self._notify_window, 3, "NO self.port!")
+            print "NO self.port!"
          return None
 
      # get sensor value from command
