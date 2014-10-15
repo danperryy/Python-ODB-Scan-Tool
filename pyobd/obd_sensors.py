@@ -128,15 +128,17 @@ def hex_to_bitstring(str):
                 bitstring += '0'                
     return bitstring
 
+
 class Sensor:
     def __init__(self, shortName, sensorName, sensorcommand, sensorValueFunction, u):
         self.shortname = shortName
-        self.name = sensorName
-        self.cmd  = sensorcommand
-        self.value= sensorValueFunction
-        self.unit = u
+        self.name      = sensorName
+        self.cmd       = sensorcommand
+        self.value     = sensorValueFunction
+        self.unit      = u
 
-SENSORS = [
+
+sensors = [
     Sensor("pids"                  , "Supported PIDs"				, "0100" , hex_to_bitstring ,""       ), 
     Sensor("dtc_status"            , "S-S DTC Cleared"				, "0101" , dtc_decrypt      ,""       ),    
     Sensor("dtc_ff"                , "DTC C-F-F"					, "0102" , cpass            ,""       ),      
