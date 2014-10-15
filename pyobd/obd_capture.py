@@ -19,7 +19,7 @@ class OBD_Capture():
         portnames = scanSerial()
         print portnames
         for port in portnames:
-            self.port = obd_io.OBDPort(port, None, 2, 2)
+            self.port = obd_io.OBDPort(port, 2, 2)
             if(self.port.State == 0):
                 self.port.close()
                 self.port = None

@@ -35,25 +35,32 @@ CLEAR_DTC_COMMAND = "04"
 GET_FREEZE_DTC_COMMAND = "07"
 
 
+class State():
+    """ Enum for connection states """
+    Unconnected, Connected = range(2)
+
 
 class OBDPort:
      """ OBDPort abstracts all communication with OBD-II device."""
-     def __init__(self, portnum, SERTIMEOUT, RECONNATTEMPTS):
+
+     def __init__(self, portname, timeout):
          """Initializes port by resetting device and gettings supported PIDs. """
+
          # These should really be set by the user.
          baud     = 38400
          databits = 8
          par      = serial.PARITY_NONE  # parity
          sb       = 1                   # stop bits
-         to       = SERTIMEOUT
+         to       = timeout
+
          self.ELMver = "Unknown"
-         self.State = 1 #state SERIAL is 1 connected, 0 disconnected (connection failed)
-         self.port = None
+         self.state  = State.Connected
+         self.port   = None
 
          print "Opening interface (serial port)"
 
          try:
-             self.port = serial.Serial(portnum, \
+             self.port = serial.Serial(portname, \
                                        baud, \
                                        parity = par, \
                                        stopbits = sb, \
@@ -62,7 +69,7 @@ class OBDPort:
              
          except serial.SerialException as e:
              print e
-             self.State = 0
+             self.state = State.Unconnected
              return None
              
          print "Interface successfully " + self.port.portstr + " opened"
@@ -72,12 +79,12 @@ class OBDPort:
             self.send_command("atz")   # initialize
             time.sleep(1)
          except serial.SerialException:
-            self.State = 0
+            self.state = State.Unconnected
             return None
             
          self.ELMver = self.get_result()
-         if(self.ELMver is None):
-            self.State = 0
+         if self.ELMver is None :
+            self.state = State.Unconnected
             return None
          
          print "atz response:" + self.ELMver
@@ -86,8 +93,8 @@ class OBDPort:
          self.send_command("0100")
          ready = self.get_result()
          
-         if(ready is None):
-            self.State = 0
+         if ready is None:
+            self.state = State.Unconnected
             return None
             
          print "0100 response:" + ready
@@ -96,7 +103,7 @@ class OBDPort:
      def close(self):
          """ Resets device and closes all associated filehandles"""
          
-         if (self.port!= None) and self.State==1:
+         if (self.port != None) and self.state == State.Connected:
             self.send_command("atz")
             self.port.close()
          
