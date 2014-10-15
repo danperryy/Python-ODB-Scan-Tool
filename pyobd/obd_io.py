@@ -70,6 +70,9 @@ class OBDPort:
 		except serial.SerialException as e:
 			self.error(e)
 			return
+		except OSError as e:
+			self.error(e)
+			return
 
 		print "Interface successfully opened on " + self.get_port_name()
 		print "Connecting to ECU..."
@@ -102,9 +105,13 @@ class OBDPort:
 	def error(self, msg=None):
 		""" called when connection error has been encountered """
 		print "Connection Error:"
+
 		if msg is not None:
 			print msg
-		self.port.close()
+		
+		if self.port is not None:
+			self.port.close()
+		
 		self.state = State.Unconnected
 
 

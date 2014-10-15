@@ -1,25 +1,26 @@
 #!/usr/bin/env python
 
-from obd_io import OBDPort
-from obd_io import State
-import serial
-import platform
-import obd_sensors
 import time
 
-from obd_utils import scanSerial
+from obd_io import State
+from obd_io import OBDPort
 from obd_sensors import sensors
+from obd_utils import scanSerial
 
 
 
 class OBD():
-    """ class representing an OBD-II connection, with it's assorted sensors """
+    """ class representing an OBD-II connection with it's assorted sensors """
 
-    def __init__(self):
+    def __init__(self, portstr=None):
         self.port = None
         self.sensors = []
         self.supportedSensors = []
         self.unsupportedSensors = []
+
+        # initialize by connecting and loading sensors
+        if self.connect(portstr):
+            self.load_sensors()
 
 
     def connect(self, portstr=None):
@@ -27,7 +28,6 @@ class OBD():
 
         if portstr is None:
             portnames = scanSerial()
-            print portnames
 
             for port in portnames:
 
@@ -40,12 +40,15 @@ class OBD():
             self.port = OBDPort(portstr)
 
         return self.is_connected()
-            
+
+
     def is_connected(self):
         return (self.port is not None) and (self.port.state == State.Connected)
 
+
     def get_port_name(self):
         return self.port.get_port_name()
+
         
     def getSupportedSensorList(self):
         return self.supportedSensorList 
@@ -76,6 +79,7 @@ class OBD():
         for sensor in self.sensors:
             print sensor.name
 
+
     def valueOf(sensor):
         return self.port.get_sensor_value(sensor)
 
@@ -84,11 +88,11 @@ class OBD():
 if __name__ == "__main__":
 
     o = OBD()
-    o.connect()
+    #o.connect()
     time.sleep(3)
     if not o.is_connected():
         print "Not connected"
     else:
         print "Connected to " + o.get_port_name()
-        o.load_sensors()
+        #o.load_sensors()
         o.printSensors()
