@@ -11,7 +11,7 @@ def tryPort(portStr):
 
 	except serial.SerialException:
 		pass
-	except OSError, e:
+	except OSError as e:
 		if e.errno != errno.ENOENT: # permit "no such file or directory" errors
 			raise e
 

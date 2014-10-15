@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import obd_io
+from obd_io import OBDPort
+from obd_io import State
 import serial
 import platform
 import obd_sensors
@@ -10,27 +11,36 @@ import time
 from obd_utils import scanSerial
 
 class OBD_Capture():
+
     def __init__(self):
         self.supportedSensorList = []
         self.port = None
         localtime = time.localtime(time.time())
 
-    def connect(self):
-        portnames = scanSerial()
-        print portnames
-        for port in portnames:
-            self.port = obd_io.OBDPort(port, 2, 2)
-            if(self.port.State == 0):
-                self.port.close()
-                self.port = None
-            else:
-                break
+    def connect(self, portstr=None):
+        """ attempts to instantiate an OBDPort object. Return boolean for success/failure"""
 
-        if(self.port):
-            print "Connected to "+self.port.port.name
+        if portstr is None:
+            portnames = scanSerial()
+            print portnames
+
+            for port in portnames:
+
+                self.port = OBDPort(port)
+
+                if(self.port.state == State.Connected):
+                    # success! stop searching for serial
+                    break
+        else:
+            self.port = OBDPort(portstr)
+
+        return self.is_connected()
             
     def is_connected(self):
-        return self.port
+        return (self.port is not None) and (self.port.state == State.Connected)
+
+    def get_port_name(self):
+        return self.port.port.name
         
     def getSupportedSensorList(self):
         return self.supportedSensorList 
@@ -74,6 +84,7 @@ class OBD_Capture():
 
         return text
 
+
 if __name__ == "__main__":
 
     o = OBD_Capture()
@@ -82,4 +93,5 @@ if __name__ == "__main__":
     if not o.is_connected():
         print "Not connected"
     else:
+        print "Connected to " + o.get_port_name()
         o.capture_data()
