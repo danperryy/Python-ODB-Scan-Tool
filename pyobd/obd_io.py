@@ -214,7 +214,7 @@ class OBDPort:
 
 		return data
 
-
+	'''
 	def get_tests_MIL(self):
 		statusText=["Unsupported","Supported - Completed","Unsupported","Supported - Incompleted"]
 
@@ -232,6 +232,7 @@ class OBDPort:
 			statusTrans.append(statusText[statusRes[i]]) 
 
 		return statusTrans
+	'''
 
 	#
 	# fixme: j1979 specifies that the program should poll until the number
@@ -290,17 +291,3 @@ class OBDPort:
 		self.send_command(CLEAR_DTC_COMMAND)     
 		r = self.get_result()
 		return r
-
-	def log(self, sensor_index, filename): 
-		file = open(filename, "w")
-		start_time = time.time() 
-		if file:
-			data = self.sensor(sensor_index)
-			file.write("%s     \t%s(%s)\n" % \
-						 ("Time", string.strip(data[0]), data[2])) 
-			while 1:
-				now = time.time()
-				data = self.sensor(sensor_index)
-				line = "%.6f,\t%s\n" % (now - start_time, data[1])
-				file.write(line)
-				file.flush()

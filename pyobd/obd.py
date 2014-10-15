@@ -49,10 +49,6 @@ class OBD():
     def get_port_name(self):
         return self.port.get_port_name()
 
-        
-    def getSupportedSensorList(self):
-        return self.supportedSensorList 
-
 
     def load_sensors(self):
         """ queries for available sensors, and compiles lists of indices and sensor objects """
@@ -77,7 +73,7 @@ class OBD():
 
     def printSensors(self):
         for sensor in self.sensors:
-            print sensor.name
+            print str(sensor)
 
 
     def valueOf(sensor):

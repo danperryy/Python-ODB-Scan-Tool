@@ -137,6 +137,9 @@ class Sensor:
         self.value     = sensorValueFunction
         self.unit      = u
 
+    def __str__(self):
+        return self.name
+
 
 sensors = [
     Sensor("pids"                  , "Supported PIDs"				, "0100" , hex_to_bitstring ,""       ), 
