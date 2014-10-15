@@ -68,23 +68,23 @@ class OBDPort:
 									  timeout = timeout)
 
 		except serial.SerialException as e:
-			error(e)
-			return None
+			self.error(e)
+			return
 
-		print "Interface successfully " + self.port.portstr + " opened"
+		print "Interface successfully opened on " + self.get_port_name()
 		print "Connecting to ECU..."
 
 		try:
 			self.send_command("atz")   # initialize
 			time.sleep(1)
 		except serial.SerialException as e:
-			error(e)
-			return None
+			self.error(e)
+			return
 
 		self.ELMver = self.get_result()
 		if self.ELMver is None :
-			error("ELMver returned None")
-			return None
+			self.error("ELMver returned None")
+			return
 
 		print "atz response:" + self.ELMver
 		self.send_command("ate0")  # echo off
@@ -94,10 +94,10 @@ class OBDPort:
 
 		if ready is None:
 			self.state = State.Unconnected
-			return None
+			return
 
 		print "0100 response:" + ready
-		return None
+
 
 	def error(self, msg=None):
 		""" called when connection error has been encountered """
@@ -106,6 +106,10 @@ class OBDPort:
 			print msg
 		self.port.close()
 		self.state = State.Unconnected
+
+
+	def get_port_name(self):
+		return self.port.portstr if (self.port is not None) else "No Port"
 
 
 	def close(self):
