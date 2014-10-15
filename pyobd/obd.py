@@ -52,7 +52,8 @@ class OBD():
 
 
     def load_sensors(self):
-        
+        """ queries for available sensors, and compiles lists of indices and sensor objects """
+
         self.sensors = []
         self.supportedSensors = []
         self.unsupportedSensors = []
@@ -71,6 +72,11 @@ class OBD():
                 self.unsupportedSensors.append(i)
 
 
+    def printSensors(self):
+        for sensor in self.sensors:
+            print sensor.name
+
+
 
 if __name__ == "__main__":
 
@@ -81,4 +87,5 @@ if __name__ == "__main__":
         print "Not connected"
     else:
         print "Connected to " + o.get_port_name()
-        o.capture_data()
+        o.load_sensors()
+        o.printSensors()
