@@ -13,7 +13,7 @@ from obd_sensors import sensors
 
 
 class OBD():
-    """ class representing an OBD-II connection """
+    """ class representing an OBD-II connection, with it's assorted sensors """
 
     def __init__(self):
         self.port = None
@@ -75,6 +75,9 @@ class OBD():
     def printSensors(self):
         for sensor in self.sensors:
             print sensor.name
+
+    def valueOf(sensor):
+        return self.port.get_sensor_value(sensor)
 
 
 

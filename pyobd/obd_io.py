@@ -30,8 +30,8 @@ import obd_sensors
 from obd_utils import hex_to_int
 
 
-GET_DTC_COMMAND   = "03"
-CLEAR_DTC_COMMAND = "04"
+GET_DTC_COMMAND        = "03"
+CLEAR_DTC_COMMAND      = "04"
 GET_FREEZE_DTC_COMMAND = "07"
 
 
@@ -188,11 +188,11 @@ class OBDPort:
 				return None
 			return buffer
 		else:
-			print "NO self.port!"
+			print "No port!"
 		return None
 
 	# get sensor value from command
-	def get_sensor_value(self,sensor):
+	def get_sensor_value(self, sensor):
 		"""Internal use only: not a public interface"""
 		cmd = sensor.cmd
 		self.send_command(cmd)
@@ -207,21 +207,6 @@ class OBDPort:
 
 		return data
 
-	# return string of sensor name and value from sensor index
-	def sensor(self , sensor_index):
-		"""Returns 3-tuple of given sensors. 3-tuple consists of
-		(Sensor Name (string), Sensor Value (string), Sensor Unit (string) ) """
-		sensor = obd_sensors.SENSORS[sensor_index]
-		r = self.get_sensor_value(sensor)
-		return (sensor.name,r, sensor.unit)
-
-
-	def sensor_names(self):
-		"""Internal use only: not a public interface"""
-		names = []
-		for s in obd_sensors.SENSORS:
-			names.append(s.name)
-		return names
 
 	def get_tests_MIL(self):
 		statusText=["Unsupported","Supported - Completed","Unsupported","Supported - Incompleted"]
