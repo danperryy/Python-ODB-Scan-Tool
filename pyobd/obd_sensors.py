@@ -34,7 +34,11 @@ def throttle_pos(code):
     code = hex_to_int(code)
     return code * 100.0 / 255.0
 
-def intake_m_pres(code): # in kPa
+def fuel_pressure(code): # in kPa
+	code = hex_to_int(code)
+	return (code * 3) / 0.14504
+
+def intake_pressure(code): # in kPa
     code = hex_to_int(code)
     return code / 0.14504
   
@@ -157,8 +161,8 @@ class sensors():
 		Sensor("Long_FUEL_TRIM_1"	, "Long Term Fuel Trim - Bank 1"	, "0107" , fuel_trim_percent, "%"      ),
 		Sensor("SHORT_FUEL_TRIM_2"	, "Short Term Fuel Trim - Bank 2"	, "0108" , fuel_trim_percent, "%"      ),
 		Sensor("LONG_FUEL_TRIM_2"	, "Long Term Fuel Trim - Bank 2"	, "0109" , fuel_trim_percent, "%"      ),
-		Sensor("FUEL_PRESSURE"		, "Fuel Pressure"					, "010A" , cpass            , ""       ),
-		Sensor("INTAKE_PRESSURE"	, "Intake Manifold Pressure"		, "010B" , intake_m_pres    , "psi"    ),
+		Sensor("FUEL_PRESSURE"		, "Fuel Pressure"					, "010A" , fuel_pressure    , "psi"    ),
+		Sensor("INTAKE_PRESSURE"	, "Intake Manifold Pressure"		, "010B" , intake_pressure  , "psi"    ),
 		Sensor("RPM"				, "Engine RPM"						, "010C1", rpm              , ""       ),
 		Sensor("SPEED"				, "Vehicle Speed"					, "010D1", speed            , "MPH"    ),
 		Sensor("TIMING_ADVANCE"		, "Timing Advance"					, "010E" , timing_advance   , "degrees"),
