@@ -1,7 +1,7 @@
 pyobd
 =====
 
-<pre>OBD-Pi: Raspberry Pi Displaying Car Diagnostics (OBD-II) Data On An Aftermarket Head Unit
+### OBD-Pi: Raspberry Pi Displaying Car Diagnostics (OBD-II) Data On An Aftermarket Head Unit
 
 In this tutorial you will learn how to connect your Raspberry Pi to a Bluetooth OBD-II adapter and display realtime engine data to your cars aftermarket head unit.
 
@@ -33,23 +33,23 @@ We'll be doing this from a console cable connection, but you can just as easily 
 Note: For the following command line instructions, do not type the '#', that is only to indicate that it is a command to enter. 
 
 Before proceeding, run:
-#  sudo apt-get update
-#  sudo apt-get upgrade
-#  sudo apt-get autoremove
-#  sudo reboot
+	#  sudo apt-get update
+	#  sudo apt-get upgrade
+	#  sudo apt-get autoremove
+	#  sudo reboot
 
 Install these components using the command:
-#  sudo apt-get install python-serial
-#  sudo apt-get install bluetooth bluez-utils blueman
-#  sudo apt-get install python-wxgtk2.8 python-wxtools wx2.8-i18n libwxgtk2.8-dev
-#  sudo apt-get install git-core
-#  sudo reboot 
+	#  sudo apt-get install python-serial
+	#  sudo apt-get install bluetooth bluez-utils blueman
+	#  sudo apt-get install python-wxgtk2.8 python-wxtools wx2.8-i18n libwxgtk2.8-dev
+	#  sudo apt-get install git-core
+	#  sudo reboot 
 
 Next, download the OBD-Pi Software direct from GitHub (https://github.com/Pbartek/pyobd-pi.git)
 
 Or using the command:
-#  cd ~
-#  git clone https://github.com/Pbartek/pyobd-pi.git
+	#  cd ~
+	#  git clone https://github.com/Pbartek/pyobd-pi.git
 
 Vehicle Installation
 The vehicle installation is quite simple.
@@ -65,16 +65,16 @@ The vehicle installation is quite simple.
 5. Finally turn your key to the ON position and navigate your head unit to Auxiliary input.
 
 6. Enter your login credentials and run:
-#  startx
+	#  startx
 
 7. Launch BlueZ, the Bluetooth stack for Linux. Pair + Trust your ELM327 Bluetooth Adapter and Connect To: SPP Dev. You should see the Notification "Serial port connected to /dev/rfcomm0"
 
 Note: Click the Bluetooth icon, bottom right (Desktop) to configure your device. Right click on your Bluetooth device to bring up Connect To: SPP Dev.
 
 8. Open up Terminal and run:
-#  cd pyobd-pi
-#  sudo su
-#  python obd_gui.py
+	#  cd pyobd-pi
+	#  sudo su
+	#  python obd_gui.py
 
 Use the Left and Right arrow key to cycle through the gauge display.
 Note: Left and Right mouse click will also work
@@ -83,10 +83,10 @@ To exit the program just press Control and C or Alt and Esc.
 Update: 
 Data Logging
 If you would like to log your data run:
-#  cd pyobd-pi
-#  python obd_recorder.py
+	#  cd pyobd-pi
+	#  python obd_recorder.py
 
 The logged data file will be saved under: 
 /home/username/pyobd-pi/log/
 
-Enjoy and drive safe!</pre>
+Enjoy and drive safe!
