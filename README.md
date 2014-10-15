@@ -6,6 +6,7 @@ pyobd
 In this tutorial you will learn how to connect your Raspberry Pi to a Bluetooth OBD-II adapter and display realtime engine data to your cars aftermarket head unit.
 
 Hardware Required:
+
 1. Raspberry Pi
 2. Aftermarket head unit (Note: Must support Auxiliary input)
 3. Plugable USB Bluetooth 4.0 Low Energy Micro Adapter 
@@ -69,7 +70,7 @@ The vehicle installation is quite simple.
 
 6. Enter your login credentials and run:
 
-		\#  startx
+		#  startx
 
 7. Launch BlueZ, the Bluetooth stack for Linux. Pair + Trust your ELM327 Bluetooth Adapter and Connect To: SPP Dev. You should see the Notification "Serial port connected to /dev/rfcomm0"
 
@@ -77,9 +78,9 @@ Note: Click the Bluetooth icon, bottom right (Desktop) to configure your device.
 
 8. Open up Terminal and run:
 
-		\#  cd pyobd-pi
-		\#  sudo su
-		\#  python obd_gui.py
+		#  cd pyobd-pi
+		#  sudo su
+		#  python obd_gui.py
 
 Use the Left and Right arrow key to cycle through the gauge display.
 Note: Left and Right mouse click will also work
