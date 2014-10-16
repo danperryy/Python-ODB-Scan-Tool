@@ -29,7 +29,7 @@ After installing the library, simply import pyobd, and create a new OBD connecti
 
 	# OR
 
-	ports = obd.scanSerial()
+	ports = obd.scanSerial() # return list of valid USB or RF ports
 	print ports
 	connection = obd.OBD(ports[0]) # connect to the first port in the list
 
@@ -38,26 +38,26 @@ Once a connection is made, pyOBD-IO will load a list of the available sensors in
 
 	import obd
 
-	connection = obd.OBD() # create connection
+	connection = obd.OBD()
 	
 	for sensor in connection.supportedSensors:
-		print str(sensor) # prints the sensor name
-		print connection.valueOf(sensor)
+		print str(sensor)                 # prints the sensor name
+		print connection.valueOf(sensor)  # gets and prints the sensor's value
+		print sensor.unit                 # prints the sensors units
 
 
 Sensors can also be explicitly targetted for values. The hasSensor() function will determine whether or not your car has the requested sensor.
 
 	import obd
 
-	connection = obd.OBD() # create connection object
+	connection = obd.OBD()
 
-	if connection.hasSensor(obd.sensors.RPM):
-		print connection.valueOf(obd.sensors.RPM)
+	if connection.hasSensor(obd.sensors.RPM):       # check for existance of sensor
+		print connection.valueOf(obd.sensors.RPM)   # get value of sensor
 
 
-Here is a list of currently supported sensors with pyOBD-IO:
+Here are the currently supported sensors with pyOBD-IO:
 
-+ Supported PIDs
 + S-S DTC Cleared
 + Calculated Engine Load
 + Engine Coolant Temperature
