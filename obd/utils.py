@@ -2,6 +2,32 @@ import serial
 import errno
 
 
+
+class Units:
+	NONE      = None
+	BITSTRING = "Bit String"
+	PERCENT   = "Percent"
+	VOLT      = "Volt"
+	F         = "F"
+	C         = "C"
+	SEC       = "Second"
+	MIN       = "Minute"
+	KPA       = "kPa"
+	PSI       = "PSI"
+	KPH       = "KPH"
+	MPH       = "MPH"
+	DEGREES   = "Degrees"
+
+
+class Value():
+	def __init__(self, value, unit):
+		self.value = value
+		self.unit = unit
+
+	def __str__(self):
+		return "%s %s" % (str(self.value), str(self.unit))
+
+
 def tryPort(portStr):
 	"""returns boolean for port availability"""
 	try:
