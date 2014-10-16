@@ -130,7 +130,7 @@ class OBDPort:
 		self.ELMver = "Unknown"
 
 	def send_command(self, cmd):
-		"""Internal use only: not a public interface"""
+
 		if self.port:
 			self.port.flushOutput()
 			self.port.flushInput()
@@ -140,7 +140,7 @@ class OBDPort:
 			#print "Send command:" + cmd
 
 	def interpret_result(self,code):
-		"""Internal use only: not a public interface"""
+
 		# Code will be the string returned from the device.
 		# It should look something like this:
 		# '41 11 0 0\r\r'
@@ -167,40 +167,23 @@ class OBDPort:
 		return code
 
 	def get_result(self):
-		"""Internal use only: not a public interface"""
-		#time.sleep(0.01)
-		repeat_count = 0
+
 		if self.port is not None:
-			buffer = ""
+			result = ""
 			while 1:
 				c = self.port.read(1)
-				if len(c) == 0:
-					if(repeat_count == 5):
-						break
-					print "Got nothing\n"
-					repeat_count = repeat_count + 1
+				if not c or c == ">":
+					break
+				if c == "\x00":
 					continue
-
-				if c == '\r':
-					continue
-
-				if c == ">":
-					break;
-
-				if buffer != "" or c != ">": #if something is in buffer, add everything
-					buffer = buffer + c
-
-			#print "Get result:" + buffer
-			if(buffer == ""):
-				return None
-			return buffer
+				result += c
+			return result
 		else:
-			print "No port!"
-		return None
+			return "NORESPONSE"
 
 	# get sensor value from command
 	def get_sensor_value(self, sensor):
-		"""Internal use only: not a public interface"""
+
 		cmd = sensor.cmd
 		self.send_command(cmd)
 		data = self.get_result()
