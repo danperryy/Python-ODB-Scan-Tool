@@ -182,8 +182,8 @@ class sensors():
 		Sensor("OBD_STANDARDS"		, "OBD Standards Compliance"		, "011C" , cpass            , ""       ),
 		Sensor("O2_SENSORS_ALT"		, "O2 Sensors Present (alternate)"	, "011D" , cpass            , ""       ),
 		Sensor("AUX_INPUT_STATUS"	, "Auxiliary input status"			, "011E" , cpass            , ""       ),
-		Sensor("RUN_TIME"			, "Engine Start MIN"				, "011F" , sec_to_min       , "min"    ),
-		#Sensor("RUN_TIME_MIL"		, "Engine Run MIL"					, "014D" , sec_to_min       , "min"    ),
+		Sensor("RUN_TIME"			, "Engine Run Time"				, "011F" , sec_to_min       , "min"    ),
+		#Sensor("RUN_TIME_MIL"		, "Engine Run Time MIL"					, "014D" , sec_to_min       , "min"    ),
     ]
 
 # assemble the dict, to access sensors by name
