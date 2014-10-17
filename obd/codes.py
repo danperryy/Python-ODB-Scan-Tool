@@ -2094,8 +2094,8 @@ pcodes = {
 
 pcode_classes = {
     "P00XX": "Fuel and Air Metering and Auxiliary Emission Controls",
-    "P01XX": "Fuel and Air Merering",
-    "P02XX": "Fuel and Air Merering",
+    "P01XX": "Fuel and Air Metering",
+    "P02XX": "Fuel and Air Metering",
     "P03XX": "Ignition System or Misfire",
     "P04XX": "Auxiliary Emission Controls",
     "P05XX": "Vehicle Speed, Idle Control, and Auxiliary Inputs",
@@ -2118,19 +2118,19 @@ pcode_classes = {
     }
 
 ptest= [
-      "DTCs:",
-      "MIL:",
+      "DTCs",
+      "MIL",
       #A
-      "Misfire:",
-      "Fuel system:",
-      "Components:",
+      "Misfire",
+      "Fuel system",
+      "Components",
       #B,D
-      "Catalyst:",
-      "Heated Catalyst:",
-      "Evaporative system:",
-      "Secondary Air System:",
-      "A/C Refrigerant:" ,
-      "Oxygen Sensor:",
-      "Oxygen Sensor Heater:",
-      "EGR SystemC7:" ,
+      "Catalyst",
+      "Heated Catalyst",
+      "Evaporative system",
+      "Secondary Air System",
+      "A/C Refrigerant" ,
+      "Oxygen Sensor",
+      "Oxygen Sensor Heater",
+      "EGR SystemC7" ,
 ]

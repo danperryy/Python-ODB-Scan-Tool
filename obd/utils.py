@@ -3,20 +3,21 @@ import errno
 
 
 
-class Units:
-	NONE      = None
-	BITSTRING = "Bit String"
-	PERCENT   = "Percent"
-	VOLT      = "Volt"
-	F         = "F"
-	C         = "C"
-	SEC       = "Second"
-	MIN       = "Minute"
-	KPA       = "kPa"
-	PSI       = "PSI"
-	KPH       = "KPH"
-	MPH       = "MPH"
-	DEGREES   = "Degrees"
+class Unit:
+	NONE       = None
+	BITSTRING  = "Bit String"
+	PERCENT    = "Percent"
+	VOLT       = "Volt"
+	F          = "F"
+	C          = "C"
+	SEC        = "Second"
+	MIN        = "Minute"
+	KPA        = "kPa"
+	PSI        = "PSI"
+	KPH        = "KPH"
+	MPH        = "MPH"
+	DEGREES    = "Degrees"
+	GRAM_P_SEC = "Grams per Second"
 
 
 class Value():
