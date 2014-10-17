@@ -1,17 +1,6 @@
 
 
-from utils import Value, Unit
-
-
-def unhex(_hex):
-	return int(_hex, 16)
-
-def unbin(_bin):
-	return int(_bin, 2)
-
-def bitstring(_hex):
-	return bin(unhex(_hex))[2:]
-
+from utils import Value, Unit, unhex, unbin, bitstring
 
 
 
@@ -77,6 +66,11 @@ def maf(_hex):
 	v = v / 100.0
 	return Value(v, Unit.GRAM_P_SEC)
 
+# 0 to 655.35 seconds
+def seconds(_hex):
+	v = unhex(_hex)
+	return Value(v, Unit.SECONDS)
+
 
 # these functions draw data from the same PID
 def mil(_hex):
@@ -87,9 +81,26 @@ def dtc_count(_hex):
 	v = bitstring(_hex)
 	return unbin(v[1:8])
 
+# converts 2 bytes of hex into a DTC code
+def dtc(_hex):
+	dtc = ""
+	bits = bitstring(_hex[0])
 
+	dtc += ['P', 'C', 'B', 'U'][unbin(bits[0:2]))]
+	dtc += str(unbin(bits[2:4]))
+	dtc += _hex[1:4]
+	return dtc
 
+# converts a frame of 2-byte DTCs into a list of DTCs
+def dtc_frame(_hex):
+	code_length = 4 # number of hex chars consumed by one code
+	size = len(_hex / 4) # number of codes defined in THIS FRAME (not total)
+	codes = []
+	for n in range(size):
 
-def special_PID_01(_hex):
-	
+		start = code_length * n
+		end = start + code_length
+		
+		codes.append(dtc(_hex[start:end]))
 
+	return codes

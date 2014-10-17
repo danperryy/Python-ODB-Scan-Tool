@@ -6,6 +6,7 @@ import errno
 class Unit:
 	NONE       = None
 	BITSTRING  = "Bit String"
+	DTC        = "Diagnostic Trouble Code"
 	PERCENT    = "Percent"
 	VOLT       = "Volt"
 	F          = "F"
@@ -27,6 +28,16 @@ class Value():
 
 	def __str__(self):
 		return "%s %s" % (str(self.value), str(self.unit))
+
+
+def unhex(_hex):
+	return int(_hex, 16)
+
+def unbin(_bin):
+	return int(_bin, 2)
+
+def bitstring(_hex):
+	return bin(unhex(_hex))[2:]
 
 
 def tryPort(portStr):
@@ -71,39 +82,3 @@ def scanSerial():
 	'''
 	
 	return available
-
-
-
-def hex_to_int(str):
-    return int(str, 16)
-
-
-
-def decrypt_dtc_code(code):
-	"""Returns the 5-digit DTC code from hex encoding"""
-	dtc = []
-	current = code
-	for i in range(0,3):
-		if len(current)<4:
-			raise "Tried to decode bad DTC: %s" % code
-
-		tc = hex_to_int(current[0]) #typecode
-		tc = tc >> 2
-		if   tc == 0:
-			type = "P"
-		elif tc == 1:
-			type = "C"
-		elif tc == 2:
-			type = "B"
-		elif tc == 3:
-			type = "U"
-		else:
-			raise tc
-
-		dig1 = str(hex_to_int(current[0]) & 3)
-		dig2 = str(hex_to_int(current[1]))
-		dig3 = str(hex_to_int(current[2]))
-		dig4 = str(hex_to_int(current[3]))
-		dtc.append(type+dig1+dig2+dig3+dig4)
-		current = current[4:]
-	return dtc

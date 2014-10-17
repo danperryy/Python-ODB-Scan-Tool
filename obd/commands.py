@@ -97,7 +97,7 @@ __mode1__ = [
 	OBDCommand("OBD_STANDARDS"		, "OBD Standards Compliance"		, "01", "1C" , 1, noop				),
 	OBDCommand("O2_SENSORS_ALT"		, "O2 Sensors Present (alternate)"	, "01", "1D" , 1, noop				),
 	OBDCommand("AUX_INPUT_STATUS"	, "Auxiliary input status"			, "01", "1E" , 1, noop				),
-	OBDCommand("RUN_TIME"			, "Engine Run Time"					, "01", "1F" , 2, sec_to_min		),
+	OBDCommand("RUN_TIME"			, "Engine Run Time"					, "01", "1F" , 2, seconds			),
 	#OBDCommand("RUN_TIME_MIL"		, "Engine Run Time MIL"				, "01", "4D" , sec_to_min			),
 ]
 
