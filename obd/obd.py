@@ -2,9 +2,8 @@
 
 import time
 
-from obd_port import State
-from obd_port import OBDPort
-from obd_sensors import sensors
+from port import OBDPort, State
+from commands import sensors, specials, commands
 from obd_utils import scanSerial
 
 
@@ -14,7 +13,7 @@ class OBD():
 
 	def __init__(self, portstr=None):
 		self.port = None
-		self.supportedSensors = []
+		self.supportedCommands = []
 
 		# initialize by connecting and loading sensors
 		if self.connect(portstr):
@@ -51,32 +50,33 @@ class OBD():
 	def load_sensors(self):
 		""" queries for available sensors, and compiles lists of indices and sensor objects """
 
-		self.supportedSensors = []
+		self.supportedCommands = []
 
 		# Find supported sensors - by getting PIDs from OBD (sensor zero)
 		# its a string of binary 01010101010101 
 		# 1 means the sensor is supported
-		supported = self.valueOf(sensors.PIDS)
+		supported = self.sendCommand(commands[1][0]) # mode 01, command 00
 
-		count = min(len(supported), len(sensors.by_PID))
+		count = min(len(supported), len(commands[1]))
 
 		# loop through PIDs binary
 		for i in range(count):
 			if supported[i] == "1":
-				sensor = sensors.by_PID[i]
-				sensor.supported = True
-				self.supportedSensors.append(sensor)
+				c = commands[1][i]
+				c.supported = True
+				self.supportedCommands.append(c)
 
 
-	def printSensors(self):
-		for sensor in self.supportedSensors:
-			print str(sensor)
+	def printCommands(self):
+		for c in self.supportedCommands:
+			print str(c)
 
-	def hasSensor(self, sensor):
-		return sensor.supported
+	def hasCommand(self, c):
+		return c.supported
 
-	def valueOf(self, sensor):
+	def sendCommand(self, command):
 		return self.port.get_sensor_value(sensor)
+
 
 
 
