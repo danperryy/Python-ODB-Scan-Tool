@@ -70,6 +70,9 @@ class OBDCommand():
 			# return the decoded value object
 			return self.decode(_hex)
 
+	def __str__(self):
+		return self.desc
+
 
 
 '''
@@ -80,7 +83,7 @@ Define command tables
 
 __mode1__ = [
 	#					sensor name							description					  mode  cmd bytes		decoder
-	OBDCommand("PIDS_A"						, "Supported PIDs [01-20]"					, "01", "00", 4, noop				, True), # the first PID getter is assumed to be supported
+	OBDCommand("PIDS_A"						, "Supported PIDs [01-20]"					, "01", "00", 4, pid				, True), # the first PID getter is assumed to be supported
 	OBDCommand("STATUS"						, "Status since DTCs cleared"				, "01", "01", 4, status				),
 	OBDCommand("FREEZE_DTC"					, "Freeze DTC"								, "01", "02", 2, noop				),
 	OBDCommand("FUEL_STATUS"				, "Fuel System Status"						, "01", "03", 2, fuel_status		),
@@ -114,7 +117,7 @@ __mode1__ = [
 	OBDCommand("RUN_TIME"					, "Engine Run Time"							, "01", "1F", 2, seconds			),
 
 	#					sensor name							description					  mode  cmd bytes		decoder
-	OBDCommand("PIDS_B"						, "Supported PIDs [21-40]"					, "01", "20", 4, noop				),
+	OBDCommand("PIDS_B"						, "Supported PIDs [21-40]"					, "01", "20", 4, pid				),
 	OBDCommand("DISTANCE_W_MIL"				, "Distance Traveled with MIL on"			, "01", "21", 2, distance			),
 	OBDCommand("FUEL_RAIL_PRESSURE_VAC"		, "Fuel Rail Pressure (relative to vacuum)"	, "01", "22", 2, fuel_pres_vac		),
 	OBDCommand("FUEL_RAIL_PRESSURE_DIRECT"	, "Fuel Rail Pressure (direct inject)"		, "01", "23", 2, fuel_pres_direct	),
@@ -148,7 +151,7 @@ __mode1__ = [
 	OBDCommand("CATALYST_TEMP_B2S2"			, "Catalyst Temperature: Bank 2 - Sensor 2"	, "01", "3F", 2, catalyst_temp		),
 
 	#					sensor name							description					  mode  cmd bytes		decoder
-	OBDCommand("PIDS_C"						, "Supported PIDs [41-60]"					, "01", "40", 4, noop				),
+	OBDCommand("PIDS_C"						, "Supported PIDs [41-60]"					, "01", "40", 4, pid				),
 	OBDCommand("STATUS_DRIVE_CYCLE"			, "Monitor status this drive cycle"			, "01", "41", 4, todo				),
 	OBDCommand("CONTROL_MODULE_VOLTAGE"		, "Control module voltage"					, "01", "42", 2, todo				),
 	OBDCommand("ABSOLUTE_LOAD"				, "Absolute load value"						, "01", "43", 2, todo				),
@@ -216,6 +219,8 @@ Assemble the command tables by mode, and allow access by sensor name
 
 class Commands():
 	def __init__(self):
+
+		# allow commands to be accessed by mode and PID
 		self.modes = [
 			[],
 			__mode1__,
@@ -233,7 +238,10 @@ class Commands():
 				self.__dict__[c.name] = c
 
 	def __getitem__(self, key):
-		return self.modes[key]
+		if isinstance(key, int):
+			return self.modes[key]
+		elif isinstance(key, basestring):
+			return self.__dict__[key]
 
 	def __len__(self):
 		l = 0

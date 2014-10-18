@@ -48,7 +48,7 @@ class OBD():
 
 
 	def load_commands(self):
-		""" queries for available sensors, and compiles lists of indices and sensor objects """
+		""" queries for available PIDs, and compiles lists of command objects """
 
 		self.supportedCommands = []
 
@@ -74,8 +74,11 @@ class OBD():
 	def has_command(self, c):
 		return c.supported
 
-	def send_command(self, command):
-		return self.port.get_sensor_value(command)
+	def query(self, command):
+		if self.has_command(command):
+			return self.port.get_sensor_value(command)
+		else:
+
 
 
 

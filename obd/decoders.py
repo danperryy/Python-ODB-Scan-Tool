@@ -12,6 +12,11 @@ def todo(_hex):
 def noop(_hex):
 	return Value(_hex, Unit.NONE)
 
+# hex in, bitstring out
+def pid(_hex):
+	v = bitstring(_hex)
+	return Value(v, Unit.NONE)
+
 '''
 Sensor decoders
 Return Value object with value and units

@@ -56,15 +56,10 @@ Sensors can also be explicitly targetted for values. The hasSensor() function wi
 		print connection.valueOf(obd.sensors.RPM)   # get value of sensor
 
 
-Here are the currently supported sensors with pyOBD-IO:
+Here are a few of the currently supported commands (for a full list, see commands.py):
 
-+ S-S DTC Cleared
 + Calculated Engine Load
 + Engine Coolant Temperature
-+ Short Term Fuel Trim - Bank 1
-+ Long Term Fuel Trim - Bank 1
-+ Short Term Fuel Trim - Bank 2
-+ Long Term Fuel Trim - Bank 2
 + Fuel Pressure
 + Intake Manifold Pressure
 + Engine RPM
@@ -73,15 +68,29 @@ Here are the currently supported sensors with pyOBD-IO:
 + Intake Air Temp
 + Air Flow Rate (MAF)
 + Throttle Position
-+ O2: Bank 1 - Sensor 1
-+ O2: Bank 1 - Sensor 2
-+ O2: Bank 1 - Sensor 3
-+ O2: Bank 1 - Sensor 4
-+ O2: Bank 2 - Sensor 1
-+ O2: Bank 2 - Sensor 2
-+ O2: Bank 2 - Sensor 3
-+ O2: Bank 2 - Sensor 4
 + Engine Run Time
++ Distance Traveled with MIL on
++ Fuel Rail Pressure (relative to vacuum)
++ Fuel Rail Pressure (direct inject)
++ Fuel Level Input
++ Number of warm-ups since codes cleared
++ Distance traveled since codes cleared
++ Evaporative system vapor pressure
++ Baromtric Pressure
++ Control module voltage
++ Relative throttle position
++ Ambient air temperature
++ Commanded throttle actuator
++ Time run with MIL on
++ Time since trouble codes cleared
++ Fuel Type
++ Ethanol Fuel Percent
++ Fuel rail pressure (absolute)
++ Relative accelerator pedal position
++ Hybrid battery pack remaining life
++ Engine oil temperature
++ Fuel injection timing
++ Engine fuel rate
 
 
 Enjoy and drive safe!
