@@ -76,9 +76,9 @@ class OBDCommand():
 					_hex = _hex[:diff] # chop off the right side to fit
 
 			# decoded value into the response object
-			# NOTE: the decoder does not operate off of the raw_hex
-			self.decode(_hex, r)
-		
+			# NOTE: the decoder does not operate off on the raw_hex
+			r.set(self.decode(_hex))
+
 		return r
 
 	def __str__(self):

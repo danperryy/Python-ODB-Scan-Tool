@@ -4,25 +4,25 @@ import errno
 
 
 class Unit:
-	NONE       = None
-	RATIO      = "Ratio"
-	COUNT      = "Count"
-	PERCENT    = "Percent"
-	VOLT       = "Volt"
-	F          = "F"
-	C          = "C"
-	SEC        = "Second"
-	MIN        = "Minute"
-	PA         = "Pa"
-	KPA        = "kPa"
-	PSI        = "PSI"
-	KPH        = "Kilometers per Hour"
-	MPH        = "Miles per Hour"
-	DEGREES    = "Degrees"
-	GPS = "Grams per Second"
-	MA         = "mA"
-	KM         = "km"
-	LPH        = "Liters per Hour"
+	NONE    = None
+	RATIO   = "Ratio"
+	COUNT   = "Count"
+	PERCENT = "Percent"
+	VOLT    = "Volt"
+	F       = "F"
+	C       = "C"
+	SEC     = "Second"
+	MIN     = "Minute"
+	PA      = "Pa"
+	KPA     = "kPa"
+	PSI     = "PSI"
+	KPH     = "Kilometers per Hour"
+	MPH     = "Miles per Hour"
+	DEGREES = "Degrees"
+	GPS     = "Grams per Second"
+	MA      = "mA"
+	KM      = "km"
+	LPH     = "Liters per Hour"
 
 
 class Response():
@@ -31,9 +31,9 @@ class Response():
 		self.unit    = Unit.NONE
 		self.raw_hex = raw_hex
 
-	def set(self, value, unit):
-		self.value = value
-		self.unit  = unit
+	def set(self, decode):
+		self.value = decode[0]
+		self.unit  = decode[1]
 
 	def __str__(self):
 		return "%s %s" % (str(self.value), str(self.unit))
