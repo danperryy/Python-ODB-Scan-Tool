@@ -5,18 +5,22 @@ import errno
 
 class Unit:
 	NONE       = None
+	COUNT      = "Count"
 	PERCENT    = "Percent"
 	VOLT       = "Volt"
 	F          = "F"
 	C          = "C"
 	SEC        = "Second"
 	MIN        = "Minute"
+	PA         = "Pa"
 	KPA        = "kPa"
 	PSI        = "PSI"
 	KPH        = "KPH"
 	MPH        = "MPH"
 	DEGREES    = "Degrees"
 	GRAM_P_SEC = "Grams per Second"
+	MA         = "mA"
+	KM         = "km"
 
 
 class Value():

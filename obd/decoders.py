@@ -16,6 +16,10 @@ Sensor decoders
 Return Value object with value and units
 '''
 
+def count(_hex):
+	v = unhex(_hex)
+	return Value(v, Unit.COUNT)
+
 # 0 to 100 %
 def percent(_hex):
 	v = unhex(_hex)
@@ -34,9 +38,28 @@ def temp(_hex):
 	v = v - 40
 	return Value(v, Unit.C)
 
+# -40 to 6513.5 C
+def catalyst_temp(_hex):
+	v = unhex(_hex)
+	v = (v / 10.0) - 40
+	return Value(v, Unit.C)
+
+# -128 to 128 mA
+def current_centered(_hex):
+	v = unhex(_hex[4:8])
+	v = (v / 256.0) - 128
+	return Value(v, Unit.MA)
+
 # 0 to 1.275 volts
 def sensor_voltage(_hex):
 	v = unhex(_hex[0:2])
+	v = v / 200.0
+	return Value(v, Unit.VOLT)
+
+# 0 to 8 volts
+def sensor_voltage_big(_hex):
+	v = unhex(_hex[4:8])
+	v = (v * 8.0) / 65535
 	return Value(v, Unit.VOLT)
 
 # 0 to 765 kPa
@@ -46,9 +69,28 @@ def fuel_pressure(_hex):
 	return Value(v, Unit.KPA)
 
 # 0 to 255 kPa
-def intake_pressure(_hex):
+def pressure(_hex):
 	v = unhex(_hex)
 	return Value(v, Unit.KPA)
+
+# 0 to 5177 kPa
+def fuel_pres_vac(_hex):
+	v = unhex(_hex)
+	v = v * 0.079
+	return Value(v, Unit.KPA)
+
+# 0 to 655,350 kPa
+def fuel_pres_direct(_hex):
+	v = unhex(_hex)
+	v = v * 10
+	return Value(v, Unit.KPA)
+
+# -8192 to 8192 Pa
+# todo twos complement signed
+def evap_pressure(_hex):
+	v = unhex(_hex)
+	v = v / 4.0
+	return Value(v, Unit.PA)
 
 # 0 to 16,383.75 RPM
 def rpm(_hex):
@@ -61,7 +103,7 @@ def speed(_hex):
 	v = unhex(_hex)
 	return Value(v, Unit.KPH)
 
-# -64 to 63.5
+# -64 to 63.5 degrees
 def timing_advance(_hex):
 	v = unhex(_hex)
 	v = (v - 128) / 2.0
@@ -78,7 +120,10 @@ def seconds(_hex):
 	v = unhex(_hex)
 	return Value(v, Unit.SECONDS)
 
-
+# 0 to 65535 km
+def distance(_hex):
+	v = unhex(_hex)
+	return Value(v, Unit.KM)
 
 
 
