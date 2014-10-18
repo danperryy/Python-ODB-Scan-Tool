@@ -6,7 +6,7 @@ from codes import *
 
 
 def noop(_hex):
-	return _hex
+	return Value(_hex, Unit.NONE)
 
 
 
@@ -186,45 +186,56 @@ def fuel_status(_hex):
 	v = unhex(_hex)
 	i = int(math.sqrt(v)) # only a single bit should be on
 
+	v = "Error: Unknown fuel status response"
+
 	if i < len(FUEL_STATUS):
-		return FUEL_STATUS[i]
-	else:
-		return "Error: Unknown fuel status response"
+		v = FUEL_STATUS[i]
+
+	return Value(v, Unit.NONE)
 
 
 def air_status(_hex):
 	v = unhex(_hex)
 	i = int(math.sqrt(v)) # only a single bit should be on
 
+	v = "Error: Unknown air status response"
+
 	if i < len(AIR_STATUS):
-		return AIR_STATUS[i]
-	else:
-		return "Error: Unknown air status response"
+		v = AIR_STATUS[i]
+
+	return Value(v, Unit.NONE)
 
 def obd_compliance(_hex):
 	i = unhex(_hex)
 
+	v = "Error: Unknown OBD compliance response"
+
 	if i < len(OBD_COMPLIANCE):
-		return OBD_COMPLIANCE[i]
-	else:
-		return "Error: Unknown OBD compliance response"
+		v = OBD_COMPLIANCE[i]
+
+	return Value(v, Unit.NONE) 
 
 
 def fuel_type(_hex):
 	i = unhex(_hex)
 
+	v = "Error: Unknown fuel type response"
+
 	if i < len(FUEL_TYPES):
-		return FUEL_TYPES[i]
-	else:
-		return "Error: Unknown fuel type response"
+		v = FUEL_TYPES[i]
+
+	return Value(v, Unit.NONE)
 
 # Get the description of a DTC
 def describeCode(code):
 	code.upper()
+
+	v = "Unknown or manufacturer specific code. Consult the internet."
+
 	if DTC.has_key(code):
-		return DTC[code]
-	else:
-		return "Unknown or manufacturer specific code. Consult the internet."
+		v = DTC[code]
+
+	return Value(v, Unit.NONE)
 
 # converts 2 bytes of hex into a DTC code
 def dtc(_hex):
@@ -234,7 +245,8 @@ def dtc(_hex):
 	dtc += ['P', 'C', 'B', 'U'][unbin(bits[0:2]))]
 	dtc += str(unbin(bits[2:4]))
 	dtc += _hex[1:4]
-	return dtc
+
+	return Value(dtc, Unit.NONE)
 
 # converts a frame of 2-byte DTCs into a list of DTCs
 def dtc_frame(_hex):
@@ -248,4 +260,4 @@ def dtc_frame(_hex):
 		
 		codes.append(dtc(_hex[start:end]))
 
-	return codes
+	return Value(codes, Unit.NONE)
