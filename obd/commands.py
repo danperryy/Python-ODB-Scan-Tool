@@ -75,8 +75,9 @@ class OBDCommand():
 					print "Receieved more data than expected, trying to parse anyways..."
 					_hex = _hex[:diff] # chop off the right side to fit
 
-			# decoded value
-			self.decode(r)
+			# decoded value into the response object
+			# NOTE: the decoder does not operate off of the raw_hex
+			self.decode(_hex, r)
 		
 		return r
 
