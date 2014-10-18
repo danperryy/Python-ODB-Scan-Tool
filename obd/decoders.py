@@ -4,12 +4,9 @@ from utils import *
 from codes import *
 
 
-
+# hex in, hex out
 def noop(_hex):
 	return Value(_hex, Unit.NONE)
-
-
-
 
 '''
 Sensor decoders
@@ -22,13 +19,13 @@ def count(_hex):
 
 # 0 to 100 %
 def percent(_hex):
-	v = unhex(_hex)
+	v = unhex(_hex[0:2])
 	v = v * 100.0 / 255.0
 	return Value(v, Unit.PERCENT)
 
 # -100 to 100 %
 def percent_centered(_hex):
-	v = unhex(_hex)
+	v = unhex(_hex[0:2])
 	v = (v - 128) * 100.0 / 128.0
 	return Value(v, Unit.PERCENT)
 
@@ -93,6 +90,18 @@ def evap_pressure(_hex):
 	v = ((a * 256.0) + b) / 4.0
 	return Value(v, Unit.PA)
 
+# 0 to 327.675 kPa
+def abs_evap_pressure(_hex):
+	v = unhex(_hex)
+	v = v / 200
+	return Value(v, Unit.KPA)
+
+# -32767 to 32768 Pa
+def evap_pressure_alt(_hex):
+	v = unhex(_hex)
+	v = v - 32767
+	return Value(v, Unit.PA)
+
 # 0 to 16,383.75 RPM
 def rpm(_hex):
 	v = unhex(_hex)
@@ -110,22 +119,44 @@ def timing_advance(_hex):
 	v = (v - 128) / 2.0
 	return Value(v, Unit.DEGREES)
 
+# -210 to 301 degrees
+def inject_timing(_hex):
+	v = unhex(_hex)
+	v = (v - 26880) / 128.0
+	return Value(v, Unit.DEGREES)
+
 # 0 to 655.35 grams/sec
 def maf(_hex):
 	v = unhex(_hex)
 	v = v / 100.0
-	return Value(v, Unit.GRAM_P_SEC)
+	return Value(v, Unit.GPS)
 
-# 0 to 655.35 seconds
+# 0 to 2550 grams/sec
+def max_maf(_hex):
+	v = unhex(_hex[0:2])
+	v = v * 10
+	return Value(v, Unit.GPS)
+
+# 0 to 65535 seconds
 def seconds(_hex):
 	v = unhex(_hex)
 	return Value(v, Unit.SECONDS)
+
+# 0 to 65535 minutes
+def minutes(_hex):
+	v = unhex(_hex)
+	return Value(v, Unit.MIN)
 
 # 0 to 65535 km
 def distance(_hex):
 	v = unhex(_hex)
 	return Value(v, Unit.KM)
 
+# 0 to 3212 Liters/hour
+def fuel_rate(_hex):
+	v = unhex(_hex)
+	v = v * 0.05
+	return Value(v, Unit.LPH)
 
 
 '''
