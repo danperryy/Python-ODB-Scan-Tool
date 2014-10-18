@@ -1,6 +1,6 @@
 
 import math
-from utils import Value, Unit, Test, unhex, unbin, bitstring, bitToBool
+from utils import *
 from codes import *
 
 
@@ -86,10 +86,11 @@ def fuel_pres_direct(_hex):
 	return Value(v, Unit.KPA)
 
 # -8192 to 8192 Pa
-# todo twos complement signed
 def evap_pressure(_hex):
-	v = unhex(_hex)
-	v = v / 4.0
+	# decode the twos complement
+	a = twos_comp(unhex(_hex[0:2], 8))
+	b = twos_comp(unhex(_hex[2:4], 8))
+	v = ((a * 256.0) + b) / 4.0
 	return Value(v, Unit.PA)
 
 # 0 to 16,383.75 RPM

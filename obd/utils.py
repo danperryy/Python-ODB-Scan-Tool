@@ -57,6 +57,11 @@ def bitstring(_hex):
 def bitToBool(_bit):
 	return (_bit == '1')
 
+def twos_comp(val, num_bits):
+	"""compute the 2's compliment of int value val"""
+	if( (val&(1<<(num_bits-1))) != 0 ):
+		val = val - (1<<num_bits)
+	return val
 
 def tryPort(portStr):
 	"""returns boolean for port availability"""
