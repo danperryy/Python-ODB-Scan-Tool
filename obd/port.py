@@ -180,16 +180,17 @@ class OBDPort:
 			return "NORESPONSE"
 
 	# get sensor value from command
-	def get_sensor_value(self, sensor):
+	def get_sensor_value(self, command):
 
-		cmd = sensor.cmd
+		cmd = command.getCommand()
 		self.send_command(cmd)
 		data = self.get_result()
 
 		if data:
+			print "RX: ", data
 			data = self.interpret_result(data)
 			if data != "NODATA":
-				data = sensor.value(data)
+				data = command.compute(data)
 		else:
 			return "NORESPONSE"
 

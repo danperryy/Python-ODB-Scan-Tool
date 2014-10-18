@@ -17,7 +17,7 @@ class OBD():
 
 		# initialize by connecting and loading sensors
 		if self.connect(portstr):
-			self.load_sensors()
+			self.load_commands()
 
 
 	def connect(self, portstr=None):
@@ -47,7 +47,7 @@ class OBD():
 		return self.port.get_port_name()
 
 
-	def load_sensors(self):
+	def load_commands(self):
 		""" queries for available sensors, and compiles lists of indices and sensor objects """
 
 		self.supportedCommands = []
@@ -55,7 +55,7 @@ class OBD():
 		# Find supported sensors - by getting PIDs from OBD (sensor zero)
 		# its a string of binary 01010101010101 
 		# 1 means the sensor is supported
-		supported = self.sendCommand(commands[1][0]) # mode 01, command 00
+		supported = self.send_command(commands[1][0]) # mode 01, command 00
 
 		count = min(len(supported), len(commands[1]))
 
@@ -67,15 +67,15 @@ class OBD():
 				self.supportedCommands.append(c)
 
 
-	def printCommands(self):
+	def print_commands(self):
 		for c in self.supportedCommands:
 			print str(c)
 
-	def hasCommand(self, c):
+	def has_command(self, c):
 		return c.supported
 
-	def sendCommand(self, command):
-		return self.port.get_sensor_value(sensor)
+	def send_command(self, command):
+		return self.port.get_sensor_value(command)
 
 
 
@@ -83,11 +83,9 @@ class OBD():
 if __name__ == "__main__":
 
 	o = OBD()
-	#o.connect()
 	time.sleep(3)
 	if not o.is_connected():
 		print "Not connected"
 	else:
 		print "Connected to " + o.get_port_name()
-		#o.load_sensors()
-		o.printSensors()
+		o.print_commands()
