@@ -4,7 +4,7 @@ import time
 
 from port import OBDPort, State
 from commands import commands
-from utils import scanSerial
+from utils import scanSerial, Response
 
 
 
@@ -58,18 +58,21 @@ class OBD():
 			# GET commands should sequentialy turn themselves on (become marked as supported)
 			# MODE 1 PID 0 is marked supported by default 
 			if self.has_command(get):
-				supported = self.query(get).value # string of binary 01010101010101
+				response = self.query(get)
 
-				# loop through PIDs binary
-				for i in range(len(supported)):
-					if supported[i] == "1":
+				if not response.isEmpty():
+					supported = response.value # string of binary 01010101010101
 
-						mode = get.getModeInt()
-						pid  = get.getPidInt() + i + 1
+					# loop through PIDs binary
+					for i in range(len(supported)):
+						if supported[i] == "1":
 
-						c = commands[mode][pid]
-						c.supported = True
-						self.supportedCommands.append(c)
+							mode = get.getModeInt()
+							pid  = get.getPidInt() + i + 1
+
+							c = commands[mode][pid]
+							c.supported = True
+							self.supportedCommands.append(c)
 
 
 	def print_commands(self):
@@ -83,7 +86,8 @@ class OBD():
 		if self.has_command(command):
 			return self.port.get_sensor_value(command)
 		else:
-
+			print "'%s' is not supported" % str(command)
+			return Response() # return empty response
 
 
 

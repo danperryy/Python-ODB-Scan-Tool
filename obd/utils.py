@@ -26,10 +26,13 @@ class Unit:
 
 
 class Response():
-	def __init__(self, raw_hex):
+	def __init__(self, raw_hex=""):
 		self.value   = None
 		self.unit    = Unit.NONE
 		self.raw_hex = raw_hex
+
+	def isEmpty(self):
+		return self.value == None
 
 	def set(self, decode):
 		self.value = decode[0]

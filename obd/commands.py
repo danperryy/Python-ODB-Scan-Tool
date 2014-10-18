@@ -25,7 +25,7 @@
 
 
 from decoders import *
-from utils import Response, Unit
+from utils import Response
 
 
 
@@ -267,7 +267,7 @@ class Commands():
 		for m in self.modes:
 			for c in m:
 				if c.decode == pid: # GET commands have a special decoder
-					getter.append(c)
+					getters.append(c)
 		return getters
 
 	# sets the boolean for 

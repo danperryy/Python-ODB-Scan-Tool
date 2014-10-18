@@ -25,7 +25,7 @@
 import serial
 import string
 import time
-from utils import unhex
+from utils import Response, unhex
 
 
 GET_DTC_COMMAND        = "03"
@@ -192,7 +192,7 @@ class OBDPort:
 			if data != "NODATA":
 				data = command.compute(data)
 		else:
-			return "NORESPONSE"
+			data = Response()
 
 		return data
 
