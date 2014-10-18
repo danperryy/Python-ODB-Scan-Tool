@@ -5,167 +5,195 @@ from codes import *
 
 
 # todo
-def todo(_hex):
-	return Value(_hex, Unit.NONE)
+def todo(r):
+	_hex = r.raw_hex
+	r.set(_hex, Unit.NONE)
 
 # hex in, hex out
-def noop(_hex):
-	return Value(_hex, Unit.NONE)
+def noop(r):
+	_hex = r.raw_hex
+	r.set(_hex, Unit.NONE)
 
 # hex in, bitstring out
-def pid(_hex):
+def pid(r):
+	_hex = r.raw_hex
 	v = bitstring(_hex)
-	return Value(v, Unit.NONE)
+	r.set(v, Unit.NONE)
 
 '''
 Sensor decoders
 Return Value object with value and units
 '''
 
-def count(_hex):
+def count(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
-	return Value(v, Unit.COUNT)
+	r.set(v, Unit.COUNT)
 
 # 0 to 100 %
-def percent(_hex):
+def percent(r):
+	_hex = r.raw_hex
 	v = unhex(_hex[0:2])
 	v = v * 100.0 / 255.0
-	return Value(v, Unit.PERCENT)
+	r.set(v, Unit.PERCENT)
 
 # -100 to 100 %
-def percent_centered(_hex):
+def percent_centered(r):
+	_hex = r.raw_hex
 	v = unhex(_hex[0:2])
 	v = (v - 128) * 100.0 / 128.0
-	return Value(v, Unit.PERCENT)
+	r.set(v, Unit.PERCENT)
 
 # -40 to 215 C
-def temp(_hex):
+def temp(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v - 40
-	return Value(v, Unit.C)
+	r.set(v, Unit.C)
 
 # -40 to 6513.5 C
-def catalyst_temp(_hex):
+def catalyst_temp(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = (v / 10.0) - 40
-	return Value(v, Unit.C)
+	r.set(v, Unit.C)
 
 # -128 to 128 mA
-def current_centered(_hex):
+def current_centered(r):
+	_hex = r.raw_hex
 	v = unhex(_hex[4:8])
 	v = (v / 256.0) - 128
-	return Value(v, Unit.MA)
+	r.set(v, Unit.MA)
 
 # 0 to 1.275 volts
-def sensor_voltage(_hex):
+def sensor_voltage(r):
+	_hex = r.raw_hex
 	v = unhex(_hex[0:2])
 	v = v / 200.0
-	return Value(v, Unit.VOLT)
+	r.set(v, Unit.VOLT)
 
 # 0 to 8 volts
-def sensor_voltage_big(_hex):
+def sensor_voltage_big(r):
+	_hex = r.raw_hex
 	v = unhex(_hex[4:8])
 	v = (v * 8.0) / 65535
-	return Value(v, Unit.VOLT)
+	r.set(v, Unit.VOLT)
 
 # 0 to 765 kPa
-def fuel_pressure(_hex):
+def fuel_pressure(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v * 3
-	return Value(v, Unit.KPA)
+	r.set(v, Unit.KPA)
 
 # 0 to 255 kPa
-def pressure(_hex):
+def pressure(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
-	return Value(v, Unit.KPA)
+	r.set(v, Unit.KPA)
 
 # 0 to 5177 kPa
-def fuel_pres_vac(_hex):
+def fuel_pres_vac(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v * 0.079
-	return Value(v, Unit.KPA)
+	r.set(v, Unit.KPA)
 
 # 0 to 655,350 kPa
-def fuel_pres_direct(_hex):
+def fuel_pres_direct(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v * 10
-	return Value(v, Unit.KPA)
+	r.set(v, Unit.KPA)
 
 # -8192 to 8192 Pa
-def evap_pressure(_hex):
+def evap_pressure(r):
+	_hex = r.raw_hex
 	# decode the twos complement
 	a = twos_comp(unhex(_hex[0:2], 8))
 	b = twos_comp(unhex(_hex[2:4], 8))
 	v = ((a * 256.0) + b) / 4.0
-	return Value(v, Unit.PA)
+	r.set(v, Unit.PA)
 
 # 0 to 327.675 kPa
-def abs_evap_pressure(_hex):
+def abs_evap_pressure(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v / 200
-	return Value(v, Unit.KPA)
+	r.set(v, Unit.KPA)
 
 # -32767 to 32768 Pa
-def evap_pressure_alt(_hex):
+def evap_pressure_alt(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v - 32767
-	return Value(v, Unit.PA)
+	r.set(v, Unit.PA)
 
 # 0 to 16,383.75 RPM
-def rpm(_hex):
+def rpm(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v / 4.0
-	return Value(v, Unit.RPM)
+	r.set(v, Unit.RPM)
 
 # 0 to 255 KPH
-def speed(_hex):
+def speed(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
-	return Value(v, Unit.KPH)
+	r.set(v, Unit.KPH)
 
 # -64 to 63.5 degrees
-def timing_advance(_hex):
+def timing_advance(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = (v - 128) / 2.0
-	return Value(v, Unit.DEGREES)
+	r.set(v, Unit.DEGREES)
 
 # -210 to 301 degrees
-def inject_timing(_hex):
+def inject_timing(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = (v - 26880) / 128.0
-	return Value(v, Unit.DEGREES)
+	r.set(v, Unit.DEGREES)
 
 # 0 to 655.35 grams/sec
-def maf(_hex):
+def maf(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v / 100.0
-	return Value(v, Unit.GPS)
+	r.set(v, Unit.GPS)
 
 # 0 to 2550 grams/sec
-def max_maf(_hex):
+def max_maf(r):
+	_hex = r.raw_hex
 	v = unhex(_hex[0:2])
 	v = v * 10
-	return Value(v, Unit.GPS)
+	r.set(v, Unit.GPS)
 
 # 0 to 65535 seconds
-def seconds(_hex):
+def seconds(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
-	return Value(v, Unit.SECONDS)
+	r.set(v, Unit.SECONDS)
 
 # 0 to 65535 minutes
-def minutes(_hex):
+def minutes(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
-	return Value(v, Unit.MIN)
+	r.set(v, Unit.MIN)
 
 # 0 to 65535 km
-def distance(_hex):
+def distance(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
-	return Value(v, Unit.KM)
+	r.set(v, Unit.KM)
 
 # 0 to 3212 Liters/hour
-def fuel_rate(_hex):
+def fuel_rate(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	v = v * 0.05
-	return Value(v, Unit.LPH)
+	r.set(v, Unit.LPH)
 
 
 '''
@@ -175,7 +203,8 @@ Return objects, lists, etc
 
 
 
-def status(_hex):
+def status(r):
+	_hex = r.raw_hex
 	bits = bitstring(_hex)
 
 	output = {}
@@ -222,7 +251,8 @@ def status(_hex):
 
 
 
-def fuel_status(_hex):
+def fuel_status(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	i = int(math.sqrt(v)) # only a single bit should be on
 
@@ -231,10 +261,11 @@ def fuel_status(_hex):
 	if i < len(FUEL_STATUS):
 		v = FUEL_STATUS[i]
 
-	return Value(v, Unit.NONE)
+	r.set(v, Unit.NONE)
 
 
-def air_status(_hex):
+def air_status(r):
+	_hex = r.raw_hex
 	v = unhex(_hex)
 	i = int(math.sqrt(v)) # only a single bit should be on
 
@@ -243,9 +274,10 @@ def air_status(_hex):
 	if i < len(AIR_STATUS):
 		v = AIR_STATUS[i]
 
-	return Value(v, Unit.NONE)
+	r.set(v, Unit.NONE)
 
-def obd_compliance(_hex):
+def obd_compliance(r):
+	_hex = r.raw_hex
 	i = unhex(_hex)
 
 	v = "Error: Unknown OBD compliance response"
@@ -253,10 +285,11 @@ def obd_compliance(_hex):
 	if i < len(OBD_COMPLIANCE):
 		v = OBD_COMPLIANCE[i]
 
-	return Value(v, Unit.NONE) 
+	r.set(v, Unit.NONE) 
 
 
-def fuel_type(_hex):
+def fuel_type(r):
+	_hex = r.raw_hex
 	i = unhex(_hex)
 
 	v = "Error: Unknown fuel type response"
@@ -264,7 +297,7 @@ def fuel_type(_hex):
 	if i < len(FUEL_TYPES):
 		v = FUEL_TYPES[i]
 
-	return Value(v, Unit.NONE)
+	r.set(v, Unit.NONE)
 
 # Get the description of a DTC
 def describeCode(code):
@@ -275,10 +308,11 @@ def describeCode(code):
 	if DTC.has_key(code):
 		v = DTC[code]
 
-	return Value(v, Unit.NONE)
+	r.set(v, Unit.NONE)
 
 # converts 2 bytes of hex into a DTC code
-def dtc(_hex):
+def dtc(r):
+	_hex = r.raw_hex
 	dtc = ""
 	bits = bitstring(_hex[0])
 
@@ -286,10 +320,11 @@ def dtc(_hex):
 	dtc += str(unbin(bits[2:4]))
 	dtc += _hex[1:4]
 
-	return Value(dtc, Unit.NONE)
+	r.set(dtc, Unit.NONE)
 
 # converts a frame of 2-byte DTCs into a list of DTCs
-def dtc_frame(_hex):
+def dtc_frame(r):
+	_hex = r.raw_hex
 	code_length = 4 # number of hex chars consumed by one code
 	size = len(_hex / 4) # number of codes defined in THIS FRAME (not total)
 	codes = []
@@ -300,4 +335,4 @@ def dtc_frame(_hex):
 		
 		codes.append(dtc(_hex[start:end]))
 
-	return Value(codes, Unit.NONE)
+	r.set(codes, Unit.NONE)

@@ -25,10 +25,15 @@ class Unit:
 	LPH        = "Liters per Hour"
 
 
-class Value():
-	def __init__(self, value, unit):
+class Response():
+	def __init__(self, raw_hex):
+		self.value   = None
+		self.unit    = Unit.NONE
+		self.raw_hex = raw_hex
+
+	def set(self, value, unit):
 		self.value = value
-		self.unit = unit
+		self.unit  = unit
 
 	def __str__(self):
 		return "%s %s" % (str(self.value), str(self.unit))

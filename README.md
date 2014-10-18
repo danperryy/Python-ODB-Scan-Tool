@@ -34,26 +34,26 @@ After installing the library, simply import pyobd, and create a new OBD connecti
 	connection = obd.OBD(ports[0]) # connect to the first port in the list
 
 
-Once a connection is made, python-OBD will load a list of the available sensors in your car. A "Sensor" in python-OBD is an object containing its name, units, and retrieval functions. To get the value of a sensor, call the valueOf() function with a sensor object as an argument.
+Once a connection is made, python-OBD will load a list of the available commands in your car. A "Command" in python-OBD is an object used to query specific information from the vehicle. A command object contains its name, units, codes, and decoding functions. To get the value of a sensor, call the query() function with that sensor's command as an argument.
 
 	import obd
 
 	connection = obd.OBD()
 	
-	for sensor in connection.supportedSensors:
-		print str(sensor)                 # prints the sensor name
-		print connection.valueOf(sensor)  # gets and prints the sensor's value
-		print sensor.unit                 # prints the sensors units
+	for command in connection.supportedCommands:
+		print str(command)                      # prints the command name
+		response = connection.query(command)    # sends the command, and returns the decoded response
+		print response.value, response.unit     # prints the data and units returned from the car
 
 
-Sensors can also be explicitly targetted for values. The hasSensor() function will determine whether or not your car has the requested sensor.
+Commands can also be accessed explicitly, either by name, or by code value. The has_command() function will determine whether or not your car supports the requested command.
 
 	import obd
 
 	connection = obd.OBD()
 
-	if connection.hasSensor(obd.sensors.RPM):       # check for existance of sensor
-		print connection.valueOf(obd.sensors.RPM)   # get value of sensor
+	if connection.has_command(obd.commands.RPM):    # check for existance of sensor
+		print connection.query(obd.commands.RPM)    # get and print value of sensor
 
 
 Here are a few of the currently supported commands (for a full list, see commands.py):

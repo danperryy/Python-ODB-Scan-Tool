@@ -25,7 +25,7 @@
 
 
 from decoders import *
-from utils import Value, Unit
+from utils import Response, Unit
 
 
 
@@ -58,9 +58,10 @@ class OBDCommand():
 		return unhex(self.pid)
 
 	def compute(self, _hex):
-		if "NODATA" in _hex:
-			return Value("No Data", Unit.NONE)
-		else:
+		# create the response object with the raw hex recieved
+		r = Response(_hex)
+
+		if "NODATA" not in _hex:
 
 			# constrain number of bytes in response
 			if (self.bytes > 0): # zero bytes means flexible response
@@ -74,8 +75,10 @@ class OBDCommand():
 					print "Receieved more data than expected, trying to parse anyways..."
 					_hex = _hex[:diff] # chop off the right side to fit
 
-			# return the decoded value object
-			return self.decode(_hex)
+			# decoded value
+			self.decode(r)
+		
+		return r
 
 	def __str__(self):
 		return self.desc
