@@ -1,4 +1,5 @@
 
+import math
 from utils import Value, Unit, Test, unhex, unbin, bitstring, bitToBool
 from codes import *
 
@@ -134,14 +135,42 @@ def status(_hex):
 	return output
 
 
-def mil(_hex):
-	v = bitstring(_hex)
-	return v[0] == '1'
 
-def dtc_count(_hex):
-	v = bitstring(_hex)
-	return unbin(v[1:8])
+def fuel_status(_hex):
+	v = unhex(_hex)
+	i = int(math.sqrt(v)) # only a single bit should be on
 
+	if i < len(FUEL_STATUS):
+		return FUEL_STATUS[i]
+	else:
+		return "Error: Unknown fuel status response"
+
+
+def air_status(_hex):
+	v = unhex(_hex)
+	i = int(math.sqrt(v)) # only a single bit should be on
+
+	if i < len(AIR_STATUS):
+		return AIR_STATUS[i]
+	else:
+		return "Error: Unknown air status response"
+
+def obd_compliance(_hex):
+	i = unhex(_hex)
+
+	if i < len(OBD_COMPLIANCE):
+		return OBD_COMPLIANCE[i]
+	else:
+		return "Error: Unknown OBD compliance response"
+
+
+def fuel_type(_hex):
+	i = unhex(_hex)
+
+	if i < len(FUEL_TYPES):
+		return FUEL_TYPES[i]
+	else:
+		return "Error: Unknown fuel type response"
 
 # Get the description of a DTC
 def describeCode(code):
