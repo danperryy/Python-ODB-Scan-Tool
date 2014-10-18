@@ -25,17 +25,19 @@
 
 
 from decoders import *
+from Utils import Value, Unit
 
 
 
 class OBDCommand():
-	def __init__(self, sensorname, desc, mode, pid, pid, returnBytes, decoder):
+	def __init__(self, sensorname, desc, mode, pid, pid, returnBytes, decoder, supported=False):
 		self.sensorname = sensorname
 		self.desc       = desc
 		self.mode       = mode
 		self.pid        = pid
 		self.bytes      = returnBytes # number of bytes expected in return
 		self.decode     = decoder
+		self.supported  = supported
 
 	def clone(self):
 		return OBDCommand(self.sensorname,
@@ -48,15 +50,25 @@ class OBDCommand():
 	def getCommand(self):
 		return self.mode + self.pid
 
-	def compute(result):
-		if "NODATA" in result:
-			return ""
+	def compute(self, _hex):
+		if "NODATA" in _hex:
+			return Value("No Data", Unit.NONE)
 		else:
-			if (self.bytes > 0) and (len(result) != self.bytes * 2):
-				print "Receieved unexpected number of bytes, trying to parse anyways..."
+
+			# constrain number of bytes in response
+			if (self.bytes > 0): # zero bytes means flexible response
+
+				diff = (self.bytes * 2) - len(_hex) # length discrepency in number of hex digits
+
+				if diff > 0:
+					print "Receieved less data than expected, trying to parse anyways..."
+					_hex += ('0' * diff) # pad the right side with zeros
+				elif diff < 0:
+					print "Receieved more data than expected, trying to parse anyways..."
+					_hex = _hex[:diff] # chop off the right side to fit
 
 			# return the decoded value object
-			return self.decode(result)
+			return self.decode(_hex)
 
 
 
@@ -65,7 +77,7 @@ class OBDCommand():
 
 __mode1__ = [
 	#					sensor name							description					  mode  cmd bytes		decoder
-	OBDCommand("PIDS_A"						, "Supported PIDs [01-20]"					, "01", "00", 4, noop				),
+	OBDCommand("PIDS_A"						, "Supported PIDs [01-20]"					, "01", "00", 4, noop				, True), # the first PID getter is assumed to be supported
 	OBDCommand("STATUS"						, "Status since DTCs cleared"				, "01", "01", 4, status				),
 	OBDCommand("FREEZE_DTC"					, "Freeze DTC"								, "01", "02", 2, noop				),
 	OBDCommand("FUEL_STATUS"				, "Fuel System Status"						, "01", "03", 2, fuel_status		),
@@ -148,7 +160,7 @@ __mode1__ = [
 	OBDCommand("THROTTLE_ACTUATOR"			, "Commanded throttle actuator"				, "01", "4C", 1, percent			),
 	OBDCommand("RUN_TIME_MIL"				, "Time run with MIL on"					, "01", "4D", 2, minutes			),
 	OBDCommand("TIME_SINCE_DTC_CLEARED"		, "Time since trouble codes cleared"		, "01", "4E", 2, minutes			),
-	OBDCommand("MAX_VALUES"					, "Various Max values"						, "01", "4F", 4, noop				),
+	OBDCommand("MAX_VALUES"					, "Various Max values"						, "01", "4F", 4, noop				), # todo: decode this
 	OBDCommand("MAX_MAF"					, "Maximum value for mass air flow sensor"	, "01", "50", 4, max_maf			),
 	OBDCommand("FUEL_TYPE"					, "Fuel Type"								, "01", "51", 1, fuel_type			),
 	OBDCommand("ETHANOL_PERCENT"			, "Ethanol Fuel Percent"					, "01", "52", 1, percent			),
@@ -165,24 +177,8 @@ __mode1__ = [
 	OBDCommand("FUEL_INJECT_TIMING"			, "Fuel injection timing"					, "01", "5D", 2, inject_timing		),
 	OBDCommand("FUEL_RATE"					, "Engine fuel rate"						, "01", "5E", 2, fuel_rate			),
 	OBDCommand("EMISSION_REQ"				, "Designed emission requirements"			, "01", "5F", 1, noop				),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	#OBDCommand("RUN_TIME_MIL"			, "Engine Run Time MIL"					, "01", "4D", sec_to_min			),
-
-	OBDCommand("FUEL_TYPE"				, "Fuel Type"							, "01", "51", 1, fuel_type			),
 ]
+
 
 # mode 2 is the same as mode 1, but returns values from when the DTC occured
 __mode2__ = []
