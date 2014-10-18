@@ -1,4 +1,4 @@
-pyOBD-IO
+python-OBD
 ========
 
 ##### A python module for handling realtime sensor data from OBD-II vehicle ports
@@ -17,7 +17,7 @@ This library is forked from:
 
 ### Usage
 
-After installing the library, simply import pyobd, and create a new OBD connection object. By default, pyOBD-IO will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the scanSerial helper retrieve a list of connected ports
+After installing the library, simply import pyobd, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the scanSerial helper retrieve a list of connected ports
 
 	import obd
 
@@ -34,7 +34,7 @@ After installing the library, simply import pyobd, and create a new OBD connecti
 	connection = obd.OBD(ports[0]) # connect to the first port in the list
 
 
-Once a connection is made, pyOBD-IO will load a list of the available sensors in your car. A "Sensor" in pyOBD-IO is an object containing its name, units, and retrieval functions. To get the value of a sensor, call the valueOf() function with a sensor object as an argument.
+Once a connection is made, python-OBD will load a list of the available sensors in your car. A "Sensor" in python-OBD is an object containing its name, units, and retrieval functions. To get the value of a sensor, call the valueOf() function with a sensor object as an argument.
 
 	import obd
 
