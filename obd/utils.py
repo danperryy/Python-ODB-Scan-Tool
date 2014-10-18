@@ -5,8 +5,6 @@ import errno
 
 class Unit:
 	NONE       = None
-	BITSTRING  = "Bit String"
-	DTC        = "Diagnostic Trouble Code"
 	PERCENT    = "Percent"
 	VOLT       = "Volt"
 	F          = "F"
@@ -30,6 +28,19 @@ class Value():
 		return "%s %s" % (str(self.value), str(self.unit))
 
 
+class Test():
+	def __init__(self, name, available, incomplete):
+		self.name       = name
+		self.available  = available
+		self.incomplete = incomplete
+
+	def __str__(self):
+		a = "Available" if self.available else "Unavailable"
+		c = "Incomplete" if self.incomplete else "Complete"
+		return "Test %s: %s, %s" % (name, a, c)
+
+
+
 def unhex(_hex):
 	return int(_hex, 16)
 
@@ -38,6 +49,9 @@ def unbin(_bin):
 
 def bitstring(_hex):
 	return bin(unhex(_hex))[2:]
+
+def bitToBool(_bit):
+	return (_bit == '1')
 
 
 def tryPort(portStr):

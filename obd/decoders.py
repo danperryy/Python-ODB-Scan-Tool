@@ -1,13 +1,19 @@
 
+from utils import Value, Unit, Test, unhex, unbin, bitstring, bitToBool
+from codes import *
 
-from utils import Value, Unit, unhex, unbin, bitstring
 
-
-
-# functions accepting hex responses from the OBD connection, and computing/returning values with units
 
 def noop(_hex):
-	return Value(_hex, Unit.NONE)
+	return _hex
+
+
+
+
+'''
+Sensor decoders
+Return Value object with value and units
+'''
 
 # 0 to 100 %
 def percent(_hex):
@@ -72,7 +78,62 @@ def seconds(_hex):
 	return Value(v, Unit.SECONDS)
 
 
-# these functions draw data from the same PID
+
+
+
+'''
+Special decoders
+Return objects, lists, etc
+'''
+
+
+
+def status(_hex):
+	bits = bitstring(_hex)
+
+	output = {}
+	output["Check Engine Light"] = bitToBool(bits[0])
+	output["DTC Count"]          = unbin(bits[1:8])
+	output["Ignition Type"]      = IGNITION_TYPE[unbin(bits[12])]
+	output["Tests"]              = []
+
+	output["Tests"].append(Test("Misfire", \
+								bitToBool(bits[15]), \
+								bitToBool(bits[11])))
+
+	output["Tests"].append(Test("Fuel System", \
+								bitToBool(bits[16]), \
+								bitToBool(bits[12])))
+
+	output["Tests"].append(Test("Components", \
+								bitToBool(bits[17]), \
+								bitToBool(bits[13])))
+
+
+	# different tests for different ignition types 
+	if(output["Ignition Type"] == IGNITION_TYPE[0]): # spark
+		for i in range(8):
+			if SPARK_TESTS[i] is not None:
+
+				t = Test(SPARK_TESTS[i], \
+						 bitToBool(bits[(2 * 8) + i]), \
+						 bitToBool(bits[(3 * 8) + i]))
+
+				output["Tests"].append(t)
+
+	elif(output["Ignition Type"] == IGNITION_TYPE[1]): # compression
+		for i in range(8):
+			if COMPRESSION_TESTS[i] is not None:
+
+				t = Test(COMPRESSION_TESTS[i], \
+						 bitToBool(bits[(2 * 8) + i]), \
+						 bitToBool(bits[(3 * 8) + i]))
+				
+				output["Tests"].append(t)
+
+	return output
+
+
 def mil(_hex):
 	v = bitstring(_hex)
 	return v[0] == '1'
@@ -80,6 +141,15 @@ def mil(_hex):
 def dtc_count(_hex):
 	v = bitstring(_hex)
 	return unbin(v[1:8])
+
+
+# Get the description of a DTC
+def describeCode(code):
+	code.upper()
+	if DTC.has_key(code):
+		return DTC[code]
+	else:
+		return "Unknown or manufacturer specific code. Consult the internet."
 
 # converts 2 bytes of hex into a DTC code
 def dtc(_hex):

@@ -67,7 +67,7 @@ __mode1__ = [
 	# mode 1
 	#			sensor name				description						  mode  cmd  bytes  decoder
 	OBDCommand("PIDS"				, "Supported PIDs"					, "01", "00" , 4, noop				),
-	OBDCommand("STATUS"				, "Status since DTCs cleared"		, "01", "01" , 4, noop				),
+	OBDCommand("STATUS"				, "Status since DTCs cleared"		, "01", "01" , 4, status			),
 	OBDCommand("FREEZE_DTC"			, "Freeze DTC"						, "01", "02" , 2, noop				),
 	OBDCommand("FUEL_STATUS"		, "Fuel System Status"				, "01", "03" , 2, noop				),
 	OBDCommand("LOAD"				, "Calculated Engine Load"			, "01", "04" , 1, percent			),
@@ -94,7 +94,7 @@ __mode1__ = [
 	OBDCommand("O2_B2S2"			, "O2: Bank 2 - Sensor 2"			, "01", "19" , 2, sensor_voltage	),
 	OBDCommand("O2_B2S3"			, "O2: Bank 2 - Sensor 3"			, "01", "1A" , 2, sensor_voltage	),
 	OBDCommand("O2_B2S4"			, "O2: Bank 2 - Sensor 4"			, "01", "1B" , 2, sensor_voltage	),
-	OBDCommand("OBD_STANDARDS"		, "OBD Standards Compliance"		, "01", "1C" , 1, noop				),
+	OBDCommand("OBD_COMPLIANCE"		, "OBD Standards Compliance"		, "01", "1C" , 1, noop				),
 	OBDCommand("O2_SENSORS_ALT"		, "O2 Sensors Present (alternate)"	, "01", "1D" , 1, noop				),
 	OBDCommand("AUX_INPUT_STATUS"	, "Auxiliary input status"			, "01", "1E" , 1, noop				),
 	OBDCommand("RUN_TIME"			, "Engine Run Time"					, "01", "1F" , 2, seconds			),
