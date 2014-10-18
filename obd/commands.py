@@ -25,13 +25,13 @@
 
 
 from decoders import *
-from Utils import Value, Unit
+from utils import Value, Unit
 
 
 
 class OBDCommand():
-	def __init__(self, sensorname, desc, mode, pid, pid, returnBytes, decoder, supported=False):
-		self.sensorname = sensorname
+	def __init__(self, name, desc, mode, pid, returnBytes, decoder, supported=False):
+		self.name       = name
 		self.desc       = desc
 		self.mode       = mode
 		self.pid        = pid
@@ -40,7 +40,7 @@ class OBDCommand():
 		self.supported  = supported
 
 	def clone(self):
-		return OBDCommand(self.sensorname,
+		return OBDCommand(self.name,
 						  self.desc,
 						  self.mode,
 						  self.pid,
@@ -134,14 +134,14 @@ __mode1__ = [
 	OBDCommand("DISTANCE_SINCE_DTC_CLEAR"	, "Distance traveled since codes cleared"	, "01", "31", 2, distance			),
 	OBDCommand("EVAP_VAPOR_PRESSURE"		, "Evaporative system vapor pressure"		, "01", "32", 2, evap_pressure		),
 	OBDCommand("BAROMETRIC_PRESSURE"		, "Baromtric Pressure"						, "01", "33", 1, pressure			),
-	OBDCommand("O2_S1_WR_CURRENT"			, "02 Sensor 1 WR Lambda Current"			, "01", "34", 4, current			),
-	OBDCommand("O2_S2_WR_CURRENT"			, "02 Sensor 2 WR Lambda Current"			, "01", "35", 4, current			),
-	OBDCommand("O2_S3_WR_CURRENT"			, "02 Sensor 3 WR Lambda Current"			, "01", "36", 4, current			),
-	OBDCommand("O2_S4_WR_CURRENT"			, "02 Sensor 4 WR Lambda Current"			, "01", "37", 4, current			),
-	OBDCommand("O2_S5_WR_CURRENT"			, "02 Sensor 5 WR Lambda Current"			, "01", "38", 4, current			),
-	OBDCommand("O2_S6_WR_CURRENT"			, "02 Sensor 6 WR Lambda Current"			, "01", "39", 4, current			),
-	OBDCommand("O2_S7_WR_CURRENT"			, "02 Sensor 7 WR Lambda Current"			, "01", "3A", 4, current			),
-	OBDCommand("O2_S8_WR_CURRENT"			, "02 Sensor 8 WR Lambda Current"			, "01", "3B", 4, current			),
+	OBDCommand("O2_S1_WR_CURRENT"			, "02 Sensor 1 WR Lambda Current"			, "01", "34", 4, current_centered	),
+	OBDCommand("O2_S2_WR_CURRENT"			, "02 Sensor 2 WR Lambda Current"			, "01", "35", 4, current_centered	),
+	OBDCommand("O2_S3_WR_CURRENT"			, "02 Sensor 3 WR Lambda Current"			, "01", "36", 4, current_centered	),
+	OBDCommand("O2_S4_WR_CURRENT"			, "02 Sensor 4 WR Lambda Current"			, "01", "37", 4, current_centered	),
+	OBDCommand("O2_S5_WR_CURRENT"			, "02 Sensor 5 WR Lambda Current"			, "01", "38", 4, current_centered	),
+	OBDCommand("O2_S6_WR_CURRENT"			, "02 Sensor 6 WR Lambda Current"			, "01", "39", 4, current_centered	),
+	OBDCommand("O2_S7_WR_CURRENT"			, "02 Sensor 7 WR Lambda Current"			, "01", "3A", 4, current_centered	),
+	OBDCommand("O2_S8_WR_CURRENT"			, "02 Sensor 8 WR Lambda Current"			, "01", "3B", 4, current_centered	),
 	OBDCommand("CATALYST_TEMP_B1S1"			, "Catalyst Temperature: Bank 1 - Sensor 1"	, "01", "3C", 2, catalyst_temp		),
 	OBDCommand("CATALYST_TEMP_B2S1"			, "Catalyst Temperature: Bank 2 - Sensor 1"	, "01", "3D", 2, catalyst_temp		),
 	OBDCommand("CATALYST_TEMP_B1S2"			, "Catalyst Temperature: Bank 1 - Sensor 2"	, "01", "3E", 2, catalyst_temp		),
@@ -149,10 +149,10 @@ __mode1__ = [
 
 	#					sensor name							description					  mode  cmd bytes		decoder
 	OBDCommand("PIDS_C"						, "Supported PIDs [41-60]"					, "01", "40", 4, noop				),
-	OBDCommand("STATUS_DRIVE_CYCLE"			, "Monitor status this drive cycle"			, "01", "41", 4, 					),
-	OBDCommand("CONTROL_MODULE_VOLTAGE"		, "Control module voltage"					, "01", "42", 2, 					),
-	OBDCommand("ABSOLUTE_LOAD"				, "Absolute load value"						, "01", "43", 2, 					),
-	OBDCommand("COMMAND_EQUIV_RATIO"		, "Command equivalence ratio"				, "01", "44", 2, 					),
+	OBDCommand("STATUS_DRIVE_CYCLE"			, "Monitor status this drive cycle"			, "01", "41", 4, todo				),
+	OBDCommand("CONTROL_MODULE_VOLTAGE"		, "Control module voltage"					, "01", "42", 2, todo				),
+	OBDCommand("ABSOLUTE_LOAD"				, "Absolute load value"						, "01", "43", 2, todo				),
+	OBDCommand("COMMAND_EQUIV_RATIO"		, "Command equivalence ratio"				, "01", "44", 2, todo				),
 	OBDCommand("RELATIVE_THROTTLE_POS"		, "Relative throttle position"				, "01", "45", 1, percent			),
 	OBDCommand("AMBIANT_AIR_TEMP"			, "Ambient air temperature"					, "01", "46", 1, temp				),
 	OBDCommand("THROTTLE_POS_B"				, "Absolute throttle position B"			, "01", "47", 1, percent			),
@@ -203,7 +203,7 @@ __mode4__ = [
 	OBDCommand("CLEAR_DTC"			, "Clear DTCs and Freeze data"		, "04", "" , 0, noop				),
 ]
 
-__mode7__ [
+__mode7__ = [
 	#			sensor name				description						  mode  cmd  bytes  decoder
 	OBDCommand("GET_FREEZE_DTC"		, "Get Freeze DTCs"					, "07", "" , 0, noop				),
 ]
@@ -230,7 +230,7 @@ class Commands():
 		# allow commands to be accessed by sensor name
 		for m in self.modes:
 			for c in m:
-				self.__dict__[c.sensorname] = c
+				self.__dict__[c.name] = c
 
 	def __getitem__(self, key):
 		return self.modes[key]

@@ -25,9 +25,7 @@
 import serial
 import string
 import time
-
-import obd_sensors
-from obd_utils import hex_to_int
+from utils import unhex
 
 
 GET_DTC_COMMAND        = "03"
@@ -218,8 +216,8 @@ class OBDPort:
 			res = self.get_result()
 			print "DTC result:" + res
 			for i in range(0, 3):
-				val1 = hex_to_int(res[3+i*6:5+i*6])
-				val2 = hex_to_int(res[6+i*6:8+i*6]) #get DTC codes from response (3 DTC each 2 bytes)
+				val1 = unhex(res[3+i*6:5+i*6])
+				val2 = unhex(res[6+i*6:8+i*6]) #get DTC codes from response (3 DTC each 2 bytes)
 				val  = (val1<<8)+val2 #DTC val as int
 
 				if val==0: #skip fill of last packet
@@ -237,8 +235,8 @@ class OBDPort:
 
 		print "DTC freeze result:" + res
 		for i in range(0, 3):
-			val1 = hex_to_int(res[3+i*6:5+i*6])
-			val2 = hex_to_int(res[6+i*6:8+i*6]) #get DTC codes from response (3 DTC each 2 bytes)
+			val1 = unhex(res[3+i*6:5+i*6])
+			val2 = unhex(res[6+i*6:8+i*6]) #get DTC codes from response (3 DTC each 2 bytes)
 			val  = (val1<<8)+val2 #DTC val as int
 
 			if val==0: #skip fill of last packet

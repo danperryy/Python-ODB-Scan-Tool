@@ -4,6 +4,10 @@ from utils import *
 from codes import *
 
 
+# todo
+def todo(_hex):
+	return Value(_hex, Unit.NONE)
+
 # hex in, hex out
 def noop(_hex):
 	return Value(_hex, Unit.NONE)
@@ -273,7 +277,7 @@ def dtc(_hex):
 	dtc = ""
 	bits = bitstring(_hex[0])
 
-	dtc += ['P', 'C', 'B', 'U'][unbin(bits[0:2]))]
+	dtc += ['P', 'C', 'B', 'U'][unbin(bits[0:2])]
 	dtc += str(unbin(bits[2:4]))
 	dtc += _hex[1:4]
 
