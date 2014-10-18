@@ -48,23 +48,28 @@ class OBD():
 
 
 	def load_commands(self):
-		""" queries for available PIDs, and compiles lists of command objects """
+		""" queries for available PIDs, sets their support status, and compiles a list of command objects """
 
 		self.supportedCommands = []
 
-		# Find supported sensors - by getting PIDs from OBD (sensor zero)
-		# its a string of binary 01010101010101 
-		# 1 means the sensor is supported
-		supported = self.send_command(commands[1][0]) # mode 01, command 00
+		pid_getters = commands.pid_getters()
 
-		count = min(len(supported), len(commands[1]))
+		for get in pid_getters:
+			# GET commands should sequentialy turn themselves on (become marked as supported)
+			# MODE 1 PID 0 is marked supported by default 
+			if self.has_command(get):
+				supported = self.query(get).value # string of binary 01010101010101
 
-		# loop through PIDs binary
-		for i in range(count):
-			if supported[i] == "1":
-				c = commands[1][i]
-				c.supported = True
-				self.supportedCommands.append(c)
+				# loop through PIDs binary
+				for i in range(len(supported)):
+					if supported[i] == "1":
+
+						mode = get.getModeInt()
+						pid  = get.getPidInt() + i + 1
+
+						c = commands[mode][pid]
+						c.supported = True
+						self.supportedCommands.append(c)
 
 
 	def print_commands(self):

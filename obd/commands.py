@@ -45,10 +45,17 @@ class OBDCommand():
 						  self.mode,
 						  self.pid,
 						  self.bytes,
-						  self.decode)
+						  self.decode,
+						  self.supported)
 
 	def getCommand(self):
 		return self.mode + self.pid
+
+	def getModeInt(self):
+		return unhex(self.mode)
+
+	def getPidInt(self):
+		return unhex(self.pid)
 
 	def compute(self, _hex):
 		if "NODATA" in _hex:
@@ -79,7 +86,8 @@ class OBDCommand():
 Define command tables
 '''
 
-# note, the SENSOR NAME field will be used as the dict key for that sensor
+# NOTE: the SENSOR NAME field will be used as the dict key for that sensor
+# NOTE: commands MUST be in PID order, one command per PID (for fast lookup using __mode1__[pid])
 
 __mode1__ = [
 	#					sensor name							description					  mode  cmd bytes		decoder
@@ -248,6 +256,23 @@ class Commands():
 		for m in self.modes:
 			l += len(m)
 		return l
+
+	# returns a list of PID GET commands
+	def pid_getters(self):
+		getters = []
+		for m in self.modes:
+			for c in m:
+				if c.decode == pid: # GET commands have a special decoder
+					getter.append(c)
+		return getters
+
+	# sets the boolean for 
+	def set_supported(self, mode, pid, v):
+		if isinstance(v, bool):
+			if (mode < len(self.modes)) and (pid < len(self.modes[mode])):
+				self.modes[mode][pid].supported = v
+		else:
+			print "set_supported only accepts boolean values"
 
 # export this object
 commands = Commands()
