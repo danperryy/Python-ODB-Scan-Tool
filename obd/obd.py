@@ -57,22 +57,26 @@ class OBD():
 		for get in pid_getters:
 			# GET commands should sequentialy turn themselves on (become marked as supported)
 			# MODE 1 PID 0 is marked supported by default 
-			if self.has_command(get):
-				response = self.query(get)
+			if not self.has_command(get):
+				continue
 
-				if not response.isEmpty():
-					supported = response.value # string of binary 01010101010101
+			response = self.query(get) # ask nicely
 
-					# loop through PIDs binary
-					for i in range(len(supported)):
-						if supported[i] == "1":
+			if response.isEmpty():
+				continue
+			
+			supported = response.value # string of binary 01010101010101
 
-							mode = get.getModeInt()
-							pid  = get.getPidInt() + i + 1
+			# loop through PIDs binary
+			for i in range(len(supported)):
+				if supported[i] == "1":
 
-							c = commands[mode][pid]
-							c.supported = True
-							self.supportedCommands.append(c)
+					mode = get.getModeInt()
+					pid  = get.getPidInt() + i + 1
+
+					c = commands[mode][pid]
+					c.supported = True
+					self.supportedCommands.append(c)
 
 
 	def print_commands(self):
