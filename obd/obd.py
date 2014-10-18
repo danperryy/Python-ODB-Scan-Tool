@@ -3,7 +3,7 @@
 import time
 
 from port import OBDPort, State
-from commands import sensors, specials, commands
+from commands import commands
 from obd_utils import scanSerial
 
 

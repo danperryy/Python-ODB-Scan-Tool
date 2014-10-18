@@ -1,4 +1,4 @@
 
 from obd import OBD
-from commands import sensors, specials, commands
+from commands import commands
 from utils import scanSerial

@@ -72,6 +72,9 @@ class OBDCommand():
 
 
 
+'''
+Define command tables
+'''
 
 # note, the SENSOR NAME field will be used as the dict key for that sensor
 
@@ -197,7 +200,7 @@ __mode3__ = [
 
 __mode4__ = [
 	#			sensor name				description						  mode  cmd  bytes  decoder
-	OBDCommand("CLEAR_DTC"			, "Clear DTCs"						, "04", "" , 0, noop				),
+	OBDCommand("CLEAR_DTC"			, "Clear DTCs and Freeze data"		, "04", "" , 0, noop				),
 ]
 
 __mode7__ [
@@ -207,32 +210,36 @@ __mode7__ [
 
 
 
+'''
+Assemble the command tables by mode, and allow access by sensor name
+'''
 
-# assemble the commands by mode
-commands = [
-	[],
-	__mode1__,
-	__mode2__,
-	__mode3__,
-	__mode4__,
-	[],
-	[],
-	__mode7__
-]
+class Commands():
+	def __init__(self):
+		self.modes = [
+			[],
+			__mode1__,
+			__mode2__,
+			__mode3__,
+			__mode4__,
+			[],
+			[],
+			__mode7__
+		]
 
+		# allow commands to be accessed by sensor name
+		for m in self.modes:
+			for c in m:
+				self.__dict__[c.sensorname] = c
 
-class sensors():
-	pass
+	def __getitem__(self, key):
+		return self.modes[key]
 
-class specials():
-	pass
+	def __len__(self):
+		l = 0
+		for m in self.modes:
+			l += len(m)
+		return l
 
-
-# allow sensor commands to be accessed by name
-for m in commands:
-	for c in m:
-		# if the command has no decoder, it is considered a special
-		if c.decode == noop:
-			specials.__dict__[c.sensorname] = c
-		else:
-			sensors.__dict__[c.sensorname] = c
+# export this object
+commands = Commands()

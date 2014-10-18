@@ -197,26 +197,6 @@ class OBDPort:
 
 		return data
 
-	'''
-	def get_tests_MIL(self):
-		statusText=["Unsupported","Supported - Completed","Unsupported","Supported - Incompleted"]
-
-		statusRes = self.sensor(1)[1] #GET values
-		statusTrans = [] #translate values to text
-
-		statusTrans.append(str(statusRes[0])) #DTCs
-
-		if statusRes[1]==0: #MIL
-			statusTrans.append("Off")
-		else:
-			statusTrans.append("On")
-
-		for i in range(2,len(statusRes)): #Tests
-			statusTrans.append(statusText[statusRes[i]]) 
-
-		return statusTrans
-	'''
-
 	#
 	# fixme: j1979 specifies that the program should poll until the number
 	# of returned DTCs matches the number indicated by a call to PID 01
@@ -268,9 +248,3 @@ class OBDPort:
 			DTCCodes.append(["Passive",DTCStr])
 
 		return DTCCodes
-
-	def clear_dtc(self):
-		"""Clears all DTCs and freeze frame data"""
-		self.send_command(CLEAR_DTC_COMMAND)     
-		r = self.get_result()
-		return r
