@@ -28,11 +28,6 @@ import time
 from utils import Response, unhex
 
 
-GET_DTC_COMMAND        = "03"
-CLEAR_DTC_COMMAND      = "04"
-GET_FREEZE_DTC_COMMAND = "07"
-
-
 class State():
 	""" Enum for connection states """
 	Unconnected, Connected = range(2)
@@ -187,12 +182,11 @@ class OBDPort:
 		data = self.get_result()
 
 		if data:
-			print "RX: ", data
 			data = self.interpret_result(data)
 			if data != "NODATA":
 				data = command.compute(data)
 		else:
-			data = Response()
+			data = Response() # return empty response
 
 		return data
 

@@ -57,27 +57,28 @@ class OBDCommand():
 	def getPidInt(self):
 		return unhex(self.pid)
 
-	def compute(self, _hex):
+	def compute(self, _data):
 		# create the response object with the raw hex recieved
-		r = Response(_hex)
+		r = Response(_data)
+		print "RX: ", _data
 
-		if "NODATA" not in _hex:
+		if "NODATA" not in _data:
 
 			# constrain number of bytes in response
 			if (self.bytes > 0): # zero bytes means flexible response
 
-				diff = (self.bytes * 2) - len(_hex) # length discrepency in number of hex digits
+				diff = (self.bytes * 2) - len(_data) # length discrepency in number of hex digits
 
 				if diff > 0:
 					print "Receieved less data than expected, trying to parse anyways..."
-					_hex += ('0' * diff) # pad the right side with zeros
+					_data += ('0' * diff) # pad the right side with zeros
 				elif diff < 0:
 					print "Receieved more data than expected, trying to parse anyways..."
-					_hex = _hex[:diff] # chop off the right side to fit
+					_data = _data[:diff] # chop off the right side to fit
 
 			# decoded value into the response object
-			# NOTE: the decoder does not operate off on the raw_hex
-			r.set(self.decode(_hex))
+			# NOTE: the decoder does not operate off on the raw_data
+			r.set(self.decode(_data))
 
 		return r
 
