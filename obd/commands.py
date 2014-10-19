@@ -101,7 +101,7 @@ __mode1__ = [
 	OBDCommand("ENGINE_LOAD"				, "Calculated Engine Load"					, "01", "04", 1, percent			),
 	OBDCommand("COOLANT_TEMP"				, "Engine Coolant Temperature"				, "01", "05", 1, temp				),
 	OBDCommand("SHORT_FUEL_TRIM_1"			, "Short Term Fuel Trim - Bank 1"			, "01", "06", 1, percent_centered	),
-	OBDCommand("Long_FUEL_TRIM_1"			, "Long Term Fuel Trim - Bank 1"			, "01", "07", 1, percent_centered	),
+	OBDCommand("LONG_FUEL_TRIM_1"			, "Long Term Fuel Trim - Bank 1"			, "01", "07", 1, percent_centered	),
 	OBDCommand("SHORT_FUEL_TRIM_2"			, "Short Term Fuel Trim - Bank 2"			, "01", "08", 1, percent_centered	),
 	OBDCommand("LONG_FUEL_TRIM_2"			, "Long Term Fuel Trim - Bank 2"			, "01", "09", 1, percent_centered	),
 	OBDCommand("FUEL_PRESSURE"				, "Fuel Pressure"							, "01", "0A", 1, fuel_pressure		),
