@@ -71,8 +71,8 @@ class OBD():
 			for i in range(len(supported)):
 				if supported[i] == "1":
 
-					mode = get.getModeInt()
-					pid  = get.getPidInt() + i + 1
+					mode = get.mode_int
+					pid  = get.pid_int + i + 1
 
 					c = commands[mode][pid]
 					c.supported = True
