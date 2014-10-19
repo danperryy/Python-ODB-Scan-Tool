@@ -8,6 +8,7 @@ class Unit:
 	RATIO   = "Ratio"
 	COUNT   = "Count"
 	PERCENT = "Percent"
+	RPM     = "RPM"
 	VOLT    = "Volt"
 	F       = "F"
 	C       = "C"
@@ -72,6 +73,20 @@ def twos_comp(val, num_bits):
 	if( (val&(1<<(num_bits-1))) != 0 ):
 		val = val - (1<<num_bits)
 	return val
+
+# pads or chops hex to the requested number of bytes
+def constrainHex(_hex, b):
+	diff = (b * 2) - len(_hex) # length discrepency in number of hex digits
+
+	if diff > 0:
+		print "Receieved less data than expected, trying to parse anyways..."
+		_hex += ('0' * diff) # pad the right side with zeros
+	elif diff < 0:
+		print "Receieved more data than expected, trying to parse anyways..."
+		_hex = _hex[:diff] # chop off the right side to fit
+
+	return _hex
+
 
 def tryPort(portStr):
 	"""returns boolean for port availability"""

@@ -58,6 +58,10 @@ class OBDCommand():
 		return unhex(self.pid)
 
 	def compute(self, _data):
+		# _data will be the string returned from the device.
+		# It should look something like this:
+		# '41 11 0 0\r\r'
+
 		# create the response object with the raw data recieved
 		r = Response(_data)
 
@@ -68,15 +72,7 @@ class OBDCommand():
 
 			# constrain number of bytes in response
 			if (self.bytes > 0): # zero bytes means flexible response
-
-				diff = (self.bytes * 2) - len(_data) # length discrepency in number of hex digits
-
-				if diff > 0:
-					print "Receieved less data than expected, trying to parse anyways..."
-					_data += ('0' * diff) # pad the right side with zeros
-				elif diff < 0:
-					print "Receieved more data than expected, trying to parse anyways..."
-					_data = _data[:diff] # chop off the right side to fit
+				constrainHex(_data, self.bytes)
 
 			# decoded value into the response object
 			# NOTE: the decoder does not operate off on the raw_data

@@ -85,6 +85,9 @@ class OBDPort:
 		print "atz response:" + self.ELMver
 		self.send_command("ate0")  # echo off
 		print "ate0 response:" + self.get_result()
+
+
+		'''
 		self.send_command("0100")
 		ready = self.get_result()
 
@@ -93,7 +96,7 @@ class OBDPort:
 			return
 
 		print "0100 response:" + ready
-
+		'''
 
 	def error(self, msg=None):
 		""" called when connection error has been encountered """
@@ -133,10 +136,6 @@ class OBDPort:
 			#print "Send command:" + cmd
 
 	def interpret_result(self,code):
-
-		# Code will be the string returned from the device.
-		# It should look something like this:
-		# '41 11 0 0\r\r'
 
 		# 9 seems to be the length of the shortest valid response
 		if len(code) < 7:
