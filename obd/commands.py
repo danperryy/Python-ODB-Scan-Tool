@@ -277,5 +277,15 @@ class Commands():
 		else:
 			print "set_supported only accepts boolean values"
 
+	# checks for existance of int mode and int pid
+	def has(self, mode, pid):
+		if (mode < 0) or (pid < 0):
+			return False
+		if mode >= len(self.modes):
+			return False
+		if pid >= len(self.modes[mode]):
+			return False
+		return True
+
 # export this object
 commands = Commands()
