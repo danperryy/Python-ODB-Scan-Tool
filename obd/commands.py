@@ -58,11 +58,13 @@ class OBDCommand():
 		return unhex(self.pid)
 
 	def compute(self, _data):
-		# create the response object with the raw hex recieved
+		# create the response object with the raw data recieved
 		r = Response(_data)
-		print "RX: ", _data
+
+		_data = "".join(_data.split()) # strips spaces, and removes [\n\r\t]
 
 		if "NODATA" not in _data:
+			_data = _data[4:] # the first 4 chars are codes from the ELM (we don't need those)
 
 			# constrain number of bytes in response
 			if (self.bytes > 0): # zero bytes means flexible response

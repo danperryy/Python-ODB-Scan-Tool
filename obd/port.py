@@ -159,37 +159,40 @@ class OBDPort:
 		code = code[4:]
 		return code
 
+
 	def get_result(self):
 		"""Internal use only: not a public interface"""
-		#time.sleep(0.01)
-		repeat_count = 0
+
+		attempts = 5
+		result = ""
+
 		if self.port is not None:
-			buffer = ""
 			while 1:
 				c = self.port.read(1)
+
+				# if nothing was recieved
 				if len(c) == 0:
-					if(repeat_count == 5):
+
+					if(attempts <= 0):
 						break
+
 					print "Got nothing\n"
-					repeat_count = repeat_count + 1
+					attempts -= 1
 					continue
 
+				# skip carraige returns
 				if c == '\r':
 					continue
 
+				# end on chevron
 				if c == ">":
 					break;
-
-				if buffer != "" or c != ">": #if something is in buffer, add everything
-					buffer = buffer + c
-
-			#print "Get result:" + buffer
-			if(buffer == ""):
-				return None
-			return buffer
+				else: # whatever is left must be part of the response
+					result = result + c
 		else:
 			print "NO self.port!"
-		return None
+
+		return result
 
 	# get sensor value from command
 	def get_sensor_value(self, command):
@@ -199,7 +202,7 @@ class OBDPort:
 		data = self.get_result()
 
 		if data:
-			data = self.interpret_result(data)
+			# data = self.interpret_result(data)
 			return command.compute(data)
 		else:
 			return Response() # return empty response
