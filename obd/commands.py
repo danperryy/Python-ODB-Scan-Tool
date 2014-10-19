@@ -35,6 +35,7 @@ class OBDCommand():
 		self.desc       = desc
 		self.mode       = mode
 		self.pid        = pid
+		self.hex        = mode + pid # the actual command transmitted to the port
 		self.bytes      = returnBytes # number of bytes expected in return
 		self.decode     = decoder
 		self.supported  = supported
@@ -48,9 +49,6 @@ class OBDCommand():
 						  self.decode,
 						  self.supported)
 
-	def getCommand(self):
-		return self.mode + self.pid
-
 	def getModeInt(self):
 		return unhex(self.mode)
 
@@ -59,24 +57,27 @@ class OBDCommand():
 
 	def compute(self, _data):
 		# _data will be the string returned from the device.
-		# It should look something like this:
-		# '41 11 0 0\r\r'
+		# It should look something like this: '41 11 0 0\r\r'
 
 		# create the response object with the raw data recieved
 		r = Response(_data)
 
-		_data = "".join(_data.split()) # strips spaces, and removes [\n\r\t]
+		# strips spaces, and removes [\n\r\t]
+		_data = "".join(_data.split())
 
-		if "NODATA" not in _data:
-			_data = _data[4:] # the first 4 chars are codes from the ELM (we don't need those)
+		if (len(_data) > 0) and ("NODATA" not in _data) and isHex(_data):
+
+			# the first 4 chars are codes from the ELM (we don't need those)
+			_data = _data[4:]
 
 			# constrain number of bytes in response
 			if (self.bytes > 0): # zero bytes means flexible response
 				constrainHex(_data, self.bytes)
 
 			# decoded value into the response object
-			# NOTE: the decoder does not operate off on the raw_data
 			r.set(self.decode(_data))
+		else:
+			pass # not a parseable response
 
 		return r
 

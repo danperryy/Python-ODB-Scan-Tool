@@ -68,35 +68,27 @@ class OBDPort:
 			return
 
 		print "Interface successfully opened on " + self.get_port_name()
-		print "Connecting to ECU..."
 
 		try:
-			self.send_command("atz")   # initialize
+			self.send("atz")   # initialize
 			time.sleep(1)
+			self.ELMver = self.get()
+
+			if self.ELMver is None :
+				self.error("ELMver did not return")
+				return
+			
+			print "atz response: " + self.ELMver
+		
 		except serial.SerialException as e:
 			self.error(e)
 			return
 
-		self.ELMver = self.get_result()
-		if self.ELMver is None :
-			self.error("ELMver returned None")
-			return
+		self.send("ate0")  # echo off
+		print "ate0 response: " + self.get()
 
-		print "atz response:" + self.ELMver
-		self.send_command("ate0")  # echo off
-		print "ate0 response:" + self.get_result()
+		print "Connected to ECU"
 
-
-		'''
-		self.send_command("0100")
-		ready = self.get_result()
-
-		if ready is None:
-			self.state = State.Unconnected
-			return
-
-		print "0100 response:" + ready
-		'''
 
 	def error(self, msg=None):
 		""" called when connection error has been encountered """
@@ -114,52 +106,31 @@ class OBDPort:
 	def get_port_name(self):
 		return self.port.portstr if (self.port is not None) else "No Port"
 
+	def is_connected(self):
+		return self.state == State.Connected
 
 	def close(self):
 		""" Resets device and closes all associated filehandles"""
 
-		if (self.port != None) and self.state == State.Connected:
-			self.send_command("atz")
+		if (self.port != None) and (self.state == State.Connected):
+			self.send("atz")
 			self.port.close()
 
 		self.port = None
 		self.ELMver = "Unknown"
 
-	def send_command(self, cmd):
 
+	# sends the hex string to the port
+	def send(self, cmd):
 		if self.port:
 			self.port.flushOutput()
 			self.port.flushInput()
 			for c in cmd:
 				self.port.write(c)
 			self.port.write("\r\n")
-			#print "Send command:" + cmd
 
-	def interpret_result(self,code):
-
-		# 9 seems to be the length of the shortest valid response
-		if len(code) < 7:
-			#raise Exception("BogusCode")
-			print "boguscode?"+code
-
-		# get the first thing returned, echo should be off
-		code = string.split(code, "\r")
-		code = code[0]
-
-		#remove whitespace
-		code = string.split(code)
-		code = string.join(code, "")
-
-		#cables can behave differently 
-		if code[:6] == "NODATA": # there is no such sensor
-			return "NODATA"
-
-		# first 4 characters are code from ELM
-		code = code[4:]
-		return code
-
-
-	def get_result(self):
+	# accumulates and returns the ports response
+	def get(self):
 		"""Internal use only: not a public interface"""
 
 		attempts = 5
@@ -193,20 +164,6 @@ class OBDPort:
 
 		return result
 
-	# get sensor value from command
-	def get_sensor_value(self, command):
-
-		cmd = command.getCommand()
-		self.send_command(cmd)
-		data = self.get_result()
-
-		if data:
-			# data = self.interpret_result(data)
-			return command.compute(data)
-		else:
-			return Response() # return empty response
-
-
 	#
 	# fixme: j1979 specifies that the program should poll until the number
 	# of returned DTCs matches the number indicated by a call to PID 01
@@ -224,8 +181,8 @@ class OBDPort:
 		print "Number of stored DTC:" + str(dtcNumber) + " MIL: " + str(mil)
 		# get all DTC, 3 per mesg response
 		for i in range(0, ((dtcNumber+2)/3)):
-			self.send_command(GET_DTC_COMMAND)
-			res = self.get_result()
+			self.send(GET_DTC_COMMAND)
+			res = self.get()
 			print "DTC result:" + res
 			for i in range(0, 3):
 				val1 = unhex(res[3+i*6:5+i*6])
@@ -239,8 +196,8 @@ class OBDPort:
 				DTCCodes.append(["Active",DTCStr])
 
 		#read mode 7
-		self.send_command(GET_FREEZE_DTC_COMMAND)
-		res = self.get_result()
+		self.send(GET_FREEZE_DTC_COMMAND)
+		res = self.get()
 
 		if res[:7] == "NODATA": #no freeze frame
 			return DTCCodes

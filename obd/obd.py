@@ -38,9 +38,9 @@ class OBD():
 
 		return self.is_connected()
 
-
+	# checks the port state for conncetion status
 	def is_connected(self):
-		return (self.port is not None) and (self.port.state == State.Connected)
+		return (self.port is not None) and self.port.is_connected()
 
 
 	def get_port_name(self):
@@ -86,10 +86,17 @@ class OBD():
 	def has_command(self, c):
 		return c.supported
 
-	def query(self, command):
-		print "TX: " + str(command)
-		if self.has_command(command):
-			return self.port.get_sensor_value(command)
+	def query(self, command, force=False):
+		#print "TX: " + str(command)
+		
+		if self.has_command(command) and not force:
+
+			# send command to the port
+			self.port.send(command.hex)
+			
+			# get the data, and compute a response object
+			return command.compute(self.port.get())
+		
 		else:
 			print "'%s' is not supported" % str(command)
 			return Response() # return empty response

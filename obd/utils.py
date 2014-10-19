@@ -28,7 +28,7 @@ class Unit:
 
 class Response():
 	def __init__(self, raw_data=""):
-		self.value   = None
+		self.value   = "No Data"
 		self.unit    = Unit.NONE
 		self.raw_data = raw_data
 
