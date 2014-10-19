@@ -87,6 +87,7 @@ class OBD():
 		return c.supported
 
 	def query(self, command):
+		print "TX: " + str(command)
 		if self.has_command(command):
 			return self.port.get_sensor_value(command)
 		else:

@@ -160,19 +160,36 @@ class OBDPort:
 		return code
 
 	def get_result(self):
-
+		"""Internal use only: not a public interface"""
+		#time.sleep(0.01)
+		repeat_count = 0
 		if self.port is not None:
-			result = ""
+			buffer = ""
 			while 1:
 				c = self.port.read(1)
-				if not c or c == ">":
-					break
-				if c == "\x00":
+				if len(c) == 0:
+					if(repeat_count == 5):
+						break
+					print "Got nothing\n"
+					repeat_count = repeat_count + 1
 					continue
-				result += c
-			return result
+
+				if c == '\r':
+					continue
+
+				if c == ">":
+					break;
+
+				if buffer != "" or c != ">": #if something is in buffer, add everything
+					buffer = buffer + c
+
+			#print "Get result:" + buffer
+			if(buffer == ""):
+				return None
+			return buffer
 		else:
-			return "NORESPONSE"
+			print "NO self.port!"
+		return None
 
 	# get sensor value from command
 	def get_sensor_value(self, command):
@@ -183,12 +200,10 @@ class OBDPort:
 
 		if data:
 			data = self.interpret_result(data)
-			if data != "NODATA":
-				data = command.compute(data)
+			return command.compute(data)
 		else:
-			data = Response() # return empty response
+			return Response() # return empty response
 
-		return data
 
 	#
 	# fixme: j1979 specifies that the program should poll until the number
