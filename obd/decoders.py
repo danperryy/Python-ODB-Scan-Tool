@@ -210,7 +210,7 @@ def status(_hex):
 	if(output["Ignition Type"] == IGNITION_TYPE[0]): # spark
 		for i in range(8):
 			if SPARK_TESTS[i] is not None:
-
+				print i
 				t = Test(SPARK_TESTS[i], \
 						 bitToBool(bits[(2 * 8) + i]), \
 						 bitToBool(bits[(3 * 8) + i]))
@@ -232,8 +232,8 @@ def status(_hex):
 
 
 def fuel_status(_hex):
-	v = unhex(_hex)
-	i = int(math.sqrt(v)) # only a single bit should be on
+	v = unhex(_hex[0:2])
+	i = int(math.log(v, 2)) # only a single bit should be on
 
 	v = "Error: Unknown fuel status response"
 
