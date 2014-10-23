@@ -168,6 +168,7 @@ class OBDPort:
 	# fixme: j1979 specifies that the program should poll until the number
 	# of returned DTCs matches the number indicated by a call to PID 01
 	#
+	'''
 	def get_dtc(self):
 		"""Returns a list of all pending DTC codes. Each element consists of
 		a 2-tuple: (DTC code (string), Code description (string) )"""
@@ -215,3 +216,4 @@ class OBDPort:
 			DTCCodes.append(["Passive",DTCStr])
 
 		return DTCCodes
+	'''

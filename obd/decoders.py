@@ -286,6 +286,12 @@ def describeCode(code):
 
 	return (v, Unit.NONE)
 
+
+
+'''
+The following decoders are untested due to lack of a broken car
+'''
+
 # converts 2 bytes of hex into a DTC code
 def dtc(_hex):
 	dtc = ""
