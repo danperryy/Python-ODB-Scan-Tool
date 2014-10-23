@@ -90,7 +90,7 @@ class OBD():
 	def query(self, command, force=False):
 		#print "TX: " + str(command)
 		
-		if self.has_command(command) and not force:
+		if self.has_command(command) or force:
 
 			# send command to the port
 			self.port.send(command.hex)

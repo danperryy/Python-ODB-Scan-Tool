@@ -245,7 +245,7 @@ def fuel_status(_hex):
 
 def air_status(_hex):
 	v = unhex(_hex)
-	i = int(math.sqrt(v)) # only a single bit should be on
+	i = int(math.log(v, 2)) # only a single bit should be on
 
 	v = "Error: Unknown air status response"
 
