@@ -25,7 +25,7 @@
 
 
 from decoders import *
-from utils import Response
+from utils import *
 
 
 
@@ -38,14 +38,9 @@ class OBDCommand():
 		self.bytes      = returnBytes # number of bytes expected in return
 		self.decode     = decoder
 		self.supported  = supported
-		
-		# computed properties
-		self.hex        = mode + pid # the actual command transmitted to the port
-		self.mode_int   = unhex(self.mode)
-		self.pid_int    = unhex(self.pid)
 
 	def __str__(self):
-		return self.desc
+		return "%s%s: %s" % (self.mode, self.pid, self.desc)
 
 	def clone(self):
 		return OBDCommand(self.name,
@@ -55,6 +50,15 @@ class OBDCommand():
 						  self.bytes,
 						  self.decode,
 						  self.supported)
+
+	def get_command(self):
+		return self.mode + self.pid # the actual command transmitted to the port
+
+	def get_mode_int(self):
+		return unhex(self.mode)
+
+	def get_pid_int(self):
+		return unhex(self.pid)
 
 	def compute(self, _data):
 		# _data will be the string returned from the device.

@@ -71,10 +71,10 @@ class OBD():
 			for i in range(len(supported)):
 				if supported[i] == "1":
 
-					mode = get.mode_int
-					pid  = get.pid_int + i + 1
+					mode = get.get_mode_int()
+					pid  = get.get_pid_int() + i + 1
 
-					if commands.has(mode, pid)
+					if commands.has(mode, pid):
 						c = commands[mode][pid]
 						c.supported = True
 						self.supportedCommands.append(c)
@@ -85,7 +85,7 @@ class OBD():
 			print str(c)
 
 	def has_command(self, c):
-		return commands.has(c.mode_int, c.pid_int) and c.supported
+		return commands.has(c.get_mode_int(), c.get_pid_int()) and c.supported
 
 	def query(self, command, force=False):
 		#print "TX: " + str(command)
@@ -93,7 +93,7 @@ class OBD():
 		if self.has_command(command) or force:
 
 			# send command to the port
-			self.port.send(command.hex)
+			self.port.send(command.get_command())
 			
 			# get the data, and compute a response object
 			return command.compute(self.port.get())

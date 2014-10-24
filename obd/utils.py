@@ -1,5 +1,6 @@
 import serial
 import errno
+import string
 
 
 
@@ -57,6 +58,7 @@ class Test():
 
 
 def unhex(_hex):
+	_hex = "0" if _hex == "" else _hex
 	return int(_hex, 16)
 
 def unbin(_bin):
@@ -73,6 +75,9 @@ def twos_comp(val, num_bits):
 	if( (val&(1<<(num_bits-1))) != 0 ):
 		val = val - (1<<num_bits)
 	return val
+
+def isHex(_hex):
+	return all(c in string.hexdigits for c in _hex)
 
 # pads or chops hex to the requested number of bytes
 def constrainHex(_hex, b):
