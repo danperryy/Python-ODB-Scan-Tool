@@ -52,8 +52,20 @@ Commands can also be accessed explicitly, either by name, or by code value. The 
 
 	connection = obd.OBD()
 
-	if connection.has_command(obd.commands.RPM):    # check for existance of sensor
-		print connection.query(obd.commands.RPM)    # get and print value of sensor
+
+	c = obd.commands.RPM
+
+	# OR
+
+	c = obd.commands['RPM']
+
+	# OR
+
+	c = obd.commands[1][12] # mode 1, PID 12 (decimal)
+
+
+	if connection.has_command(c):        # check for existance of sensor
+		print connection.query(c).value  # get and print value of sensor
 
 
 Here are a few of the currently supported commands (for a full list, see commands.py):
@@ -76,7 +88,7 @@ Here are a few of the currently supported commands (for a full list, see command
 + Number of warm-ups since codes cleared
 + Distance traveled since codes cleared
 + Evaporative system vapor pressure
-+ Baromtric Pressure
++ Barometric Pressure
 + Control module voltage
 + Relative throttle position
 + Ambient air temperature

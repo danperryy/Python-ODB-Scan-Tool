@@ -151,7 +151,7 @@ __mode1__ = [
 	OBDCommand("WARMUPS_SINCE_DTC_CLEAR"	, "Number of warm-ups since codes cleared"	, "01", "30", 1, count				),
 	OBDCommand("DISTANCE_SINCE_DTC_CLEAR"	, "Distance traveled since codes cleared"	, "01", "31", 2, distance			),
 	OBDCommand("EVAP_VAPOR_PRESSURE"		, "Evaporative system vapor pressure"		, "01", "32", 2, evap_pressure		),
-	OBDCommand("BAROMETRIC_PRESSURE"		, "Baromtric Pressure"						, "01", "33", 1, pressure			),
+	OBDCommand("BAROMETRIC_PRESSURE"		, "Barometric Pressure"						, "01", "33", 1, pressure			),
 	OBDCommand("O2_S1_WR_CURRENT"			, "02 Sensor 1 WR Lambda Current"			, "01", "34", 4, current_centered	),
 	OBDCommand("O2_S2_WR_CURRENT"			, "02 Sensor 2 WR Lambda Current"			, "01", "35", 4, current_centered	),
 	OBDCommand("O2_S3_WR_CURRENT"			, "02 Sensor 3 WR Lambda Current"			, "01", "36", 4, current_centered	),
