@@ -185,7 +185,9 @@ Return objects, lists, etc
 
 
 def status(_hex):
-	bits = bitstring(_hex)
+	print _hex
+	bits = bitstring(_hex, 32)
+	print bits
 
 	output = {}
 	output["Check Engine Light"] = bitToBool(bits[0])
@@ -198,12 +200,12 @@ def status(_hex):
 								bitToBool(bits[11])))
 
 	output["Tests"].append(Test("Fuel System", \
-								bitToBool(bits[16]), \
-								bitToBool(bits[12])))
+								bitToBool(bits[14]), \
+								bitToBool(bits[10])))
 
 	output["Tests"].append(Test("Components", \
-								bitToBool(bits[17]), \
-								bitToBool(bits[13])))
+								bitToBool(bits[13]), \
+								bitToBool(bits[9])))
 
 
 	# different tests for different ignition types 

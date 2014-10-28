@@ -64,8 +64,11 @@ def unhex(_hex):
 def unbin(_bin):
 	return int(_bin, 2)
 
-def bitstring(_hex):
-	return bin(unhex(_hex))[2:]
+def bitstring(_hex, bits=None):
+	b = bin(unhex(_hex))[2:]
+	if bits is not None:
+		b = ('0' * (bits - len(b))) + b
+	return b
 
 def bitToBool(_bit):
 	return (_bit == '1')

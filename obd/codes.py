@@ -2113,9 +2113,9 @@ COMPRESSION_TESTS = [
 	"EGR and/or VVT System",
 	"PM filter monitoring",
 	"Exhaust Gas Sensor",
-	None,
+	"None",
 	"Boost Pressure",
-	None,
+	"None",
 	"NOx/SCR Monitor",
 	"NMHC Catalyst",
 ]
