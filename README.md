@@ -70,6 +70,8 @@ Commands can also be accessed explicitly, either by name, or by code value. The 
 
 Here are a few of the currently supported commands (for a full list, see commands.py):
 
+(note: support for these commands will vary from car to car)
+
 + Calculated Engine Load
 + Engine Coolant Temperature
 + Fuel Pressure
