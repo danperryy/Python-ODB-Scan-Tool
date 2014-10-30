@@ -185,9 +185,7 @@ Return objects, lists, etc
 
 
 def status(_hex):
-	print _hex
 	bits = bitstring(_hex, 32)
-	print bits
 
 	output = {}
 	output["Check Engine Light"] = bitToBool(bits[0])
@@ -212,7 +210,7 @@ def status(_hex):
 	if(output["Ignition Type"] == IGNITION_TYPE[0]): # spark
 		for i in range(8):
 			if SPARK_TESTS[i] is not None:
-				print i
+
 				t = Test(SPARK_TESTS[i], \
 						 bitToBool(bits[(2 * 8) + i]), \
 						 bitToBool(bits[(3 * 8) + i]))
@@ -229,7 +227,7 @@ def status(_hex):
 				
 				output["Tests"].append(t)
 
-	return output
+	return (output, Unit.NONE)
 
 
 
