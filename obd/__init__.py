@@ -2,9 +2,16 @@
 ########################################################################
 #                                                                      #
 # python-OBD: A python OBD-II serial module derived from pyobd         #
-# Copyright 2014 Brendan Whitfield                                     #
+#                                                                      #
+# Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
+# Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
+# Copyright 2014 Brendan Whitfield (bcw7044@rit.edu)                   #
 #                                                                      #
 ########################################################################
+#                                                                      #
+# __init__.py                                                          #
+#                                                                      #
+# This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
 # python-OBD is free software: you can redistribute it and/or modify   #
 # it under the terms of the GNU General Public License as published by #
