@@ -26,6 +26,7 @@ import serial
 import string
 import time
 from utils import Response, unhex
+from debug import debug
 
 
 class State():
@@ -50,7 +51,7 @@ class OBDPort:
 		self.state  = State.Connected
 		self.port   = None
 
-		print "Opening interface (serial port)"
+		debug("Opening serial port...")
 
 		try:
 			self.port = serial.Serial(portname, \
@@ -67,7 +68,7 @@ class OBDPort:
 			self.error(e)
 			return
 
-		print "Interface successfully opened on " + self.get_port_name()
+		debug("Serial port successfully opened on " + self.get_port_name())
 
 		try:
 			self.send("atz")   # initialize
@@ -78,16 +79,15 @@ class OBDPort:
 				self.error("ELMver did not return")
 				return
 			
-			print "atz response: " + self.ELMver
+			debug("atz response: " + self.ELMver)
 		
 		except serial.SerialException as e:
 			self.error(e)
 			return
 
 		self.send("ate0")  # echo off
-		print "ate0 response: " + self.get()
-
-		print "Connected to ECU"
+		debug("ate0 response: " + self.get())
+		debug("Connected to ECU")
 
 
 	def error(self, msg=None):
@@ -146,7 +146,8 @@ class OBDPort:
 					if(attempts <= 0):
 						break
 
-					print "Got nothing\n"
+					debug("get() found nothing")
+					
 					attempts -= 1
 					continue
 

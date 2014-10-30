@@ -77,7 +77,10 @@ class OBD():
 					if commands.has(mode, pid):
 						c = commands[mode][pid]
 						c.supported = True
-						self.supportedCommands.append(c)
+
+						# don't add PID getters to the command list
+						if c not in pid_getters:
+							self.supportedCommands.append(c)
 
 
 	def print_commands(self):

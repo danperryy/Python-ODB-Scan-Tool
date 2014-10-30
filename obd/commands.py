@@ -48,8 +48,7 @@ class OBDCommand():
 						  self.mode,
 						  self.pid,
 						  self.bytes,
-						  self.decode,
-						  self.supported)
+						  self.decode)
 
 	def get_command(self):
 		return self.mode + self.pid # the actual command transmitted to the port
@@ -257,6 +256,8 @@ class Commands():
 			return self.modes[key]
 		elif isinstance(key, basestring):
 			return self.__dict__[key]
+		else:
+			print "OBD commands can only be retrieved by PID value or dict name"
 
 	def __len__(self):
 		l = 0
@@ -283,13 +284,17 @@ class Commands():
 
 	# checks for existance of int mode and int pid
 	def has(self, mode, pid):
-		if (mode < 0) or (pid < 0):
+		if isinstance(mode, int) and isinstance(pid, int):
+			if (mode < 0) or (pid < 0):
+				return False
+			if mode >= len(self.modes):
+				return False
+			if pid >= len(self.modes[mode]):
+				return False
+			return True
+		else:
+			print "has() only accepts integer values for mode and PID"
 			return False
-		if mode >= len(self.modes):
-			return False
-		if pid >= len(self.modes[mode]):
-			return False
-		return True
 
 # export this object
 commands = Commands()
