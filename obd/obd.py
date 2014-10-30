@@ -5,6 +5,7 @@ import time
 from port import OBDPort, State
 from commands import commands
 from utils import scanSerial, Response
+from debug import debug
 
 
 
@@ -50,6 +51,8 @@ class OBD():
 	def load_commands(self):
 		""" queries for available PIDs, sets their support status, and compiles a list of command objects """
 
+		debug("querying for supported PIDs (commands)...")
+
 		self.supportedCommands = []
 
 		pid_getters = commands.pid_getters()
@@ -82,6 +85,8 @@ class OBD():
 						if c not in pid_getters:
 							self.supportedCommands.append(c)
 
+		debug("finished querying with %d commands supported" % len(self.supportedCommands))
+
 
 	def print_commands(self):
 		for c in self.supportedCommands:
@@ -94,6 +99,7 @@ class OBD():
 		#print "TX: " + str(command)
 		
 		if self.has_command(command) or force:
+			debug("Sending command: %s" % str(command))
 
 			# send command to the port
 			self.port.send(command.get_command())

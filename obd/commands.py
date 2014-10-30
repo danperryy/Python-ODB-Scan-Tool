@@ -26,6 +26,7 @@
 
 from decoders import *
 from utils import *
+from debug import debug
 
 
 
@@ -65,6 +66,7 @@ class OBDCommand():
 
 		# create the response object with the raw data recieved
 		r = Response(_data)
+		debug("command returned: %s" % _data)
 
 		# strips spaces, and removes [\n\r\t]
 		_data = "".join(_data.split())
@@ -80,8 +82,10 @@ class OBDCommand():
 
 			# decoded value into the response object
 			r.set(self.decode(_data))
+
 		else:
-			pass # not a parseable response
+			# not a parseable response
+			debug("return data could not be decoded")
 
 		return r
 

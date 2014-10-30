@@ -1,7 +1,8 @@
+
 import serial
 import errno
 import string
-
+from debug import debug
 
 
 class Unit:
@@ -87,10 +88,10 @@ def constrainHex(_hex, b):
 	diff = (b * 2) - len(_hex) # length discrepency in number of hex digits
 
 	if diff > 0:
-		print "Receieved less data than expected, trying to parse anyways..."
+		debug("Receieved less data than expected, trying to parse anyways...")
 		_hex += ('0' * diff) # pad the right side with zeros
 	elif diff < 0:
-		print "Receieved more data than expected, trying to parse anyways..."
+		debug("Receieved more data than expected, trying to parse anyways...")
 		_hex = _hex[:diff] # chop off the right side to fit
 
 	return _hex
