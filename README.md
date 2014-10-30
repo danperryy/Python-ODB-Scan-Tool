@@ -107,4 +107,19 @@ Here are a few of the currently supported commands (for a full list, see command
 + Engine fuel rate
 
 
+### Debug
+
+python-OBD also contains a debug object that can be used to print status messages and errors. Console printing is disabled by default, but can be enabled manually. A custom debug handler can also be set.
+
+	import obd
+
+	obd.debug.console = True
+
+	# AND / OR
+
+	def log(msg):
+		print msg
+
+	obd.debug.handler = log
+
 Enjoy and drive safe!
