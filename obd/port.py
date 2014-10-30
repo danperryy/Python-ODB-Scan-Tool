@@ -92,10 +92,10 @@ class OBDPort:
 
 	def error(self, msg=None):
 		""" called when connection error has been encountered """
-		print "Connection Error:"
+		debug("Connection Error:", True)
 
 		if msg is not None:
-			print msg
+			debug(msg, True)
 		
 		if self.port is not None:
 			self.port.close()
@@ -161,7 +161,7 @@ class OBDPort:
 				else: # whatever is left must be part of the response
 					result = result + c
 		else:
-			print "NO self.port!"
+			debug("NO self.port!", True)
 
 		return result
 

@@ -17,14 +17,18 @@ class OBD():
 		self.supportedCommands = []
 
 		# initialize by connecting and loading sensors
+		debug("Starting python-OBD")
 		if self.connect(portstr):
 			self.load_commands()
+		else:
+			debug("Failed to connect")
 
 
 	def connect(self, portstr=None):
 		""" attempts to instantiate an OBDPort object. Return boolean for success/failure"""
 
 		if portstr is None:
+			debug("Using scanSerial to select port")
 			portnames = scanSerial()
 
 			for port in portnames:
@@ -35,6 +39,7 @@ class OBD():
 					# success! stop searching for serial
 					break
 		else:
+			debug("Explicit port defined")
 			self.port = OBDPort(portstr)
 
 		return self.is_connected()
@@ -110,16 +115,3 @@ class OBD():
 		else:
 			print "'%s' is not supported" % str(command)
 			return Response() # return empty response
-
-
-
-
-if __name__ == "__main__":
-
-	o = OBD()
-	time.sleep(3)
-	if not o.is_connected():
-		print "Not connected"
-	else:
-		print "Connected to " + o.get_port_name()
-		o.print_commands()

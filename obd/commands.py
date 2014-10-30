@@ -261,7 +261,7 @@ class Commands():
 		elif isinstance(key, basestring):
 			return self.__dict__[key]
 		else:
-			print "OBD commands can only be retrieved by PID value or dict name"
+			debug("OBD commands can only be retrieved by PID value or dict name", True)
 
 	def __len__(self):
 		l = 0
@@ -284,7 +284,7 @@ class Commands():
 			if (mode < len(self.modes)) and (pid < len(self.modes[mode])):
 				self.modes[mode][pid].supported = v
 		else:
-			print "set_supported only accepts boolean values"
+			debug("set_supported only accepts boolean values", True)
 
 	# checks for existance of int mode and int pid
 	def has(self, mode, pid):
@@ -297,7 +297,7 @@ class Commands():
 				return False
 			return True
 		else:
-			print "has() only accepts integer values for mode and PID"
+			debug("has() only accepts integer values for mode and PID", True)
 			return False
 
 # export this object
