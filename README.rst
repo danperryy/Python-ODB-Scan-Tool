@@ -19,7 +19,7 @@ Dependencies
 Usage
 -----
 
-After installing the library, simply import pyobd, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the scanSerial helper retrieve a list of connected ports
+After installing the library, simply import pyobd, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the scanSerial helper retrieve a list of connected ports::
 
     import obd
 
@@ -36,7 +36,7 @@ After installing the library, simply import pyobd, and create a new OBD connecti
     connection = obd.OBD(ports[0]) # connect to the first port in the list
 
 
-Once a connection is made, python-OBD will load a list of the available commands in your car. A "Command" in python-OBD is an object used to query specific information from the vehicle. A command object contains its name, units, codes, and decoding functions. To get the value of a sensor, call the query() function with that sensor's command as an argument.
+Once a connection is made, python-OBD will load a list of the available commands in your car. A "Command" in python-OBD is an object used to query specific information from the vehicle. A command object contains its name, units, codes, and decoding functions. To get the value of a sensor, call the query() function with that sensor's command as an argument.::
 
     import obd
 
@@ -48,7 +48,7 @@ Once a connection is made, python-OBD will load a list of the available commands
         print response.value, response.unit     # prints the data and units returned from the car
 
 
-Commands can also be accessed explicitly, either by name, or by code value. The has_command() function will determine whether or not your car supports the requested command.
+Commands can also be accessed explicitly, either by name, or by code value. The has_command() function will determine whether or not your car supports the requested command.::
 
     import obd
 
@@ -112,7 +112,7 @@ Here are a few of the currently supported commands (for a full list, see command
 Debug
 -----
 
-python-OBD also contains a debug object that can be used to print status messages and errors. Console printing is disabled by default, but can be enabled manually. A custom debug handler can also be set.
+python-OBD also contains a debug object that can be used to print status messages and errors. Console printing is disabled by default, but can be enabled manually. A custom debug handler can also be set.::
 
     import obd
 
