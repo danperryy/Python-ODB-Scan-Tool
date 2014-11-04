@@ -1,5 +1,5 @@
 python-OBD
-========
+==========
 
 ##### A python module for handling realtime sensor data from OBD-II vehicle ports
 
