@@ -13,7 +13,7 @@ Dependencies
 ------------
 
 + pySerial
-+ OBD-II addapter (ELM327 Bluetooth Adapter or ELM327 USB Cable)
++ OBD-II adapter (ELM327 Bluetooth Adapter or ELM327 USB Cable)
 
 
 Usage
