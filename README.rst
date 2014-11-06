@@ -8,6 +8,13 @@ This library is forked from:
 + https://github.com/peterh/pyobd
 + https://github.com/Pbartek/pyobd-pi
 
+Installation
+------------
+
+Run the following command to download/install the latest release from pypi::
+
+    $ pip install obd
+
 
 Dependencies
 ------------
@@ -70,9 +77,7 @@ Commands can also be accessed explicitly, either by name, or by code value. The 
         print connection.query(c).value  # get and print value of sensor
 
 
-Here are a few of the currently supported commands (for a full list, see commands.py):
-
-(note: support for these commands will vary from car to car)
+Here are a few of the currently supported commands (note: support for these commands will vary from car to car):
 
 + Calculated Engine Load
 + Engine Coolant Temperature
@@ -85,28 +90,21 @@ Here are a few of the currently supported commands (for a full list, see command
 + Air Flow Rate (MAF)
 + Throttle Position
 + Engine Run Time
-+ Distance Traveled with MIL on
-+ Fuel Rail Pressure (relative to vacuum)
-+ Fuel Rail Pressure (direct inject)
 + Fuel Level Input
 + Number of warm-ups since codes cleared
 + Distance traveled since codes cleared
 + Evaporative system vapor pressure
 + Barometric Pressure
-+ Control module voltage
-+ Relative throttle position
 + Ambient air temperature
 + Commanded throttle actuator
 + Time run with MIL on
 + Time since trouble codes cleared
-+ Fuel Type
-+ Ethanol Fuel Percent
 + Fuel rail pressure (absolute)
-+ Relative accelerator pedal position
 + Hybrid battery pack remaining life
 + Engine oil temperature
 + Fuel injection timing
 + Engine fuel rate
++ etc... (for a full list, see commands.py)
 
 
 Debug
