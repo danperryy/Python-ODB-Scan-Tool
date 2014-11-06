@@ -92,19 +92,14 @@ Here are a few of the currently supported commands (note: support for these comm
 + Engine Run Time
 + Fuel Level Input
 + Number of warm-ups since codes cleared
-+ Distance traveled since codes cleared
-+ Evaporative system vapor pressure
 + Barometric Pressure
 + Ambient air temperature
 + Commanded throttle actuator
 + Time run with MIL on
 + Time since trouble codes cleared
-+ Fuel rail pressure (absolute)
 + Hybrid battery pack remaining life
-+ Engine oil temperature
-+ Fuel injection timing
 + Engine fuel rate
-+ etc... (for a full list, see commands.py)
++ etc... (for a full list, see `commands.py <http://github.com/brendanwhitfield/python-OBD/blob/master/obd/commands.py#L106>`_)
 
 
 Debug
