@@ -112,8 +112,8 @@ def twos_comp(val, num_bits):
 def isHex(_hex):
 	return all(c in string.hexdigits for c in _hex)
 
-# pads or chops hex to the requested number of bytes
 def constrainHex(_hex, b):
+	"""pads or chops hex to the requested number of bytes"""
 	diff = (b * 2) - len(_hex) # length discrepency in number of hex digits
 
 	if diff > 0:

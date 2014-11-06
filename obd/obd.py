@@ -129,8 +129,8 @@ class OBD():
 		return commands.has(c.get_mode_int(), c.get_pid_int()) and c.supported
 
 	def query(self, command, force=False):
-		#print "TX: " + str(command)
-		
+		""" send the given command, retrieve response, and parse response """
+
 		if self.has_command(command) or force:
 			debug("Sending command: %s" % str(command))
 
@@ -143,3 +143,19 @@ class OBD():
 		else:
 			print "'%s' is not supported" % str(command)
 			return Response() # return empty response
+
+	def queryDTC(self):
+		""" read all DTCs """
+
+		n = self.query(commands.STATUS).value['DTC Count'];
+
+		codes = [];
+
+		# poll until the number of commands received equals that returned from STATUS
+		# or until this has looped 128 times (the max number of DTCs that STATUS reports)
+		i = 0
+		while (len(codes) < n) and (i < 128):
+			codes += self.query(commands.GET_DTC).value
+			i += 1
+
+		return codes

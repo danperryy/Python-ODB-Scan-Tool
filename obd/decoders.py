@@ -217,9 +217,9 @@ def status(_hex):
 	bits = bitstring(_hex, 32)
 
 	output = {}
-	output["Check Engine Light"] = bitToBool(bits[0])
-	output["DTC Count"]          = unbin(bits[1:8])
-	output["Ignition Type"]      = IGNITION_TYPE[unbin(bits[12])]
+	output["Check_Engine_Light"] = bitToBool(bits[0])
+	output["DTC_Count"]          = unbin(bits[1:8])
+	output["Ignition_Type"]      = IGNITION_TYPE[unbin(bits[12])]
 	output["Tests"]              = []
 
 	output["Tests"].append(Test("Misfire", \
@@ -236,7 +236,7 @@ def status(_hex):
 
 
 	# different tests for different ignition types 
-	if(output["Ignition Type"] == IGNITION_TYPE[0]): # spark
+	if(output["Ignition_Type"] == IGNITION_TYPE[0]): # spark
 		for i in range(8):
 			if SPARK_TESTS[i] is not None:
 
@@ -246,7 +246,7 @@ def status(_hex):
 
 				output["Tests"].append(t)
 
-	elif(output["Ignition Type"] == IGNITION_TYPE[1]): # compression
+	elif(output["Ignition_Type"] == IGNITION_TYPE[1]): # compression
 		for i in range(8):
 			if COMPRESSION_TESTS[i] is not None:
 
@@ -335,7 +335,7 @@ def dtc(_hex):
 # converts a frame of 2-byte DTCs into a list of DTCs
 def dtc_frame(_hex):
 	code_length = 4 # number of hex chars consumed by one code
-	size = len(_hex / 4) # number of codes defined in THIS FRAME (not total)
+	size = len(_hex) / code_length # number of codes defined in THIS FRAME (not total)
 	codes = []
 	for n in range(size):
 

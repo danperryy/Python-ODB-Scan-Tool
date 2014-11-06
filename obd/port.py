@@ -54,7 +54,7 @@ class OBDPort:
 		timeout  = 2 #seconds
 
 		self.ELMver = "Unknown"
-		self.state  = State.Connected
+		self.state  = State.Unconnected
 		self.port   = None
 
 		debug("Opening serial port...")
@@ -94,6 +94,7 @@ class OBDPort:
 		self.send("ate0")  # echo off
 		debug("ate0 response: " + self.get())
 		debug("Connected to ECU")
+		self.state  = State.Connected
 
 
 	def error(self, msg=None):
