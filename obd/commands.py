@@ -219,18 +219,18 @@ for c in __mode1__:
 
 
 __mode3__ = [
-	#			sensor name				description						  mode  cmd  bytes  decoder
-	OBDCommand("GET_DTC"			, "Get DTCs"						, "03", "" , 0, noop				),
+	#                  sensor name                          description                   mode  cmd bytes       decoder
+	OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03", "" , 0, noop                   ),
 ]
 
 __mode4__ = [
-	#			sensor name				description						  mode  cmd  bytes  decoder
-	OBDCommand("CLEAR_DTC"			, "Clear DTCs and Freeze data"		, "04", "" , 0, noop				),
+	#                  sensor name                          description                   mode  cmd bytes       decoder
+	OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04", "" , 0, noop                   ),
 ]
 
 __mode7__ = [
-	#			sensor name				description						  mode  cmd  bytes  decoder
-	OBDCommand("GET_FREEZE_DTC"		, "Get Freeze DTCs"					, "07", "" , 0, noop				),
+	#                  sensor name                          description                   mode  cmd bytes       decoder
+	OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07", "" , 0, noop                   ),
 ]
 
 
