@@ -72,6 +72,13 @@ class OBD():
 
 		return self.is_connected()
 
+
+	def close(self):
+		if self.is_connected:
+			self.port.close()
+			self.port = None
+
+
 	# checks the port state for conncetion status
 	def is_connected(self):
 		return (self.port is not None) and self.port.is_connected()
@@ -144,7 +151,7 @@ class OBD():
 			print "'%s' is not supported" % str(command)
 			return Response() # return empty response
 
-	def queryDTC(self):
+	def query_DTC(self):
 		""" read all DTCs """
 
 		n = self.query(commands.STATUS).value['DTC Count'];
