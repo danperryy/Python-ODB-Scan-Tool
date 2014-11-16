@@ -2,26 +2,45 @@
 import obd
 import time
 import threading
+from util import Response
+
+
+class OBDThread(threading.Thread):
+	def __init__(self, portstr):
+		super(OBDThread, self).__init__()
+
+		self.connection = obd.OBD(portstr)
+		self._stop = threading.Event()
+		self.commands = {} # key = OBDCommand, value = Response
+
+	def stop(self):
+		self._stop.set()
+
+	def addCommand(self, c):
+		if not self.commands.has_key(c):
+			self.commands[c] = Response() # give it an initial value
+
+	def run(self):
+		# loop until the stop signal is recieved
+		while not self._stop.isSet():
+			if len(self.commands) > 0:
+				for command in self.commands:
+					pass
+			else:
+				time.sleep(1)
 
 
 class Async():
-	""" class representing an OBD-II connection with it's assorted sensors """
+	""" class representing an OBD-II connection """
 
 	def __init__(self, portstr=None):
-		#self.o = obd.OBD(portstr)
-		self.o = 4
-		self.a = 0
-		self.sensors = {}
-		self.thread = threading.Thread(target=self.loop, args=(self.o,))
+		self.thread = OBDThread(portstr)
 		self.thread.start()
 
-
 	def close(self):
+		self.thread.stop()
 		self.thread.join()
 
-	def loop(self, o):
-		i = 0
-		while True:
-			i+=1
-			self.a = i
-			time.sleep(1)
+	def addCommand(self, *commands):
+		for c in commands:
+			self.thread.addCommand(c)

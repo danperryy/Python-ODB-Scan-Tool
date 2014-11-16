@@ -44,9 +44,6 @@ class OBDCommand():
 		self.decode     = decoder
 		self.supported  = supported
 
-	def __str__(self):
-		return "%s%s: %s" % (self.mode, self.pid, self.desc)
-
 	def clone(self):
 		return OBDCommand(self.name,
 						  self.desc,
@@ -93,7 +90,15 @@ class OBDCommand():
 
 		return r
 
+	def __str__(self):
+		return "%s%s: %s" % (self.mode, self.pid, self.desc)
 
+	def __hash__(self):
+		# needed for using commands as keys in a dict (see async.py)
+		return hash((self.mode, self.pid))
+
+	def __eq__(self, other):
+		return (self.mode, self.pid) == (other.mode, other.pid)
 
 
 '''
