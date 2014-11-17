@@ -187,7 +187,7 @@ def max_maf(_hex):
 # 0 to 65535 seconds
 def seconds(_hex):
 	v = unhex(_hex)
-	return (v, Unit.SECONDS)
+	return (v, Unit.SEC)
 
 # 0 to 65535 minutes
 def minutes(_hex):
