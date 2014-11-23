@@ -45,15 +45,13 @@ class OBD():
 		self.supportedCommands = []
 
 		# initialize by connecting and loading sensors
-		debug("Starting python-OBD")
-		if self.connect(portstr):
-			self.load_commands()
-		else:
-			debug("Failed to connect")
+		self.connect(portstr)
 
 
 	def connect(self, portstr=None):
-		""" attempts to instantiate an OBDPort object. Return boolean for success/failure"""
+		""" attempts to instantiate an OBDPort object. Loads commands on success"""
+		
+		debug("Starting python-OBD")
 
 		if portstr is None:
 			debug("Using scanSerial to select port")
@@ -70,11 +68,15 @@ class OBD():
 			debug("Explicit port defined")
 			self.port = OBDPort(portstr)
 
-		return self.is_connected()
+		# if a connection was made, query for commands
+		if self.is_connected():
+			self.load_commands()
+		else:
+			debug("Failed to connect")
 
 
 	def close(self):
-		if self.is_connected:
+		if self.is_connected():
 			self.port.close()
 			self.port = None
 
@@ -85,7 +87,10 @@ class OBD():
 
 
 	def get_port_name(self):
-		return self.port.get_port_name()
+		if self.is_connected():
+			return self.port.get_port_name()
+		else:
+			return "Not connected to any port"
 
 
 	def load_commands(self):
@@ -138,18 +143,21 @@ class OBD():
 	def query(self, command, force=False):
 		""" send the given command, retrieve response, and parse response """
 
-		if self.has_command(command) or force:
-			debug("Sending command: %s" % str(command))
-
-			# send command to the port
-			self.port.send(command.get_command())
-			
-			# get the data, and compute a response object
-			return command.compute(self.port.get())
-		
-		else:
-			print "'%s' is not supported" % str(command)
+		# check for a connection
+		if not self.is_connected():
+			debug("Query failed, no connection available", True)
 			return Response() # return empty response
+
+		# check that the command is supported
+		if not (self.has_command(command) or force):
+			debug("'%s' is not supported" % str(command), True)
+			return Response() # return empty response
+
+		# send the query
+		debug("Sending command: %s" % str(command))
+		self.port.send(command.get_command())       # send command to the port
+		return command.compute(self.port.get())     # get the data, and compute a response object
+
 
 	def query_DTC(self):
 		""" read all DTCs """
