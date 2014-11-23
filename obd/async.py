@@ -11,32 +11,40 @@ class Async():
 
 	def __init__(self, portstr=None):
 		self.connection = obd.OBD(portstr)
-		self.running = True
 		self.commands = {} # key = OBDCommand, value = Response
-		
+		self.thread = None
+		self.start()
+
+	def start(self):
+		self.running = True
 		if self.connection.is_connected():
 			self.thread = threading.Thread(target=self.run, args=(self.connection,))
 			self.thread.start()
 
-	def close(self):
+	def stop(self):
 		self.running = False
-		self.thread.join()
-		self.connection.close
+		if self.thread is not None:
+			self.thread.join()
+			self.thread = None
+
+	def close(self):
+		self.stop()
+		self.connection.close()
+
+	def watch(self, *commands):
+		for c in commands:
+			if isinstance(c, OBDCommand) and self.connection.has_command(c):
+				if not self.commands.has_key(c):
+					self.commands[c] = Response() # give it an initial value
+
+	def unwatch(self, c):
+		self.commands.pop(c, None)
 
 	def get(self, c):
 		if self.commands.has_key(c):
 			return self.commands[c]
 		else:
 			return Response()
-
-	def add(self, *commands):
-		for c in commands:
-			if isinstance(c, OBDCommand) and self.connection.has_command(c):
-				if not self.commands.has_key(c):
-					self.commands[c] = Response() # give it an initial value
-
-	def remove(self, c):
-		self.commands.pop(c, None)
 
 	def run(self, connection):
 		# loop until the stop signal is recieved
