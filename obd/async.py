@@ -14,7 +14,7 @@ class Async():
 		self.commands = {} # key = OBDCommand, value = Response
 		self.thread = None
 		self.running = False
-		#self.start()
+		self.start()
 
 	def start(self):
 		self.running = True
@@ -66,7 +66,6 @@ class Async():
 			if len(self.commands) > 0:
 				# loop over the requested commands, and collect the result
 				for c in self.commands:
-					print c
 					self.commands[c] = connection.query(c)
-			#else:
-			time.sleep(1)
+			else:
+				time.sleep(1)

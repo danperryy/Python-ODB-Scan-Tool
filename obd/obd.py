@@ -158,7 +158,7 @@ class OBD():
 		self.port.send(command.get_command())       # send command to the port
 		return command.compute(self.port.get())     # get the data, and compute a response object
 
-
+	'''
 	def query_DTC(self):
 		""" read all DTCs """
 
@@ -174,3 +174,4 @@ class OBD():
 			i += 1
 
 		return codes
+	'''
