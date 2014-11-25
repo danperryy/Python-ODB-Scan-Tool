@@ -140,7 +140,7 @@ def evap_pressure(_hex):
 # 0 to 327.675 kPa
 def abs_evap_pressure(_hex):
 	v = unhex(_hex)
-	v = v / 200
+	v = v / 200.0
 	return (v, Unit.KPA)
 
 # -32767 to 32768 Pa
