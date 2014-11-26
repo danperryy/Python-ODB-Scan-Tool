@@ -98,7 +98,7 @@ class OBD():
 
 			response = self.query(get) # ask nicely
 
-			if response.isEmpty():
+			if response.isNull():
 				continue
 			
 			supported = response.value # string of binary 01010101010101

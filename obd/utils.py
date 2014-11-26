@@ -63,8 +63,8 @@ class Response():
 		self.unit    = Unit.NONE
 		self.raw_data = raw_data
 
-	def isEmpty(self):
-		return (self.value == None) or (len(self.raw_data) == 0)
+	def isNull(self):
+		return (self.value == "No Data") or (len(self.raw_data) == 0)
 
 	def set(self, decode):
 		self.value = decode[0]

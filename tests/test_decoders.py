@@ -3,6 +3,13 @@ from obd.utils import Unit
 import obd.decoders as d
 
 
+def test_noop():
+	assert d.noop("No Operation") == ("No Operation", Unit.NONE)
+
+def test_pid():
+	assert d.pid("00000000") == ("00000000000000000000000000000000", Unit.NONE)
+	assert d.pid("F00AA00F") == ("11110000000010101010000000001111", Unit.NONE)
+
 def test_count():
 	assert d.count("0")   == (0,    Unit.COUNT)
 	assert d.count("F")   == (15,   Unit.COUNT)
@@ -64,8 +71,8 @@ def test_evap_pressure():
 	#assert d.evap_pressure("0000") == (0.0, Unit.PA)
 
 def test_abs_evap_pressure():
-	assert d.abs_evap_pressure("0000") == (0,   Unit.KPA)
-	assert d.abs_evap_pressure("FFFF") == (327, Unit.KPA)
+	assert d.abs_evap_pressure("0000") == (0,       Unit.KPA)
+	assert d.abs_evap_pressure("FFFF") == (327.675, Unit.KPA)
 
 def test_evap_pressure_alt():
 	assert d.evap_pressure_alt("0000") == (-32767, Unit.PA)	

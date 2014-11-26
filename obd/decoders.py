@@ -52,7 +52,7 @@ def noop(_hex):
 
 # hex in, bitstring out
 def pid(_hex):
-	v = bitstring(_hex)
+	v = bitstring(_hex, len(_hex) * 4)
 	return (v, Unit.NONE)
 
 '''
