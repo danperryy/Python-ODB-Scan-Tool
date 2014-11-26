@@ -34,7 +34,10 @@ After installing the library, simply import 'obd', and create a new OBD connecti
     print(response.value)
     print(response.unit)
 
-For more in-depth documentation, `visit the Wiki! <http://github.com/brendanwhitfield/python-OBD/wiki>`_
+Documentation
+-------------
+`Visit the GitHub Wiki! <http://github.com/brendanwhitfield/python-OBD/wiki>`_
+
 
 Here are a few of the currently supported commands (note: support for these commands will vary from car to car):
 
