@@ -5,6 +5,13 @@ from obd.commands import OBDCommand
 from obd.decoders import noop
 
 
+def test_is_connected():
+	o = obd.OBD("/dev/null")
+	assert not o.is_connected()
+
+	# todo
+
+
 def test_query():
 	# we don't need an actual serial connection
 	o = obd.OBD("/dev/null")
@@ -26,6 +33,11 @@ def test_query():
 
 	# test
 
+	fromCar = "41 23 AB CD\r\r"
+	r = o.query(cmd)             # make sure unsupported commands don't send
+	assert toCar[0] == ""
+	assert r.is_null()
+
 	fromCar = "41 23 AB CD\r\r"  # preset the response
 	r = o.query(cmd, True)       # run
 	assert toCar[0] == "0123"    # verify that the command was sent correctly
@@ -37,7 +49,7 @@ def test_query():
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
-	fromCar = "totaly not hex!"
+	fromCar = "totaly not hex!@#$"
 	r = o.query(cmd, True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
@@ -46,3 +58,7 @@ def test_query():
 	r = o.query(cmd, True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
+
+
+def test_load_commands():
+	pass
