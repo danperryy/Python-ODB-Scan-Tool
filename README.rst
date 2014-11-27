@@ -1,27 +1,15 @@
 python-OBD
 ==========
 
-A python module for handling realtime sensor data from OBD-II vehicle ports.
+A python module for handling realtime sensor data from OBD-II vehicle ports. Works with ELM327 OBD-II adapters, and is fit for the Raspberry Pi.
 
 Installation
 ------------
 
-Run the following command to download/install the latest release from pypi::
-
     $ pip install obd
-
-
-Dependencies
-------------
-
-+ pySerial
-+ OBD-II adapter (ELM327 Bluetooth Adapter or ELM327 USB Cable)
-
 
 Basic Usage
 -----------
-
-After installing the library, simply import 'obd', and create a new OBD connection object. Commands can then be sent to the car using the `query` function::
 
     import obd
 
@@ -38,7 +26,8 @@ Documentation
 -------------
 `Visit the GitHub Wiki! <http://github.com/brendanwhitfield/python-OBD/wiki>`_
 
-
+Commands
+--------
 Here are a few of the currently supported commands (note: support for these commands will vary from car to car):
 
 + Calculated Engine Load
@@ -62,6 +51,10 @@ Here are a few of the currently supported commands (note: support for these comm
 + Hybrid battery pack remaining life
 + Engine fuel rate
 + etc... (for a full list, see `commands.py <http://github.com/brendanwhitfield/python-OBD/blob/master/obd/commands.py#L106>`_)
+
+License
+-------
+GNU GPL v2
 
 This library is forked from:
 
