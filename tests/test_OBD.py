@@ -8,6 +8,7 @@ from obd.decoders import noop
 def test_query():
 	# we don't need an actual serial connection
 	o = obd.OBD("/dev/null")
+
 	# forge our own command, to control the output
 	cmd = OBDCommand("", "", "01", "23", 2, noop)
 
@@ -18,17 +19,30 @@ def test_query():
 	fromCar = ""
 
 	def send(cmd):
-		print cmd
 		toCar[0] = cmd
 
 	o.port.send = send
 	o.port.get = lambda *args: fromCar
 
+	# test
 
-	fromCar = "41 23 AB CD\r\r"
-
-	r = o.query(cmd, True)
-	
+	fromCar = "41 23 AB CD\r\r"  # preset the response
+	r = o.query(cmd, True)       # run
 	assert toCar[0] == "0123"    # verify that the command was sent correctly
 	assert r.raw_data == fromCar # verify that raw_data was stored in the Response
 	assert r.value == "ABCD"     # verify that the response was parsed correctly
+
+	fromCar = "NO DATA"
+	r = o.query(cmd, True)
+	assert r.raw_data == fromCar
+	assert r.is_null()
+
+	fromCar = "totaly not hex!"
+	r = o.query(cmd, True)
+	assert r.raw_data == fromCar
+	assert r.is_null()
+
+	fromCar = ""
+	r = o.query(cmd, True)
+	assert r.raw_data == fromCar
+	assert r.is_null()
