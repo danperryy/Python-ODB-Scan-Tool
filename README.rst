@@ -3,14 +3,17 @@ python-OBD
 
 A python module for handling realtime sensor data from OBD-II vehicle ports. Works with ELM327 OBD-II adapters, and is fit for the Raspberry Pi.
 
+
 Installation
 ------------
 
     $ pip install obd
 
+
 Basic Usage
 -----------
 
+.. highlight:: python
     import obd
 
     connection = obd.OBD() # auto-connects to USB or RF port
@@ -22,9 +25,11 @@ Basic Usage
     print(response.value)
     print(response.unit)
 
+
 Documentation
 -------------
 `Visit the GitHub Wiki! <http://github.com/brendanwhitfield/python-OBD/wiki>`_
+
 
 Commands
 --------
