@@ -30,19 +30,17 @@ def test_unique_names():
 			names[cmd.name] = True
 
 
-def test_getitem_mode_pid():
-	# ensure that obd.commands[mode][pid] works correctly
+def test_getitem():
+	# ensure that __getitem__ works correctly
 	for cmds in obd.commands.modes:
 		for cmd in cmds:
+
+			# by [mode][pid]
 			mode = cmd.get_mode_int()
 			pid  = cmd.get_pid_int()
 			assert cmd == obd.commands[mode][pid]
 
-
-def test_getitem_name():
-	# ensure that obd.commands[name] works correctly
-	for cmds in obd.commands.modes:
-		for cmd in cmds:
+			# by [name]
 			assert cmd == obd.commands[cmd.name]
 
 
