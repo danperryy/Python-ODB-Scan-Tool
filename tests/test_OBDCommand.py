@@ -3,7 +3,7 @@ from obd.commands import OBDCommand
 from obd.decoders import noop
 
 
-def test_basic_OBDCommand():
+def test_constructor():
 	#                 name       description        mode  cmd bytes decoder
 	cmd = OBDCommand("Test", "example OBD command", "01", "23", 2, noop)
 	assert cmd.name      == "Test"
@@ -20,6 +20,20 @@ def test_basic_OBDCommand():
 
 	cmd = OBDCommand("Test", "example OBD command", "01", "23", 2, noop, True)
 	assert cmd.supported == True
+
+
+def test_clone():
+	#                 name       description        mode  cmd bytes decoder
+	cmd = OBDCommand("Test", "example OBD command", "01", "23", 2, noop)
+	other = cmd.clone()
+
+	assert cmd.name      == other.name
+	assert cmd.desc      == other.desc
+	assert cmd.mode      == other.mode
+	assert cmd.pid       == other.pid
+	assert cmd.bytes     == other.bytes
+	assert cmd.decode    == other.decode
+	assert cmd.supported == cmd.supported
 
 
 def test_data_stripping():

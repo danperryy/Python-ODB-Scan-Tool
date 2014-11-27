@@ -14,7 +14,7 @@ def test_list_integrity():
 			# make sure all the fields are set
 			assert cmd.name != ""
 			assert cmd.desc != ""
-			assert (mode >= 1) and (mode <= 9)			
+			assert (mode >= 1) and (mode <= 9)
 			assert (pid >= 0) and (pid <= 196)
 			assert cmd.bytes >= 0
 			assert hasattr(cmd.decode, '__call__')
