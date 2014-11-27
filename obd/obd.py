@@ -42,7 +42,7 @@ class OBD():
 
 	def __init__(self, portstr=None):
 		self.port = None
-		self.supportedCommands = []
+		self.supported_commands = []
 
 		# initialize by connecting and loading sensors
 		debug("Starting python-OBD")
@@ -86,7 +86,7 @@ class OBD():
 
 		debug("querying for supported PIDs (commands)...")
 
-		self.supportedCommands = []
+		self.supported_commands = []
 
 		pid_getters = commands.pid_getters()
 
@@ -98,7 +98,7 @@ class OBD():
 
 			response = self.query(get) # ask nicely
 
-			if response.isNull():
+			if response.is_null():
 				continue
 			
 			supported = response.value # string of binary 01010101010101
@@ -116,13 +116,13 @@ class OBD():
 
 						# don't add PID getters to the command list
 						if c not in pid_getters:
-							self.supportedCommands.append(c)
+							self.supported_commands.append(c)
 
-		debug("finished querying with %d commands supported" % len(self.supportedCommands))
+		debug("finished querying with %d commands supported" % len(self.supported_commands))
 
 
 	def print_commands(self):
-		for c in self.supportedCommands:
+		for c in self.supported_commands:
 			print str(c)
 
 	def has_command(self, c):

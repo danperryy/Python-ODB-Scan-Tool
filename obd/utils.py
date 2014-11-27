@@ -63,7 +63,7 @@ class Response():
 		self.unit    = Unit.NONE
 		self.raw_data = raw_data
 
-	def isNull(self):
+	def is_null(self):
 		return (self.value == "No Data") or (len(self.raw_data) == 0)
 
 	def set(self, decode):

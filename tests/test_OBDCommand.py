@@ -26,7 +26,7 @@ def test_data_stripping():
 	#                 name       description        mode  cmd bytes decoder
 	cmd = OBDCommand("Test", "example OBD command", "01", "00", 2, noop)
 	r = cmd.compute("41 00 01 01\r\n")
-	assert not r.isNull()
+	assert not r.is_null()
 	assert r.value == "0101"
 
 
@@ -34,7 +34,7 @@ def test_data_not_hex():
 	#                 name       description        mode  cmd bytes decoder
 	cmd = OBDCommand("Test", "example OBD command", "01", "00", 2, noop)
 	r = cmd.compute("41 00 wx yz\r\n")
-	assert r.isNull()
+	assert r.is_null()
 	
 
 def test_data_length():
