@@ -13,7 +13,8 @@ Installation
 Basic Usage
 -----------
 
-.. highlight:: python
+::
+
     import obd
 
     connection = obd.OBD() # auto-connects to USB or RF port
