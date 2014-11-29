@@ -77,6 +77,7 @@ class OBD(object):
 
 	def close(self):
 		if self.is_connected():
+			debug("Closing connection")
 			self.port.close()
 			self.port = None
 
@@ -108,7 +109,7 @@ class OBD(object):
 			if not self.has_command(get):
 				continue
 
-			response = self.query(get) # ask nicely
+			response = self.send(get) # ask nicely
 
 			if response.is_null():
 				continue
@@ -137,26 +138,34 @@ class OBD(object):
 		for c in self.supported_commands:
 			print str(c)
 
+
 	def has_command(self, c):
 		return commands.has(c.get_mode_int(), c.get_pid_int()) and c.supported
 
-	def query(self, command, force=False):
-		""" send the given command, retrieve response, and parse response """
+
+	def send(self, c):
+		""" send the given command, retrieve and parse response """
 
 		# check for a connection
 		if not self.is_connected():
 			debug("Query failed, no connection available", True)
 			return Response() # return empty response
 
-		# check that the command is supported
-		if not (self.has_command(command) or force):
-			debug("'%s' is not supported" % str(command), True)
-			return Response() # return empty response
-
 		# send the query
-		debug("Sending command: %s" % str(command))
-		self.port.send(command.get_command())       # send command to the port
-		return command.compute(self.port.get())     # get the data, and compute a response object
+		debug("Sending command: %s" % str(c))
+		self.port.send(c.get_command())       # send command to the port
+		return c.compute(self.port.get())     # get the data, and compute a response object
+		
+
+	def query(self, c, force=False):
+		
+		# check that the command is supported
+		if not (self.has_command(c) or force):
+			debug("'%s' is not supported" % str(c), True)
+			return Response() # return empty response
+		else:
+			return self.send(c)
+
 
 	'''
 	def query_DTC(self):

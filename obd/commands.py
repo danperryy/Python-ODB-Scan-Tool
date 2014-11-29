@@ -293,7 +293,7 @@ class Commands():
 			if (mode < len(self.modes)) and (pid < len(self.modes[mode])):
 				self.modes[mode][pid].supported = v
 		else:
-			debug("set_supported only accepts boolean values", True)
+			debug("set_supported() only accepts boolean values", True)
 
 	# checks for existance of int mode and int pid
 	def has(self, mode, pid):

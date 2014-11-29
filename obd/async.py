@@ -33,6 +33,8 @@ import time
 import threading
 from utils import Response
 from commands import OBDCommand
+from debug import debug
+
 
 
 class Async(obd.OBD):
@@ -45,40 +47,50 @@ class Async(obd.OBD):
 		self.running = False
 		self.start()
 
+
 	def start(self):
-		self.running = True
 		if self.is_connected():
+			debug("Starting async thread")
+			self.running = True
 			self.thread = threading.Thread(target=self.run)
 			self.thread.daemon = True
 			self.thread.start()
+		else:
+			debug("Async thread not started because no connection was made")
+
 
 	def stop(self):
-		self.running = False
 		if self.thread is not None:
+			debug("Stopping async thread...")
+			self.running = False
 			self.thread.join()
 			self.thread = None
+			debug("Async thread stopped")
+
 
 	def close(self):
 		self.stop()
 		self.close()
 
-	def watch(self, c):
 
-		if not isinstance(c, OBDCommand):
-			return False
+	def watch(self, c, force=False):
 
-		if not self.has_command(c):
+		if not (self.has_command(c) or force):
+			debug("'%s' is not supported" % str(c), True)
 			return False
 
 		if not self.commands.has_key(c):
+			debug("Watching command: %s" % str(c))
 			self.commands[c] = Response() # give it an initial value
 
 		return True
 
+
 	def unwatch(self, c):
+		debug("Unwatching command: %s" % str(c))
 		self.commands.pop(c, None)
 
-	def get(self, c):
+	def query(self, c):
 		if self.commands.has_key(c):
 			return self.commands[c]
 		else:
@@ -91,6 +103,6 @@ class Async(obd.OBD):
 			if len(self.commands) > 0:
 				# loop over the requested commands, and collect the result
 				for c in self.commands:
-					self.commands[c] = self.query(c)
+					self.commands[c] = self.send(c)
 			else:
 				time.sleep(1)
