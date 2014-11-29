@@ -35,11 +35,11 @@ from utils import Response
 from commands import OBDCommand
 
 
-class Async():
-	""" class representing an OBD-II connection """
+class Async(obd.OBD):
+	""" subclass representing an OBD-II connection """
 
 	def __init__(self, portstr=None):
-		self.connection = obd.OBD(portstr)
+		super(Async, self).__init__(portstr)
 		self.commands = {} # key = OBDCommand, value = Response
 		self.thread = None
 		self.running = False
@@ -47,8 +47,9 @@ class Async():
 
 	def start(self):
 		self.running = True
-		if self.connection.is_connected():
-			self.thread = threading.Thread(target=self.run, args=(self.connection,))
+		if self.is_connected():
+			self.thread = threading.Thread(target=self.run)
+			self.thread.daemon = True
 			self.thread.start()
 
 	def stop(self):
@@ -59,25 +60,20 @@ class Async():
 
 	def close(self):
 		self.stop()
-		self.connection.close()
+		self.close()
 
-	def watch(self, *commands):
+	def watch(self, c):
 
-		errors = []
+		if not isinstance(c, OBDCommand):
+			return False
 
-		for c in commands:
-			if not isinstance(c, OBDCommand):
-				errors.append(c)
-				continue
+		if not self.has_command(c):
+			return False
 
-			if not self.connection.has_command(c):
-				errors.append(c)
-				continue
+		if not self.commands.has_key(c):
+			self.commands[c] = Response() # give it an initial value
 
-			if not self.commands.has_key(c):
-				self.commands[c] = Response() # give it an initial value
-
-		return errors
+		return True
 
 	def unwatch(self, c):
 		self.commands.pop(c, None)
@@ -88,13 +84,13 @@ class Async():
 		else:
 			return Response()
 
-	def run(self, connection):
+	def run(self):
 		# loop until the stop signal is recieved
 		while self.running:
 
 			if len(self.commands) > 0:
 				# loop over the requested commands, and collect the result
 				for c in self.commands:
-					self.commands[c] = connection.query(c)
+					self.commands[c] = self.query(c)
 			else:
 				time.sleep(1)
