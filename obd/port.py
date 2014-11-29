@@ -140,7 +140,7 @@ class OBDPort:
 	def get(self):
 		"""Internal use only: not a public interface"""
 
-		attempts = 5
+		attempts = 1
 		result = ""
 
 		if self.port is not None:
