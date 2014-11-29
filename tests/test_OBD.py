@@ -27,6 +27,7 @@ def test_query():
 	def send(cmd):
 		toCar[0] = cmd
 
+	o.is_connected = lambda *args: True
 	o.port.send = send
 	o.port.get = lambda *args: fromCar
 

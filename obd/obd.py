@@ -29,7 +29,6 @@
 ########################################################################
 
 import time
-
 from port import OBDPort, State
 from commands import commands
 from utils import scanSerial, Response
@@ -158,7 +157,8 @@ class OBD(object):
 		
 
 	def query(self, c, force=False):
-		
+		""" facade 'send' command, protects against sending unsupported commands """
+
 		# check that the command is supported
 		if not (self.has_command(c) or force):
 			debug("'%s' is not supported" % str(c), True)

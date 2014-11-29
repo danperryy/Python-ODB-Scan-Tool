@@ -90,18 +90,22 @@ class Async(obd.OBD):
 		debug("Unwatching command: %s" % str(c))
 		self.commands.pop(c, None)
 
+
 	def query(self, c):
 		if self.commands.has_key(c):
 			return self.commands[c]
 		else:
 			return Response()
 
+
 	def run(self):
+		""" Daemon thread """
+
 		# loop until the stop signal is recieved
 		while self.running:
 
 			if len(self.commands) > 0:
-				# loop over the requested commands, and collect the result
+				# loop over the requested commands, send, and collect the result
 				for c in self.commands:
 					self.commands[c] = self.send(c)
 			else:
