@@ -45,7 +45,6 @@ class Async(obd.OBD):
 		self.commands = {} # key = OBDCommand, value = Response
 		self.thread = None
 		self.running = False
-		self.start()
 
 
 	def start(self):
@@ -77,18 +76,23 @@ class Async(obd.OBD):
 
 		if not (self.has_command(c) or force):
 			debug("'%s' is not supported" % str(c), True)
-			return False
 
 		if not self.commands.has_key(c):
 			debug("Watching command: %s" % str(c))
 			self.commands[c] = Response() # give it an initial value
 
-		return True
+		# if not already running, start
+		if (not self.running) and (len(self.commands) > 0):
+			self.start()
 
 
 	def unwatch(self, c):
 		debug("Unwatching command: %s" % str(c))
 		self.commands.pop(c, None)
+
+		# if already running, start
+		if self.running and (len(self.commands) == 0):
+			self.stop()
 
 
 	def query(self, c):
@@ -109,4 +113,4 @@ class Async(obd.OBD):
 				for c in self.commands:
 					self.commands[c] = self.send(c)
 			else:
-				time.sleep(1)
+				time.sleep(1) # hopefully, this should never happen thanks to the gaurds in watch() and unwatch()
