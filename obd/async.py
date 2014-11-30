@@ -69,7 +69,7 @@ class Async(obd.OBD):
 
 	def close(self):
 		self.stop()
-		self.close()
+		super(Async, self).close()
 
 
 	def watch(self, c, force=False):
