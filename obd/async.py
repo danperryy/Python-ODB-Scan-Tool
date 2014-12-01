@@ -42,9 +42,10 @@ class Async(obd.OBD):
 
 	def __init__(self, portstr=None):
 		super(Async, self).__init__(portstr)
-		self.commands = {} # key = OBDCommand, value = Response
-		self.thread = None
-		self.running = False
+		self.commands  = {} # key = OBDCommand, value = Response
+		self.callbacks = {} # key = OBDCommand, value = Callback
+		self.thread    = None
+		self.running   = False
 
 
 	def start(self):
@@ -72,14 +73,23 @@ class Async(obd.OBD):
 		super(Async, self).close()
 
 
-	def watch(self, c, force=False):
+	def watch(self, c, callback=None, force=False):
 
 		if not (self.has_command(c) or force):
 			debug("'%s' is not supported" % str(c), True)
 
+		# store the command
 		if not self.commands.has_key(c):
 			debug("Watching command: %s" % str(c))
 			self.commands[c] = Response() # give it an initial value
+
+		# store the callback 
+		if (callback is not None) and (not self.callbacks.has_key(c)):
+			if hasattr(callback, "__call__"):
+				debug("subscribing callback for command: %s" % str(c))
+				self.callbacks[c] = callback
+			else:
+				debug("all callbacks must be callable")
 
 		# if not already running, start
 		if (not self.running) and (len(self.commands) > 0):
@@ -90,7 +100,7 @@ class Async(obd.OBD):
 		debug("Unwatching command: %s" % str(c))
 		self.commands.pop(c, None)
 
-		# if already running, start
+		# if already running, stop
 		if self.running and (len(self.commands) == 0):
 			self.stop()
 
@@ -109,8 +119,16 @@ class Async(obd.OBD):
 		while self.running:
 
 			if len(self.commands) > 0:
-				# loop over the requested commands, send, and collect the result
+				# loop over the requested commands, send, and collect the response
 				for c in self.commands:
-					self.commands[c] = self.send(c)
+					r = self.send(c)
+
+					# store the response
+					self.commands[c] = r
+
+					# fire the callback
+					if self.callbacks.has_key(c):
+						self.callbacks[c](r)
+
 			else:
-				time.sleep(1) # hopefully, this should never happen thanks to the gaurds in watch() and unwatch()
+				time.sleep(1) # hopefully this should never happen, thanks to the gaurds in watch() and unwatch()

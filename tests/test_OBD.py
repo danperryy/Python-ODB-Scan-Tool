@@ -39,40 +39,40 @@ def test_query():
 
 	# a correct command transaction
 	fromCar = "41 23 AB CD\r\r"  # preset the response
-	r = o.query(cmd, True)       # run
+	r = o.query(cmd, force=True)       # run
 	assert toCar[0] == "0123"    # verify that the command was sent correctly
 	assert r.raw_data == fromCar # verify that raw_data was stored in the Response
 	assert r.value == "ABCD"     # verify that the response was parsed correctly
 
 	# response of greater length
 	fromCar = "41 23 AB CD EF\r\r"
-	r = o.query(cmd, True)
+	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.value == "ABCD"
 
 	# response of greater length
 	fromCar = "41 23 AB\r\r"
-	r = o.query(cmd, True)
+	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.value == "AB00"
 
 	# NO DATA response
 	fromCar = "NO DATA"
-	r = o.query(cmd, True)
+	r = o.query(cmd, force=True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
 	# malformed response
 	fromCar = "totaly not hex!@#$"
-	r = o.query(cmd, True)
+	r = o.query(cmd, force=True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
 	# no response
 	fromCar = ""
-	r = o.query(cmd, True)
+	r = o.query(cmd, force=True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
