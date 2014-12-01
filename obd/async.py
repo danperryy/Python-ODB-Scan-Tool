@@ -99,6 +99,7 @@ class Async(obd.OBD):
 	def unwatch(self, c):
 		debug("Unwatching command: %s" % str(c))
 		self.commands.pop(c, None)
+		self.callbacks.pop(c, None)
 
 		# if already running, stop
 		if self.running and (len(self.commands) == 0):
