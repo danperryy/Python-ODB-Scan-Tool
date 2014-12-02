@@ -84,12 +84,9 @@ class Async(obd.OBD):
 			self.commands[c] = Response() # give it an initial value
 
 		# store the callback 
-		if (callback is not None) and (not self.callbacks.has_key(c)):
-			if hasattr(callback, "__call__"):
-				debug("subscribing callback for command: %s" % str(c))
-				self.callbacks[c] = callback
-			else:
-				debug("all callbacks must be callable")
+		if hasattr(callback, "__call__") and (not self.callbacks.has_key(c)):
+			debug("subscribing callback for command: %s" % str(c))
+			self.callbacks[c] = callback
 
 		# if not already running, start
 		if (not self.running) and (len(self.commands) > 0):
