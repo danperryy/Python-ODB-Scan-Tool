@@ -36,7 +36,7 @@ from debug import debug
 
 
 
-class OBD(object):
+class Obd(object):
 	""" class representing an OBD-II connection with it's assorted sensors """
 
 	def __init__(self, portstr=None):

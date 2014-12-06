@@ -37,7 +37,7 @@ from debug import debug
 
 
 
-class Async(obd.OBD):
+class Async(obd.Obd):
 	""" subclass representing an OBD-II connection """
 
 	def __init__(self, portstr=None):
@@ -113,6 +113,13 @@ class Async(obd.OBD):
 		# start if neccessary
 		if was_running:
 			self.start()
+
+
+	def unwatch_all(self):
+		commands = self.commands.keys()
+
+		for c in commands:
+			self.unwatch(c)
 
 
 	def query(self, c):
