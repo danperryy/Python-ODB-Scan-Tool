@@ -161,6 +161,12 @@ def scanSerial():
 		if tryPort(portStr):
 			available.append(portStr)
 
+	#Enable for Windows
+	for i in range(256):
+		portStr = "\\.\COM%d" % i
+		if tryPort(portStr):
+			available.append(portStr)
+
 	# Enable obdsim
 	'''
 	for i in range(256):
