@@ -77,6 +77,12 @@ class Async(obd.OBD):
 
 		if not (self.has_command(c) or force):
 			debug("'%s' is not supported" % str(c), True)
+			return
+
+		# if running, the daemon thread must be stopped before altering the command dict
+		was_running = self.running
+		if self.running:
+			self.stop()
 
 		# store the command
 		if not self.commands.has_key(c):
@@ -88,19 +94,25 @@ class Async(obd.OBD):
 			debug("subscribing callback for command: %s" % str(c))
 			self.callbacks[c] = callback
 
-		# if not already running, start
-		if (not self.running) and (len(self.commands) > 0):
+		# start if neccessary
+		if was_running:
 			self.start()
 
 
 	def unwatch(self, c):
+
+		# if running, the daemon thread must be stopped before altering the command dict
+		was_running = self.running
+		if self.running:
+			self.stop()
+
 		debug("Unwatching command: %s" % str(c))
 		self.commands.pop(c, None)
 		self.callbacks.pop(c, None)
 
-		# if already running, stop
-		if self.running and (len(self.commands) == 0):
-			self.stop()
+		# start if neccessary
+		if was_running:
+			self.start()
 
 
 	def query(self, c):
@@ -124,9 +136,9 @@ class Async(obd.OBD):
 					# store the response
 					self.commands[c] = r
 
-					# fire the callback
-					if self.callbacks.has_key(c):
+					# fire the callback, if we have one
+					if c in self.callbacks:
 						self.callbacks[c](r)
 
 			else:
-				time.sleep(1) # hopefully this should never happen, thanks to the gaurds in watch() and unwatch()
+				time.sleep(1) # idle until the user calls stop() or watch()
