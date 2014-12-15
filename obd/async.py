@@ -37,7 +37,7 @@ from debug import debug
 
 
 
-class Async(obd.Obd):
+class Async(obd.OBD):
 	""" subclass representing an OBD-II connection """
 
 	def __init__(self, portstr=None):

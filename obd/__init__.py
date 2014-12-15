@@ -28,7 +28,7 @@
 #                                                                      #
 ########################################################################
 
-from obd import Obd
+from obd import OBD
 from commands import commands, OBDCommand
 from utils import scanSerial, Unit
 from debug import debug
