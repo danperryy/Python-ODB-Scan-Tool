@@ -43,7 +43,7 @@ class Async(obd.OBD):
 	def __init__(self, portstr=None):
 		super(Async, self).__init__(portstr)
 		self.commands  = {} # key = OBDCommand, value = Response
-		self.callbacks = {} # key = OBDCommand, value = Callback
+		self.callbacks = {} # key = OBDCommand, value = list of Functions
 		self.thread    = None
 		self.running   = False
 
@@ -84,22 +84,23 @@ class Async(obd.OBD):
 		if self.running:
 			self.stop()
 
-		# store the command
+		# new command being watched, store the command
 		if not self.commands.has_key(c):
 			debug("Watching command: %s" % str(c))
 			self.commands[c] = Response() # give it an initial value
+			self.callbacks[c] = [] # create an empty list
 
-		# store the callback 
-		if hasattr(callback, "__call__") and (not self.callbacks.has_key(c)):
+		# if a callback was given, push it
+		if hasattr(callback, "__call__") and (callback not in self.callbacks[c]):
 			debug("subscribing callback for command: %s" % str(c))
-			self.callbacks[c] = callback
+			self.callbacks[c].append(callback)
 
 		# start if neccessary
 		if was_running:
 			self.start()
 
 
-	def unwatch(self, c):
+	def unwatch(self, c, callback=None):
 
 		# if running, the daemon thread must be stopped before altering the command dict
 		was_running = self.running
@@ -107,8 +108,19 @@ class Async(obd.OBD):
 			self.stop()
 
 		debug("Unwatching command: %s" % str(c))
-		self.commands.pop(c, None)
-		self.callbacks.pop(c, None)
+
+		# if a callback was specified, only remove the callback 
+		if hasattr(callback, "__call__") and (callback in self.callbacks[c]):
+			self.callbacks[c].remove(callback)
+
+			# if no more callbacks are left, remove the command entirely
+			if len(self.callbacks[c]) === 0:
+				self.commands.pop(c, None)
+		else:
+			# no callback was specified, pop everything
+			self.callbacks.pop(c, None)
+			self.commands.pop(c, None)
+
 
 		# start if neccessary
 		if was_running:
