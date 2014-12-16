@@ -45,6 +45,7 @@ class OBD(object):
 
 		# initialize by connecting and loading sensors
 		self.connect(portstr)
+		debug("========================================")
 
 
 	def connect(self, portstr=None):

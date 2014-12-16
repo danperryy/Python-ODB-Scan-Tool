@@ -109,17 +109,18 @@ class Async(obd.OBD):
 
 		debug("Unwatching command: %s" % str(c))
 
-		# if a callback was specified, only remove the callback 
-		if hasattr(callback, "__call__") and (callback in self.callbacks[c]):
-			self.callbacks[c].remove(callback)
+		if c in self.commands:
+			# if a callback was specified, only remove the callback 
+			if hasattr(callback, "__call__") and (callback in self.callbacks[c]):
+				self.callbacks[c].remove(callback)
 
-			# if no more callbacks are left, remove the command entirely
-			if len(self.callbacks[c]) === 0:
+				# if no more callbacks are left, remove the command entirely
+				if len(self.callbacks[c]) == 0:
+					self.commands.pop(c, None)
+			else:
+				# no callback was specified, pop everything
+				self.callbacks.pop(c, None)
 				self.commands.pop(c, None)
-		else:
-			# no callback was specified, pop everything
-			self.callbacks.pop(c, None)
-			self.commands.pop(c, None)
 
 
 		# start if neccessary
@@ -128,10 +129,19 @@ class Async(obd.OBD):
 
 
 	def unwatch_all(self):
-		commands = self.commands.keys()
+		debug("Unwatching all")
 
-		for c in commands:
-			self.unwatch(c)
+		# if running, the daemon thread must be stopped before altering the command dict
+		was_running = self.running
+		if self.running:
+			self.stop()
+
+		self.commands  = {}
+		self.callbacks = {}
+
+		# start if neccessary
+		if was_running:
+			self.start()
 
 
 	def query(self, c):
@@ -156,8 +166,8 @@ class Async(obd.OBD):
 					self.commands[c] = r
 
 					# fire the callback, if we have one
-					if c in self.callbacks:
-						self.callbacks[c](r)
+					for callback in self.callbacks[c]:
+						callback(r)
 
 			else:
 				time.sleep(1) # idle until the user calls stop() or watch()
