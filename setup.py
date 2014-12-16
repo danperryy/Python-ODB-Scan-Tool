@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="obd",
-    version="0.1.0",
+    version="0.2.0",
     description=("Serial module for handling live sensor data from a vehicle's OBD-II port"),
     classifiers=[
         "Operating System :: POSIX :: Linux",
