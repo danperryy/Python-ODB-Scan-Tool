@@ -58,7 +58,7 @@ Here are a few of the currently supported commands (note: support for these comm
 + Time since trouble codes cleared
 + Hybrid battery pack remaining life
 + Engine fuel rate
-+ etc... (for a full list, see `commands.py <http://github.com/brendanwhitfield/python-OBD/blob/master/obd/commands.py#L106>`_)
++ etc... (for a full list, see `the wiki <https://github.com/brendanwhitfield/python-OBD/wiki/Command-Tables>`_)
 
 License
 -------
