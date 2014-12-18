@@ -200,9 +200,9 @@ __mode1__ = [
 	OBDCommand("EVAP_VAPOR_PRESSURE_ABS"    , "Absolute Evap system Vapor Pressure"     , "01", "53", 2, abs_evap_pressure     ),
 	OBDCommand("EVAP_VAPOR_PRESSURE_ALT"    , "Evap system vapor pressure"              , "01", "54", 2, evap_pressure_alt     ),
 	OBDCommand("SHORT_O2_TRIM_B1"           , "Short term secondary O2 trim - Bank 1"   , "01", "55", 2, percent_centered      ), # todo: decode seconds value for banks 3 and 4
-	OBDCommand("Long_O2_TRIM_B1"            , "Long term secondary O2 trim - Bank 1"    , "01", "56", 2, percent_centered      ),
+	OBDCommand("LONG_O2_TRIM_B1"            , "Long term secondary O2 trim - Bank 1"    , "01", "56", 2, percent_centered      ),
 	OBDCommand("SHORT_O2_TRIM_B2"           , "Short term secondary O2 trim - Bank 2"   , "01", "57", 2, percent_centered      ),
-	OBDCommand("Long_O2_TRIM_B2"            , "Long term secondary O2 trim - Bank 2"    , "01", "58", 2, percent_centered      ),
+	OBDCommand("LONG_O2_TRIM_B2"            , "Long term secondary O2 trim - Bank 2"    , "01", "58", 2, percent_centered      ),
 	OBDCommand("FUEL_RAIL_PRESSURE_ABS"     , "Fuel rail pressure (absolute)"           , "01", "59", 2, fuel_pres_direct      ),
 	OBDCommand("RELATIVE_ACCEL_POS"         , "Relative accelerator pedal position"     , "01", "5A", 1, percent               ),
 	OBDCommand("HYBRID_BATTERY_REMAINING"   , "Hybrid battery pack remaining life"      , "01", "5B", 1, percent               ),
