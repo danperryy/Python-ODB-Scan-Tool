@@ -75,73 +75,58 @@ class Async(obd.OBD):
 
 	def watch(self, c, callback=None, force=False):
 
-		if not (self.has_command(c) or force):
-			debug("'%s' is not supported" % str(c), True)
-			return
-
-		# if running, the daemon thread must be stopped before altering the command dict
-		was_running = self.running
+		# the dict shouldn't be changed while the daemon thread is iterating
 		if self.running:
-			self.stop()
+			debug("Can't watch() while running, please use stop()", True)
+		else:
 
-		# new command being watched, store the command
-		if not self.commands.has_key(c):
-			debug("Watching command: %s" % str(c))
-			self.commands[c] = Response() # give it an initial value
-			self.callbacks[c] = [] # create an empty list
+			if not (self.has_command(c) or force):
+				debug("'%s' is not supported" % str(c), True)
+				return
 
-		# if a callback was given, push it
-		if hasattr(callback, "__call__") and (callback not in self.callbacks[c]):
-			debug("subscribing callback for command: %s" % str(c))
-			self.callbacks[c].append(callback)
+			# new command being watched, store the command
+			if not self.commands.has_key(c):
+				debug("Watching command: %s" % str(c))
+				self.commands[c] = Response() # give it an initial value
+				self.callbacks[c] = [] # create an empty list
 
-		# start if neccessary
-		if was_running:
-			self.start()
+			# if a callback was given, push it
+			if hasattr(callback, "__call__") and (callback not in self.callbacks[c]):
+				debug("subscribing callback for command: %s" % str(c))
+				self.callbacks[c].append(callback)
 
 
 	def unwatch(self, c, callback=None):
 
-		# if running, the daemon thread must be stopped before altering the command dict
-		was_running = self.running
+		# the dict shouldn't be changed while the daemon thread is iterating
 		if self.running:
-			self.stop()
+			debug("Can't unwatch() while running, please use stop()", True)
+		else:
+			debug("Unwatching command: %s" % str(c))
 
-		debug("Unwatching command: %s" % str(c))
+			if c in self.commands:
+				# if a callback was specified, only remove the callback
+				if hasattr(callback, "__call__") and (callback in self.callbacks[c]):
+					self.callbacks[c].remove(callback)
 
-		if c in self.commands:
-			# if a callback was specified, only remove the callback 
-			if hasattr(callback, "__call__") and (callback in self.callbacks[c]):
-				self.callbacks[c].remove(callback)
-
-				# if no more callbacks are left, remove the command entirely
-				if len(self.callbacks[c]) == 0:
+					# if no more callbacks are left, remove the command entirely
+					if len(self.callbacks[c]) == 0:
+						self.commands.pop(c, None)
+				else:
+					# no callback was specified, pop everything
+					self.callbacks.pop(c, None)
 					self.commands.pop(c, None)
-			else:
-				# no callback was specified, pop everything
-				self.callbacks.pop(c, None)
-				self.commands.pop(c, None)
-
-
-		# start if neccessary
-		if was_running:
-			self.start()
 
 
 	def unwatch_all(self):
-		debug("Unwatching all")
 
-		# if running, the daemon thread must be stopped before altering the command dict
-		was_running = self.running
+		# the dict shouldn't be changed while the daemon thread is iterating
 		if self.running:
-			self.stop()
-
-		self.commands  = {}
-		self.callbacks = {}
-
-		# start if neccessary
-		if was_running:
-			self.start()
+			debug("Can't unwatch_all() while running, please use stop()", True)
+		else:
+			debug("Unwatching all")
+			self.commands  = {}
+			self.callbacks = {}
 
 
 	def query(self, c):
@@ -165,9 +150,9 @@ class Async(obd.OBD):
 					# store the response
 					self.commands[c] = r
 
-					# fire the callback, if we have one
+					# fire the callbacks, if there are any
 					for callback in self.callbacks[c]:
 						callback(r)
 
 			else:
-				time.sleep(1) # idle until the user calls stop() or watch()
+				time.sleep(1) # idle
