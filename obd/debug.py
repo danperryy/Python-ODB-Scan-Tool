@@ -36,7 +36,7 @@ class Debug():
 	def __call__(self, msg, forcePrint=False):
 
 		if self.console or forcePrint:
-			print("[obd] " + msg)
+			print("[obd] " + str(msg))
 
 		if hasattr(self.handler, '__call__'):
 			self.handler(msg)
