@@ -129,3 +129,13 @@ def test_distance():
 def test_fuel_rate():
 	assert d.fuel_rate("0000") == (0.0,     Unit.LPH)
 	assert d.fuel_rate("FFFF") == (3276.75, Unit.LPH)
+
+def test_fuel_status():
+	assert d.fuel_status("0100") == ("Open loop due to insufficient engine temperature", Unit.NONE)
+	assert d.fuel_status("0800") == ("Open loop due to system failure",                  Unit.NONE)
+	assert d.fuel_status("0300") == (None,                                               Unit.NONE)
+
+def test_air_status():
+	assert d.air_status("01") == ("Upstream",                          Unit.NONE)
+	assert d.air_status("08") == ("Pump commanded on for diagnostics", Unit.NONE)
+	assert d.air_status("03") == (None,                                Unit.NONE)

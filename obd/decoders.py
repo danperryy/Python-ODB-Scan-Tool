@@ -31,6 +31,7 @@
 import math
 from utils import *
 from codes import *
+from debug import debug
 
 '''
 All decoders take the form:
@@ -261,27 +262,47 @@ def status(_hex):
 
 
 def fuel_status(_hex):
-	v = unhex(_hex[0:2])
-	i = int(math.log(v, 2)) # only a single bit should be on
+	v = unhex(_hex[0:2]) # todo, support second fuel system
 
-	v = "Error: Unknown fuel status response"
+	if v <= 0:
+		debug("Invalid fuel status response (v <= 0)", True)
+		return (None, Unit.NONE)
 
-	if i < len(FUEL_STATUS):
-		v = FUEL_STATUS[i]
+	i = math.log(v, 2) # only a single bit should be on
 
-	return (v, Unit.NONE)
+	if i % 1 != 0:
+		debug("Invalid fuel status response (multiple bits set)", True)
+		return (None, Unit.NONE)
+
+	i = int(i)
+
+	if i >= len(FUEL_STATUS):
+		debug("Invalid fuel status response (no table entry)", True)
+		return (None, Unit.NONE)
+
+	return (FUEL_STATUS[i], Unit.NONE)
 
 
 def air_status(_hex):
 	v = unhex(_hex)
-	i = int(math.log(v, 2)) # only a single bit should be on
 
-	v = "Error: Unknown air status response"
+	if v <= 0:
+		debug("Invalid air status response (v <= 0)", True)
+		return (None, Unit.NONE)
 
-	if i < len(AIR_STATUS):
-		v = AIR_STATUS[i]
+	i = math.log(v, 2) # only a single bit should be on
 
-	return (v, Unit.NONE)
+	if i % 1 != 0:
+		debug("Invalid air status response (multiple bits set)", True)
+		return (None, Unit.NONE)
+
+	i = int(i)
+
+	if i >= len(AIR_STATUS):
+		debug("Invalid air status response (no table entry)", True)
+		return (None, Unit.NONE)
+
+	return (AIR_STATUS[i], Unit.NONE)
 
 def obd_compliance(_hex):
 	i = unhex(_hex)
