@@ -32,6 +32,8 @@ import serial
 import errno
 import string
 import time
+import glob
+import sys
 from debug import debug
 
 
@@ -132,7 +134,7 @@ def tryPort(portStr):
 	"""returns boolean for port availability"""
 	try:
 		s = serial.Serial(portStr)
-		s.close()   # explicit close 'cause of delayed GC in java
+		s.close() # explicit close 'cause of delayed GC in java
 		return True
 
 	except serial.SerialException:
@@ -149,30 +151,20 @@ def scanSerial():
 	"""scan for available ports. return a list of serial names"""
 	available = []
 
-	# Enable Bluetooh connection
-	for i in range(10):
-		portStr = "/dev/rfcomm%d" % i
-		if tryPort(portStr):
-			available.append(portStr)
+	possible_ports = []
 
-	# Enable USB connection
-	for i in range(256):
-		portStr = "/dev/ttyUSB%d" % i
-		if tryPort(portStr):
-			available.append(portStr)
+	if sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+		possible_ports += glob.glob("/dev/rfcomm[0-9]*")
+		possible_ports += glob.glob("/dev/ttyUSB[0-9]*")
+	elif sys.platform.startswith('win'):
+		possible_ports += ["\\.\COM%d" % i for i in range(256)]
+	elif sys.platform.startswith('darwin'):
+		possible_ports += glob.glob('/dev/tty.*')
 
-	#Enable for Windows
-	for i in range(256):
-		portStr = "\\.\COM%d" % i
-		if tryPort(portStr):
-			available.append(portStr)
+	# possible_ports += glob.glob('/dev/pts/[0-9]*') # for obdsim
 
-	# Enable obdsim
-	'''
-	for i in range(256):
-		portStr = "/dev/pts/%d" % i
-		if tryPort(portStr):
-			available.append(portStr)
-	'''
+	for port in possible_ports:
+		if tryPort(port):
+			available.append(port)
 	
 	return available

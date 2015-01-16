@@ -8,8 +8,8 @@ def test_list_integrity():
 		for pid, cmd in enumerate(cmds):
 
 			# make sure the command tables are in mode & PID order
-			assert mode == cmd.get_mode_int()
-			assert pid == cmd.get_pid_int()
+			assert mode == cmd.get_mode_int(),      "Command is in the wrong mode list: %s" % cmd.name
+			assert pid == cmd.get_pid_int(),        "The index in the list must also be the PID: %s" % cmd.name
 
 			# make sure all the fields are set
 			assert cmd.name != "",                  "Command names must not be null"
