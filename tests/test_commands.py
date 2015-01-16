@@ -13,6 +13,7 @@ def test_list_integrity():
 
 			# make sure all the fields are set
 			assert cmd.name != ""
+			assert cmd.name.isupper()
 			assert cmd.desc != ""
 			assert (mode >= 1) and (mode <= 9)
 			assert (pid >= 0) and (pid <= 196)
@@ -42,6 +43,25 @@ def test_getitem():
 
 			# by [name]
 			assert cmd == obd.commands[cmd.name]
+
+
+def test_contains():
+	for cmds in obd.commands.modes:
+		for cmd in cmds:
+
+			# by (command)
+			assert obd.commands.has_command(cmd)
+
+			# by (mode, pid)
+			mode = cmd.get_mode_int()
+			pid  = cmd.get_pid_int()
+			assert obd.commands.has_pid(mode, pid)
+
+			# by (name)
+			assert obd.commands.has_name(cmd.name)
+
+			# by `in`
+			assert cmd.name in obd.commands
 
 
 def test_pid_getters():

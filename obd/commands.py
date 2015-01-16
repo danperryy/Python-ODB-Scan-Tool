@@ -98,7 +98,10 @@ class OBDCommand():
 		return hash((self.mode, self.pid))
 
 	def __eq__(self, other):
-		return (self.mode, self.pid) == (other.mode, other.pid)
+		if isinstance(other, OBDCommand):
+			return (self.mode, self.pid) == (other.mode, other.pid)
+		else:
+			return False
 
 
 '''
@@ -264,6 +267,7 @@ class Commands():
 			for c in m:
 				self.__dict__[c.name] = c
 
+
 	def __getitem__(self, key):
 		if isinstance(key, int):
 			return self.modes[key]
@@ -272,11 +276,17 @@ class Commands():
 		else:
 			debug("OBD commands can only be retrieved by PID value or dict name", True)
 
+
 	def __len__(self):
 		l = 0
 		for m in self.modes:
 			l += len(m)
 		return l
+
+
+	def __contains__(self, s):
+		return self.has_name(s)
+
 
 	# returns a list of PID GET commands
 	def pid_getters(self):
@@ -287,16 +297,36 @@ class Commands():
 					getters.append(c)
 		return getters
 
-	# sets the boolean for 
+
+	# sets the boolean supported flag for the given command 
 	def set_supported(self, mode, pid, v):
 		if isinstance(v, bool):
-			if (mode < len(self.modes)) and (pid < len(self.modes[mode])):
+			if self.has(mode, pid):
 				self.modes[mode][pid].supported = v
 		else:
 			debug("set_supported() only accepts boolean values", True)
 
+
+	# checks for existance of command by OBDCommand object
+	def has_command(self, c):
+		if isinstance(c, OBDCommand):
+			return c in self.__dict__.values()
+		else:
+			debug("has_command() only accepts OBDCommand objects", True)
+			return False
+
+
+	# checks for existance of command by name
+	def has_name(self, s):
+		if isinstance(s, basestring):
+			return s.isupper() and (s in self.__dict__.keys())
+		else:
+			debug("has_name() only accepts string names for commands", True)
+			return False
+
+
 	# checks for existance of int mode and int pid
-	def has(self, mode, pid):
+	def has_pid(self, mode, pid):
 		if isinstance(mode, int) and isinstance(pid, int):
 			if (mode < 0) or (pid < 0):
 				return False
@@ -306,8 +336,9 @@ class Commands():
 				return False
 			return True
 		else:
-			debug("has() only accepts integer values for mode and PID", True)
+			debug("has_pid() only accepts integer values for mode and PID", True)
 			return False
+
 
 # export this object
 commands = Commands()

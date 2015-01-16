@@ -106,7 +106,7 @@ class OBD(object):
 		for get in pid_getters:
 			# GET commands should sequentialy turn themselves on (become marked as supported)
 			# MODE 1 PID 0 is marked supported by default 
-			if not self.has_command(get):
+			if not self.supports(get):
 				continue
 
 			response = self.send(get) # ask nicely
@@ -123,7 +123,7 @@ class OBD(object):
 					mode = get.get_mode_int()
 					pid  = get.get_pid_int() + i + 1
 
-					if commands.has(mode, pid):
+					if commands.has_pid(mode, pid):
 						c = commands[mode][pid]
 						c.supported = True
 
@@ -139,8 +139,8 @@ class OBD(object):
 			print str(c)
 
 
-	def has_command(self, c):
-		return commands.has(c.get_mode_int(), c.get_pid_int()) and c.supported
+	def supports(self, c):
+		return commands.has_pid(c.get_mode_int(), c.get_pid_int()) and c.supported
 
 
 	def send(self, c):
@@ -161,7 +161,7 @@ class OBD(object):
 		""" facade 'send' command, protects against sending unsupported commands """
 
 		# check that the command is supported
-		if not (self.has_command(c) or force):
+		if not (self.supports(c) or force):
 			debug("'%s' is not supported" % str(c), True)
 			return Response() # return empty response
 		else:
