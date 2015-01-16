@@ -12,13 +12,14 @@ def test_list_integrity():
 			assert pid == cmd.get_pid_int()
 
 			# make sure all the fields are set
-			assert cmd.name != ""
-			assert cmd.name.isupper()
-			assert cmd.desc != ""
-			assert (mode >= 1) and (mode <= 9)
-			assert (pid >= 0) and (pid <= 196)
-			assert cmd.bytes >= 0
-			assert hasattr(cmd.decode, '__call__')
+			assert cmd.name != "",                  "Command names must not be null"
+			assert cmd.name.isupper(),              "Command names must be upper case"
+			assert ' ' not in cmd.name,             "No spaces allowed in command names"
+			assert cmd.desc != "",                  "Command description must not be null"
+			assert (mode >= 1) and (mode <= 9),     "Mode must be in the range [1, 9] (decimal)"
+			assert (pid >= 0) and (pid <= 196),     "PID must be in the range [0, 196] (decimal)"
+			assert cmd.bytes >= 0,                  "Number of return bytes must be >= 0"
+			assert hasattr(cmd.decode, '__call__'), "Decode is not callable"
 
 
 def test_unique_names():
@@ -27,7 +28,7 @@ def test_unique_names():
 
 	for cmds in obd.commands.modes:
 		for cmd in cmds:
-			assert not names.has_key(cmd.name)
+			assert not names.has_key(cmd.name), "Two commands share the same name: %s" % cmd.name
 			names[cmd.name] = True
 
 
@@ -39,13 +40,14 @@ def test_getitem():
 			# by [mode][pid]
 			mode = cmd.get_mode_int()
 			pid  = cmd.get_pid_int()
-			assert cmd == obd.commands[mode][pid]
+			assert cmd == obd.commands[mode][pid], "mode %d, PID %d could not be accessed through __getitem__" % (mode, pid)
 
 			# by [name]
-			assert cmd == obd.commands[cmd.name]
+			assert cmd == obd.commands[cmd.name], "command name %s could not be accessed through __getitem__" % (cmd.name)
 
 
 def test_contains():
+
 	for cmds in obd.commands.modes:
 		for cmd in cmds:
 
@@ -62,6 +64,12 @@ def test_contains():
 
 			# by `in`
 			assert cmd.name in obd.commands
+
+	# test things NOT in the tables, or invalid parameters
+	assert 'modes' not in obd.commands
+	assert not obd.commands.has_pid(-1, 0)
+	assert not obd.commands.has_pid(1, -1)
+	assert not obd.commands.has_command("I'm a string, not an OBDCommand")
 
 
 def test_pid_getters():
