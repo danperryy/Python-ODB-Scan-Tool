@@ -46,63 +46,74 @@ class OBDPort:
 	def __init__(self, portname):
 		"""Initializes port by resetting device and gettings supported PIDs. """
 
-		# These should really be set by the user.
-		baud     = 38400
-		databits = 8
-		parity   = serial.PARITY_NONE
-		stopbits = 1
-		timeout  = 2 #seconds
-
 		self.ELMver = "Unknown"
 		self.state  = State.Unconnected
 		self.port   = None
 
-		debug("Opening serial port...")
+		# ------------- open port -------------
+
+		debug("Opening serial port '%s'" % portname)
 
 		try:
 			self.port = serial.Serial(portname, \
-									  baud, \
-									  parity = parity, \
-									  stopbits = stopbits, \
-									  bytesize = databits, \
-									  timeout = timeout)
+									  baudrate = 38400, \
+									  parity   = serial.PARITY_NONE, \
+									  stopbits = 1, \
+									  bytesize = 8, \
+									  timeout  = 2) # seconds
 
 		except serial.SerialException as e:
-			self.error(e)
+			self.__error(e)
 			return
 		except OSError as e:
-			self.error(e)
+			self.__error(e)
 			return
 
 		debug("Serial port successfully opened on " + self.get_port_name())
 
+		# ------------- atz (reset) -------------
 		try:
-			self.send("atz")   # initialize
-			time.sleep(1)
-			self.ELMver = self.get()
+			r = self.write_and_read("atz", 1) # wait 1 second for ELM to initialize
 
-			if self.ELMver is None :
-				self.error("ELMver did not return")
+			if not r:
+				self.__error("atz (reset) did not return with an ELM version")
 				return
 			
-			debug("atz response: " + self.ELMver)
+			debug("atz response: " + repr(r))
+			self.ELMver = r
 		
 		except serial.SerialException as e:
-			self.error(e)
+			self.__error(e)
 			return
 
-		self.send("ate0")  # echo off
-		debug("ate0 response: " + self.get())
-		debug("Connected to ECU")
-		self.state  = State.Connected
+		# ------------- ate0 (echo OFF) -------------
+		r = self.write_and_read("ate0")
+		debug("ate0 response: " + repr(r))
+		
+		if (len(r) < 2) or (r[-2:] != "OK"):
+			self.__error("ate0 did not return 'OK'")
+			return
+
+		# ------------- ath1 (headers ON) -------------
+		r = self.write_and_read("ath1")
+		debug("ath1 response: " + repr(r))
+
+		if r != 'OK':
+			self.__error("ath1 did not return 'OK', or echoing is still ON")
+			return
+
+		# ------------- done -------------
+		debug("Connection successful")
+		self.state = State.Connected
 
 
-	def error(self, msg=None):
-		""" called when connection error has been encountered """
+	def __error(self, msg=None):
+		""" handles fatal failures, print debug info and closes serial """
+		
 		debug("Connection Error:", True)
 
 		if msg is not None:
-			debug(msg, True)
+			debug('    ' + msg, True)
 		
 		if self.port is not None:
 			self.port.close()
@@ -113,22 +124,34 @@ class OBDPort:
 	def get_port_name(self):
 		return self.port.portstr if (self.port is not None) else "No Port"
 
+
 	def is_connected(self):
 		return self.state == State.Connected
+
 
 	def close(self):
 		""" Resets device and closes all associated filehandles"""
 
 		if (self.port != None) and (self.state == State.Connected):
-			self.send("atz")
+			self.write("atz")
 			self.port.close()
 
 		self.port = None
 		self.ELMver = "Unknown"
 
 
+	def write_and_read(self, cmd, delay=None):
+
+		self.write(cmd)
+
+		if delay is not None:
+			time.sleep(delay)
+
+		return self.read()
+
+
 	# sends the hex string to the port
-	def send(self, cmd):
+	def write(self, cmd):
 		if self.port:
 			self.port.flushOutput()
 			self.port.flushInput()
@@ -136,8 +159,9 @@ class OBDPort:
 				self.port.write(c)
 			self.port.write("\r\n")
 
+
 	# accumulates and returns the ports response
-	def get(self):
+	def read(self):
 		"""Internal use only: not a public interface"""
 
 		attempts = 2
@@ -153,7 +177,7 @@ class OBDPort:
 					if(attempts <= 0):
 						break
 
-					debug("get() found nothing")
+					debug("read() found nothing")
 					
 					attempts -= 1
 					continue
@@ -171,6 +195,7 @@ class OBDPort:
 			debug("NO self.port!", True)
 
 		return result
+
 
 	#
 	# fixme: j1979 specifies that the program should poll until the number
@@ -190,8 +215,8 @@ class OBDPort:
 		print "Number of stored DTC:" + str(dtcNumber) + " MIL: " + str(mil)
 		# get all DTC, 3 per mesg response
 		for i in range(0, ((dtcNumber+2)/3)):
-			self.send(GET_DTC_COMMAND)
-			res = self.get()
+			self.write(GET_DTC_COMMAND)
+			res = self.read()
 			print "DTC result:" + res
 			for i in range(0, 3):
 				val1 = unhex(res[3+i*6:5+i*6])
@@ -205,8 +230,8 @@ class OBDPort:
 				DTCCodes.append(["Active",DTCStr])
 
 		#read mode 7
-		self.send(GET_FREEZE_DTC_COMMAND)
-		res = self.get()
+		self.write(GET_FREEZE_DTC_COMMAND)
+		res = self.read()
 
 		if res[:7] == "NODATA": #no freeze frame
 			return DTCCodes

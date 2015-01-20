@@ -43,15 +43,13 @@ class OBD(object):
 		self.port = None
 		self.supported_commands = []
 
-		# initialize by connecting and loading sensors
-		self.connect(portstr)
-		debug("========================================")
+		debug("========================== Starting python-OBD ==========================")
+		self.connect(portstr) # initialize by connecting and loading sensors
+		debug("=========================================================================")
 
 
 	def connect(self, portstr=None):
 		""" attempts to instantiate an OBDPort object. Loads commands on success"""
-		
-		debug("Starting python-OBD")
 
 		if portstr is None:
 			debug("Using scanSerial to select port")
@@ -153,8 +151,8 @@ class OBD(object):
 
 		# send the query
 		debug("Sending command: %s" % str(c))
-		self.port.send(c.get_command())       # send command to the port
-		return c.compute(self.port.get())     # get the data, and compute a response object
+		r = self.port.write_and_read(c.get_command()) # send command and retrieve response
+		return c.compute(r)                         # compute a response object
 		
 
 	def query(self, c, force=False):
