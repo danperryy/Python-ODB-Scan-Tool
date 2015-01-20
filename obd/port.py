@@ -74,12 +74,9 @@ class OBDPort:
 		# ------------- atz (reset) -------------
 		try:
 			r = self.write_and_read("atz", 1) # wait 1 second for ELM to initialize
-
 			if not r:
 				self.__error("atz (reset) did not return with an ELM version")
 				return
-			
-			debug("atz response: " + repr(r))
 			self.ELMver = r
 		
 		except serial.SerialException as e:
@@ -88,16 +85,12 @@ class OBDPort:
 
 		# ------------- ate0 (echo OFF) -------------
 		r = self.write_and_read("ate0")
-		debug("ate0 response: " + repr(r))
-		
 		if (len(r) < 2) or (r[-2:] != "OK"):
 			self.__error("ate0 did not return 'OK'")
 			return
 
 		# ------------- ath1 (headers ON) -------------
 		r = self.write_and_read("ath1")
-		debug("ath1 response: " + repr(r))
-
 		if r != 'OK':
 			self.__error("ath1 did not return 'OK', or echoing is still ON")
 			return

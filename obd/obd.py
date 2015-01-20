@@ -54,6 +54,7 @@ class OBD(object):
 		if portstr is None:
 			debug("Using scanSerial to select port")
 			portnames = scanSerial()
+			debug("Available ports: " + str(portnames))
 
 			for port in portnames:
 
