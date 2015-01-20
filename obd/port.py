@@ -60,7 +60,7 @@ class OBDPort:
 									  parity   = serial.PARITY_NONE, \
 									  stopbits = 1, \
 									  bytesize = 8, \
-									  timeout  = 2) # seconds
+									  timeout  = 1) # seconds
 
 		except serial.SerialException as e:
 			self.__error(e)
@@ -142,58 +142,59 @@ class OBDPort:
 
 	def write_and_read(self, cmd, delay=None):
 
-		self.write(cmd)
+		self.__write(cmd)
 
 		if delay is not None:
 			time.sleep(delay)
 
-		return self.read()
+		return self.__read()
 
 
 	# sends the hex string to the port
-	def write(self, cmd):
+	def __write(self, cmd):
 		if self.port:
+			cmd += "\r\n" # terminate
 			self.port.flushOutput()
 			self.port.flushInput()
-			for c in cmd:
-				self.port.write(c)
-			self.port.write("\r\n")
+			self.port.write(cmd)
+			debug("write: " + repr(cmd))
+		else:
+			debug("cannot perform write() when unconnected", True)
 
 
 	# accumulates and returns the ports response
-	def read(self):
-		"""Internal use only: not a public interface"""
+	def __read(self):
 
 		attempts = 2
 		result = ""
 
-		if self.port is not None:
-			while 1:
+		if self.port:
+			while True:
 				c = self.port.read(1)
 
 				# if nothing was recieved
-				if len(c) == 0:
+				if not c:
 
-					if(attempts <= 0):
+					if attempts <= 0:
 						break
 
 					debug("read() found nothing")
-					
 					attempts -= 1
 					continue
+
+				# end on chevron
+				if c == ">":
+					break
 
 				# skip carraige returns
 				if c == '\r':
 					continue
 
-				# end on chevron
-				if c == ">":
-					break;
-				else: # whatever is left must be part of the response
-					result = result + c
+				result += c # whatever is left must be part of the response
 		else:
-			debug("NO self.port!", True)
+			debug("cannot perform read() when unconnected", True)
 
+		debug("read: " + repr(result))
 		return result
 
 

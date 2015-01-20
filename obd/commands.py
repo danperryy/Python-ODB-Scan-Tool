@@ -67,7 +67,6 @@ class OBDCommand():
 
 		# create the response object with the raw data recieved
 		r = Response(_data)
-		debug("command returned: %s" % _data)
 
 		# strips spaces, and removes [\n\r\t]
 		_data = "".join(_data.split())
