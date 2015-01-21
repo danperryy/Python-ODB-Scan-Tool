@@ -18,41 +18,42 @@ def test_query():
 	# forge our own command, to control the output
 	cmd = OBDCommand("", "", "01", "23", 2, noop)
 
-	# forge IO from the car by overwriting the get/send functions
+	# forge IO from the car by overwriting the read/write functions
 	
 	# buffers
 	toCar = [""] # needs to be inside mutable object to allow assignment in closure
 	fromCar = ""
 
-	def send(cmd):
+	def write(cmd):
 		toCar[0] = cmd
 
 	o.is_connected = lambda *args: True
-	o.port.send = send
-	o.port.get = lambda *args: fromCar
+	o.port.port = True
+	o.port._OBDPort__write = write
+	o.port._OBDPort__read = lambda *args: fromCar
 
-	# make sure unsupported commands don't send
-	fromCar = "41 23 AB CD\r\r"
+	# make sure unsupported commands don't write
+	fromCar = "48 6B 10 41 23 AB CD\r\r"
 	r = o.query(cmd)
 	assert toCar[0] == ""
 	assert r.is_null()
 
 	# a correct command transaction
-	fromCar = "41 23 AB CD\r\r"  # preset the response
+	fromCar = "48 6B 10 41 23 AB CD\r\r"  # preset the response
 	r = o.query(cmd, force=True)       # run
 	assert toCar[0] == "0123"    # verify that the command was sent correctly
 	assert r.raw_data == fromCar # verify that raw_data was stored in the Response
 	assert r.value == "ABCD"     # verify that the response was parsed correctly
 
 	# response of greater length
-	fromCar = "41 23 AB CD EF\r\r"
+	fromCar = "48 6B 10 41 23 AB CD EF\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.value == "ABCD"
 
 	# response of greater length
-	fromCar = "41 23 AB\r\r"
+	fromCar = "48 6B 10 41 23 AB\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar

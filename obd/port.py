@@ -106,7 +106,7 @@ class OBDPort:
 		debug("Connection Error:", True)
 
 		if msg is not None:
-			debug('    ' + msg, True)
+			debug('    ' + str(msg), True)
 		
 		if self.port is not None:
 			self.port.close()
