@@ -30,7 +30,7 @@
 
 class Debug():
 	def __init__(self):
-		self.console = True
+		self.console = False
 		self.handler = None
 
 	def __call__(self, msg, forcePrint=False):
