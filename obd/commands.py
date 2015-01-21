@@ -66,8 +66,8 @@ class OBDCommand():
 		# _data will be the string returned from the car (ELM adapter).
 		# It should look something like this:
 		#
-		#              Mode    ____Data____
-		#                |    |            |
+		#              Mode    __Data___
+		#                |    |         |
 		# "\r\r48 6B 10 41 00 BE 1F B8 11 AA\r\r"
 		#            ||    ||
 		#            ECU   PID
@@ -82,7 +82,7 @@ class OBDCommand():
 		lines = [line.split() for line in lines]
 
 		# filter by minimum response length (number of space delimited chunks (bytes))
-		lines = filter(lambda line: len(line) >= 6, lines)
+		lines = filter(lambda line: len(line) >= 7, lines)
 
 		# filter for ECU 10 (engine)
 		lines = filter(lambda line: line[2] == '10', lines)
@@ -95,8 +95,8 @@ class OBDCommand():
 			debug("multiline response returned, can't handle that (yet)")
 		else: # len(lines) == 1
 
-			# combine the bytes back into a hex string, excluding the header + mode + pid
-			_data = "".join(lines[0][5:])
+			# combine the bytes back into a hex string, excluding the header + mode + pid, and trailing checksum
+			_data = "".join(lines[0][5:-1])
 
 			if ("NODATA" not in _data) and isHex(_data):
 

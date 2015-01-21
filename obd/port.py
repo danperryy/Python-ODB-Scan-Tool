@@ -74,6 +74,7 @@ class OBDPort:
 		# ------------- atz (reset) -------------
 		try:
 			r = self.write_and_read("atz", 1) # wait 1 second for ELM to initialize
+			r = self.__strip(r)
 			if not r:
 				self.__error("atz (reset) did not return with an ELM version")
 				return
@@ -85,12 +86,14 @@ class OBDPort:
 
 		# ------------- ate0 (echo OFF) -------------
 		r = self.write_and_read("ate0")
+		r = self.__strip(r)
 		if (len(r) < 2) or (r[-2:] != "OK"):
 			self.__error("ate0 did not return 'OK'")
 			return
 
 		# ------------- ath1 (headers ON) -------------
 		r = self.write_and_read("ath1")
+		r = self.__strip(r)
 		if r != 'OK':
 			self.__error("ath1 did not return 'OK', or echoing is still ON")
 			return
@@ -99,6 +102,9 @@ class OBDPort:
 		debug("Connection successful")
 		self.state = State.Connected
 
+
+	def __strip(self, s):
+		return "".join(s.split())
 
 	def __error(self, msg=None):
 		""" handles fatal failures, print debug info and closes serial """
