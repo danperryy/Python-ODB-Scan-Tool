@@ -130,7 +130,7 @@ def constrainHex(_hex, b):
 	return _hex
 
 
-def tryPort(portStr):
+def try_port(portStr):
 	"""returns boolean for port availability"""
 	try:
 		s = serial.Serial(portStr)
@@ -156,15 +156,21 @@ def scanSerial():
 	if sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
 		possible_ports += glob.glob("/dev/rfcomm[0-9]*")
 		possible_ports += glob.glob("/dev/ttyUSB[0-9]*")
+
 	elif sys.platform.startswith('win'):
 		possible_ports += ["\\.\COM%d" % i for i in range(256)]
+
 	elif sys.platform.startswith('darwin'):
-		possible_ports += glob.glob('/dev/tty.*')
+		exclude = [
+			'/dev/tty.Bluetooth-Incoming-Port',
+			'/dev/tty.Bluetooth-Modem'
+		]
+		possible_ports += [port for port in glob.glob('/dev/tty.*') if port not in exclude]
 
 	# possible_ports += glob.glob('/dev/pts/[0-9]*') # for obdsim
 
 	for port in possible_ports:
-		if tryPort(port):
+		if try_port(port):
 			available.append(port)
 	
 	return available
