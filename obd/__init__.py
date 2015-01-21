@@ -28,6 +28,8 @@
 #                                                                      #
 ########################################################################
 
+__version__ = '0.3b0.0'
+
 from obd import OBD
 from commands import commands, OBDCommand
 from utils import scanSerial, Unit
