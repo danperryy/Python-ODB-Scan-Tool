@@ -32,50 +32,72 @@ def test_query():
 	o.port._OBDPort__write = write
 	o.port._OBDPort__read = lambda *args: fromCar
 
-	# make sure unsupported commands don't write
+	# make sure unsupported commands don't write ------------------------------
 	fromCar = "48 6B 10 41 23 AB CD\r\r"
 	r = o.query(cmd)
 	assert toCar[0] == ""
 	assert r.is_null()
 
-	# a correct command transaction
+	# a correct command transaction -------------------------------------------
 	fromCar = "48 6B 10 41 23 AB CD\r\r"  # preset the response
 	r = o.query(cmd, force=True)       # run
 	assert toCar[0] == "0123"    # verify that the command was sent correctly
 	assert r.raw_data == fromCar # verify that raw_data was stored in the Response
 	assert r.value == "ABCD"     # verify that the response was parsed correctly
 
-	# response of greater length
+	# response of greater length ----------------------------------------------
 	fromCar = "48 6B 10 41 23 AB CD EF\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.value == "ABCD"
 
-	# response of greater length
+	# response of lesser length -----------------------------------------------
 	fromCar = "48 6B 10 41 23 AB\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.value == "AB00"
 
-	# NO DATA response
+	# NO DATA response --------------------------------------------------------
 	fromCar = "NO DATA"
 	r = o.query(cmd, force=True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
-	# malformed response
+	# malformed response ------------------------------------------------------
 	fromCar = "totaly not hex!@#$"
 	r = o.query(cmd, force=True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
-	# no response
+	# no response -------------------------------------------------------------
 	fromCar = ""
 	r = o.query(cmd, force=True)
 	assert r.raw_data == fromCar
 	assert r.is_null()
+
+	# disregard responses from other ECUs -------------------------------------
+	fromCar = "48 6B 12 41 23 AB CD\r\r"
+	r = o.query(cmd, force=True)
+	assert toCar[0] == "0123"
+	assert r.raw_data == fromCar
+	assert r.is_null()
+
+	# filter for ECU 10 -------------------------------------------------------
+	fromCar = "48 6B 12 41 23 AB CD\r\r 48 6B 10 41 23 AB CD\r\r"
+	r = o.query(cmd, force=True)
+	assert toCar[0] == "0123"
+	assert r.raw_data == fromCar
+	assert r.value == "ABCD"
+
+	# ignore multiline responses ----------------------------------------------
+	fromCar = "48 6B 10 41 23 AB CD\r\r 48 6B 10 41 23 AB CD\r\r"
+	r = o.query(cmd, force=True)
+	assert toCar[0] == "0123"
+	assert r.raw_data == fromCar
+	assert r.is_null()
+
 
 
 def test_load_commands():
