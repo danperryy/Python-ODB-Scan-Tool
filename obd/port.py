@@ -179,8 +179,8 @@ class OBDPort:
 				if c == ">":
 					break
 
-				# skip carraige returns
-				if c == '\r':
+				# skip null characters (ELM spec page 9)
+				if c == '\x00':
 					continue
 
 				result += c # whatever is left must be part of the response

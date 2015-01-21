@@ -28,6 +28,7 @@
 #                                                                      #
 ########################################################################
 
+import re
 from decoders import *
 from utils import *
 from debug import debug
@@ -62,30 +63,53 @@ class OBDCommand():
 		return unhex(self.pid)
 
 	def compute(self, _data):
-		# _data will be the string returned from the device.
-		# It should look something like this: '41 11 0 0\r\r'
+		# _data will be the string returned from the car (ELM adapter).
+		# It should look something like this:
+		#
+		#              Mode    ____Data____
+		#                |    |            |
+		# "\r\r48 6B 10 41 00 BE 1F B8 11 AA\r\r"
+		#            ||    ||
+		#            ECU   PID
 
 		# create the response object with the raw data recieved
 		r = Response(_data)
 
-		# strips spaces, and removes [\n\r\t]
-		_data = "".join(_data.split())
+		# split by lines, and remove empty lines
+		lines = filter(bool, re.split("[\r\n]", _data))
 
-		if (len(_data) > 0) and ("NODATA" not in _data) and isHex(_data):
+		# splits each line by spaces (each element should be a hex byte)
+		lines = [line.split() for line in lines]
 
-			# the first 4 chars are codes from the ELM (we don't need those)
-			_data = _data[4:]
+		# filter by minimum response length (number of space delimited chunks (bytes))
+		lines = filter(lambda line: len(line) >= 6, lines)
 
-			# constrain number of bytes in response
-			if (self.bytes > 0): # zero bytes means flexible response
-				_data = constrainHex(_data, self.bytes)
+		# filter for ECU 10 (engine)
+		lines = filter(lambda line: line[2] == '10', lines)
 
-			# decoded value into the response object
-			r.set(self.decode(_data))
+		# by now, we should have only one line.
+		# Any more, and its a multiline response (which this library can't handle yet)
+		if len(lines) == 0:
+			debug("no valid data returned")
+		elif len(lines) > 1:
+			debug("multiline response returned, can't handle that (yet)")
+		else: # len(lines) == 1
 
-		else:
-			# not a parseable response
-			debug("return data could not be decoded")
+			# combine the bytes back into a hex string, excluding the header + mode + pid
+			_data = "".join(lines[0][5:])
+
+			if ("NODATA" not in _data) and isHex(_data):
+
+				# constrain number of bytes in response
+				if (self.bytes > 0): # zero bytes means flexible response
+					_data = constrainHex(_data, self.bytes)
+
+				# decoded value into the response object
+				r.set(self.decode(_data))
+
+			else:
+				# not a parseable response
+				debug("return data could not be decoded")
 
 		return r
 
