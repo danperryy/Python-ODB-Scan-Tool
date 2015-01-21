@@ -69,8 +69,8 @@ class OBDCommand():
 		#              Mode    __Data___
 		#                |    |         |
 		# "\r\r48 6B 10 41 00 BE 1F B8 11 AA\r\r"
-		#            ||    ||
-		#            ECU   PID
+		#            ||    ||             ||
+		#            ECU   PID            Checksum
 
 		# create the response object with the raw data recieved
 		r = Response(_data)
