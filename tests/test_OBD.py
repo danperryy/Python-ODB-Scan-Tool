@@ -77,27 +77,33 @@ def test_query():
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
-	# disregard responses from other ECUs -------------------------------------
+	# accept responses from other ECUs (when single response) -------------------------------------------------------
 	fromCar = "48 6B 12 41 23 AB CD 10\r\r"
+	r = o.query(cmd, force=True)
+	assert toCar[0] == "0123"
+	assert r.raw_data == fromCar
+	assert r.value == "ABCD"
+
+	# disregard responses from other ECUs (when multiple responses)-------------------------------------
+	fromCar = "48 6B 12 41 23 AB CD 10\r\r48 6B 12 41 23 AB CD 10\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.is_null()
 
 	# filter for ECU 10 -------------------------------------------------------
-	fromCar = "48 6B 12 41 23 AB CD\r\r 48 6B 10 41 23 AB CD 10\r\r"
+	fromCar = "48 6B 12 41 23 AB CD 10\r\r 48 6B 10 41 23 AB CD 10\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.value == "ABCD"
 
 	# ignore multiline responses ----------------------------------------------
-	fromCar = "48 6B 10 41 23 AB CD\r\r 48 6B 10 41 23 AB CD 10\r\r"
+	fromCar = "48 6B 10 41 23 AB CD 10\r\r 48 6B 10 41 23 AB CD 10\r\r"
 	r = o.query(cmd, force=True)
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.is_null()
-
 
 
 def test_load_commands():
