@@ -106,6 +106,7 @@ class OBDPort:
 	def __strip(self, s):
 		return "".join(s.split())
 
+
 	def __error(self, msg=None):
 		""" handles fatal failures, print debug info and closes serial """
 		
