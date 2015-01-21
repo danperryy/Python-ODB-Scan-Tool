@@ -84,8 +84,9 @@ class OBDCommand():
 		# filter by minimum response length (number of space delimited chunks (bytes))
 		lines = filter(lambda line: len(line) >= 7, lines)
 
-		# filter for ECU 10 (engine)
-		lines = filter(lambda line: line[2] == '10', lines)
+		if len(lines) > 1:
+			# filter for ECU 10 (engine)
+			lines = filter(lambda line: line[2] == '10', lines)
 
 		# by now, we should have only one line.
 		# Any more, and its a multiline response (which this library can't handle yet)
