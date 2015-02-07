@@ -355,13 +355,11 @@ def dtc(_hex):
 
 # converts a frame of 2-byte DTCs into a list of DTCs
 def dtc_frame(_hex):
-	code_length = 4 # number of hex chars consumed by one code
-	size = len(_hex) / code_length # number of codes defined in THIS FRAME (not total)
 	codes = []
-	for n in range(size):
+	for n in range(3):
 
-		start = code_length * n
-		end = start + code_length
+		start = 4 * n
+		end = start + 4
 		
 		codes.append(dtc(_hex[start:end]))
 

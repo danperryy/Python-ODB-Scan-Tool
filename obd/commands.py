@@ -252,7 +252,7 @@ for c in __mode1__:
 
 __mode3__ = [
 	#                  sensor name                          description                   mode  cmd bytes       decoder
-	OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03", "" , 0, noop                   ),
+	OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03", "" , 6, noop                   ),
 ]
 
 __mode4__ = [
