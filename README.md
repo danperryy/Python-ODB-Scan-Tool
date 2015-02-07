@@ -36,7 +36,7 @@ Documentation
 Commands
 --------
 
-Here are a handful of the supported commands (sensors):
+Here are a handful of the supported commands (sensors). For a full list, see [the wiki](https://github.com/brendanwhitfield/python-OBD/wiki/Command-Tables)
 
 *note: support for these commands will vary from car to car*
 
@@ -60,7 +60,6 @@ Here are a handful of the supported commands (sensors):
 -   Time since trouble codes cleared
 -   Hybrid battery pack remaining life
 -   Engine fuel rate
--   etc... For a full list, see [the wiki](http://github.com/brendanwhitfield/python-OBD/wiki)
 
 License
 -------
