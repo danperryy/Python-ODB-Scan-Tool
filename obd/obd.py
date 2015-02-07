@@ -139,7 +139,7 @@ class OBD(object):
 
 
 	def supports(self, c):
-		return commands.has_pid(c.get_mode_int(), c.get_pid_int()) and c.supported
+		return commands.has_command(c) and c.supported
 
 
 	def send(self, c):

@@ -17,11 +17,11 @@ class OBDCommand():
 
 	def clone(self):
 		return OBDCommand(self.name,
-						  self.desc,
-						  self.mode,
-						  self.pid,
-						  self.bytes,
-						  self.decode)
+		                  self.desc,
+		                  self.mode,
+		                  self.pid,
+		                  self.bytes,
+		                  self.decode)
 
 	def get_command(self):
 		return self.mode + self.pid # the actual command transmitted to the port
