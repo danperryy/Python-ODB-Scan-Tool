@@ -28,7 +28,7 @@
 #                                                                      #
 ########################################################################
 
-from command import OBDCommand
+from OBDCommand import OBDCommand
 from decoders import *
 from debug import debug
 
