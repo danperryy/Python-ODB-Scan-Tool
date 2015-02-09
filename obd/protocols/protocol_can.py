@@ -1,22 +1,22 @@
 
 
 from protocol import Protocol
-from frame import Frame
 from obd.utils import ascii_to_bytes
+from obd.debug import debug
 
 
 class CANProtocol(Protocol):
+
     def __init__(self, baud, id_bits):
         Protocol.__init__(self, baud)
         self.id_bits = id_bits
 
-
     def parse_frame(self, frame):
 
-    	# pad 11-bit CAN headers out to 32 bits for consistency,
+        # pad 11-bit CAN headers out to 32 bits for consistency,
         # since ELM already does this for 29-bit CAN headers
         if self.id_bits == 11:
-        	frame.raw = "00000" + frame.raw
+            frame.raw = "00000" + frame.raw
 
         raw_bytes = ascii_to_bytes(frame.raw)
 
@@ -44,11 +44,13 @@ class CANProtocol(Protocol):
             frame.tx_id     = raw_bytes[3]  # 0xF1 = tester ID
 
         frame.data_bytes = raw_bytes[5:]
-		
 
-	def parse_message(self, message):
-		pass
 
+    def parse_message(self, message):
+        if len(message.frames) == 1:
+            message.data_bytes = message.frames[0].data_bytes
+        else:
+            debug("Recieved multi-frame response. Can't parse those yet")
 
 
 ##############################################

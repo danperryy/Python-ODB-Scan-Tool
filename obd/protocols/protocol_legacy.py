@@ -1,7 +1,6 @@
 
 
 from protocol import Protocol
-from frame import Frame
 from obd.utils import ascii_to_bytes
 from obd.debug import debug
 
