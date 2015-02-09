@@ -7,6 +7,8 @@ from obd.debug import debug
 
 class LegacyProtocol(Protocol):
 
+	PRIMARY_ECU = 0x10
+
 	def __init__(self, baud):
 		Protocol.__init__(self, baud)
 

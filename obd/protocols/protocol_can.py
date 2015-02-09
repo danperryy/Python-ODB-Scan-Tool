@@ -7,6 +7,8 @@ from obd.debug import debug
 
 class CANProtocol(Protocol):
 
+    PRIMARY_ECU = 0
+
     def __init__(self, baud, id_bits):
         Protocol.__init__(self, baud)
         self.id_bits = id_bits

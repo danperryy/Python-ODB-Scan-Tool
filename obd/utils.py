@@ -96,6 +96,9 @@ def ascii_to_bytes(a):
 		b.append(int(a[i:i+2], 16))
 	return b
 
+def strip():
+	return "".join(s.split())
+
 def unhex(_hex):
 	_hex = "0" if _hex == "" else _hex
 	return int(_hex, 16)

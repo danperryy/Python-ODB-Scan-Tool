@@ -29,15 +29,11 @@
 ########################################################################
 
 import serial
-import string
 import time
-from utils import Response, unhex
+import protocols
+from utils import strip
 from debug import debug
 
-
-class State():
-	""" Enum for connection states """
-	Unconnected, Connected = range(2)
 
 
 class OBDPort:
@@ -46,9 +42,9 @@ class OBDPort:
 	def __init__(self, portname):
 		"""Initializes port by resetting device and gettings supported PIDs. """
 
-		self.ELMver = "Unknown"
-		self.state  = State.Unconnected
-		self.port   = None
+		self.connected = False
+		self.port      = None
+		self.protocol  = None
 
 		# ------------- open port -------------
 
@@ -71,40 +67,58 @@ class OBDPort:
 
 		debug("Serial port successfully opened on " + self.get_port_name())
 
-		# ------------- atz (reset) -------------
+
+		# ---------------------------- ATZ (reset) ----------------------------
 		try:
-			r = self.write_and_read("atz", 1) # wait 1 second for ELM to initialize
-			r = self.__strip(r)
-			if not r:
-				self.__error("atz (reset) did not return with an ELM version")
-				return
-			self.ELMver = r
-		
+			r = self.send("ATZ", delay=1) # wait 1 second for ELM to initialize
+			# return data can be junk, so don't bother checking
 		except serial.SerialException as e:
 			self.__error(e)
 			return
 
-		# ------------- ate0 (echo OFF) -------------
-		r = self.write_and_read("ate0")
-		r = self.__strip(r)
+
+		# -------------------------- ATE0 (echo OFF) --------------------------
+		r = self.send("ATE0")
+		r = strip(r)
 		if (len(r) < 2) or (r[-2:] != "OK"):
-			self.__error("ate0 did not return 'OK'")
+			self.__error("ATE0 did not return 'OK'")
 			return
 
-		# ------------- ath1 (headers ON) -------------
-		r = self.write_and_read("ath1")
-		r = self.__strip(r)
+
+		# ------------------------- ATH1 (headers ON) -------------------------
+		r = self.send("ATH1")
+		r = strip(r)
 		if r != 'OK':
-			self.__error("ath1 did not return 'OK', or echoing is still ON")
+			self.__error("ATH1 did not return 'OK', or echoing is still ON")
 			return
 
-		# ------------- done -------------
+
+		# ----------------------- ATSP0 (protocol AUTO) -----------------------
+		r = self.send("ATSP0")
+		r = strip(r)
+		if r != 'OK':
+			self.__error("ATSP0 did not return 'OK'")
+			return
+
+
+		# -------------- 0100 (first command, SEARCH protocols) --------------
+		r = self.send("0100", delay=1) # give it a second to search
+
+
+		# ----------------------- ATDP (list protocol) -----------------------
+		r = self.send("ATDP")
+		r = strip(r)
+		protocol_class = protocols.get(r) # lookup the protocol by name
+		if protocol_class is None:
+			self.__error("ELM responded with unknown protocol")
+			return
+
+		self.protocol = protocol_class()
+
+
+		# ------------------------------- done -------------------------------
 		debug("Connection successful")
-		self.state = State.Connected
-
-
-	def __strip(self, s):
-		return "".join(s.split())
+		self.connected = True
 
 
 	def __error(self, msg=None):
@@ -118,7 +132,7 @@ class OBDPort:
 		if self.port is not None:
 			self.port.close()
 		
-		self.state = State.Unconnected
+		self.connected = False
 
 
 	def get_port_name(self):
@@ -126,28 +140,45 @@ class OBDPort:
 
 
 	def is_connected(self):
-		return self.state == State.Connected
+		return self.connected
 
 
 	def close(self):
 		""" Resets device and closes all associated filehandles"""
 
-		if (self.port != None) and (self.state == State.Connected):
-			self.write("atz")
+		if (self.port != None) and self.connected:
+			self.__write("ATZ")
 			self.port.close()
 
-		self.port = None
-		self.ELMver = "Unknown"
+			self.connected = False
+			self.port      = None
+			self.protocol  = None
 
 
-	def write_and_read(self, cmd, delay=None):
+	def send_and_parse(self, cmd, delay=None):
+		
+		r = self.send(cmd, delay)
+
+		messages = self.protocol(r) # parses string into list of messages
+
+		# if more than one ECUs have responded, pick the primary
+		# TODO: add support for more ECU types
+		if len(messages) > 1:
+			messages = filter(lambda m: m.tx_id == self.protocol.PRIMARY_ECU, messages)
+
+		return messages[0]
+
+
+	def send(self, cmd, delay=None):
 
 		self.__write(cmd)
 
 		if delay is not None:
 			time.sleep(delay)
 
-		return self.__read()
+		r = self.__read()
+
+		return r # return raw string only
 
 
 	# sends the hex string to the port
@@ -162,7 +193,8 @@ class OBDPort:
 			debug("cannot perform write() when unconnected", True)
 
 
-	# accumulates and returns the ports response
+	# accumulates until the prompt character is seen
+	# returns raw string
 	def __read(self):
 
 		attempts = 2

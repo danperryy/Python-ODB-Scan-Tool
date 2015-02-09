@@ -14,8 +14,11 @@ import re
 
 
 class Protocol(object):
+
+    PRIMARY_ECU = None
+
     def __init__(self, baud=38400):
-        self.baud = baud        
+        self.baud = baud
 
 
     def __call__(self, raw):
@@ -44,7 +47,7 @@ class Protocol(object):
         messages = []
 
         for ecu in ecus:
-            message = Message(ecus[ecu], ecu)
+            message = Message(raw, ecus[ecu], ecu)
             # subclass function to assemble frames into data_bytes
             self.parse_message(message)
             messages.append(message)

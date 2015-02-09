@@ -29,7 +29,7 @@
 ########################################################################
 
 import time
-from port import OBDPort, State
+from port import OBDPort
 from commands import commands
 from utils import scanSerial, Response
 from debug import debug
@@ -60,7 +60,7 @@ class OBD(object):
 
 				self.port = OBDPort(port)
 
-				if(self.port.state == State.Connected):
+				if self.port.is_connected():
 					# success! stop searching for serial
 					break
 		else:
@@ -81,7 +81,6 @@ class OBD(object):
 			self.port = None
 
 
-	# checks the port state for conncetion status
 	def is_connected(self):
 		return (self.port is not None) and self.port.is_connected()
 
@@ -145,15 +144,17 @@ class OBD(object):
 	def send(self, c):
 		""" send the given command, retrieve and parse response """
 
-		# check for a connection
 		if not self.is_connected():
 			debug("Query failed, no connection available", True)
 			return Response() # return empty response
 
-		# send the query
 		debug("Sending command: %s" % str(c))
-		r = self.port.write_and_read(c.get_command()) # send command and retrieve response
-		return c.compute(r)                         # compute a response object
+
+		c_str = c.get_command()
+		m = self.port.send_and_parse(c_str) # send command and retrieve message
+		r = c.compute(m)                    # compute a response object
+
+		return r
 		
 
 	def query(self, c, force=False):
