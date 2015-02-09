@@ -90,6 +90,11 @@ class Test():
 		return "Test %s: %s, %s" % (name, a, c)
 
 
+def ascii_to_bytes(a):
+	b = []
+	for i in range(0, len(a), 2):
+		b.append(int(a[i:i+2], 16))
+	return b
 
 def unhex(_hex):
 	_hex = "0" if _hex == "" else _hex
