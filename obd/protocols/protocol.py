@@ -1,17 +1,45 @@
 
+import re
+from obd.utils import ascii_to_bytes
+from obd.debug import debug
+
+
+"""
+
+Basic data models for all protocols to use
+
+"""
+
+
+class Frame(object):
+    def __init__(self, raw):
+        self.raw        = raw
+        self.data_bytes = []
+        self.priority   = None
+        self.addr_mode  = None
+        self.rx_id      = None
+        self.tx_id      = None
+        self.type       = None
+        self.seq_id     = 0
+        self.msg_len    = None
+
+
+class Message(object):
+    def __init__(self, frames, tx_id):
+        self.frames     = frames
+        self.tx_id      = tx_id
+        self.data_bytes = []
+
+
+
+
 """
 
 Protocol objects are stateless factories for Frames and Messages.
-They are __called__ with the raw string response, and
-return a list of Messages.
+They are __called__ with the raw string response, and return a
+list of Messages.
 
 """
-
-from frame import Frame
-from message import Message
-import re
-
-
 
 class Protocol(object):
 
@@ -29,12 +57,14 @@ class Protocol(object):
         # ditch spaces
         lines = [line.replace(' ', '') for line in lines]
 
-        # create frame objects for each line
-        frames = [Frame(line) for line in lines]
+        frames = []
+        for line in lines:
+            # subclass function to parse the lines into Frames
+            frame = self.create_frame(line)
 
-        # subclass function to load the frame parameters
-        for frame in frames:
-            self.parse_frame(frame)
+            # drop frames that couldn't be parsed
+            if frame is not None:
+                frames.append(frame)
 
         # group frames by transmitting ECU (tx_id)
         ecus = {}
@@ -45,20 +75,36 @@ class Protocol(object):
                 ecus[frame.tx_id].append(frame)
 
         messages = []
-
         for ecu in ecus:
-            message = Message(raw, ecus[ecu], ecu)
-            # subclass function to assemble frames into data_bytes
-            self.parse_message(message)
-            messages.append(message)
+            # subclass function to assemble frames into Messages
+            message = self.create_message(ecus[ecu], ecu)
+
+            # drop messages that couldn't be assembled
+            if message is not None:
+                messages.append(message)
 
         return messages
 
 
-    def parse_frame(self, frame):
-        """ override in subclass for each protocol """
+    def create_frame(self, raw):
+        """
+            override in subclass for each protocol
+
+            Function recieves the raw string data for a frame.
+
+            Function should return a Frame instance. If fatal errors were
+            found, this function should return None (the Frame is dropped).
+        """
         raise NotImplementedError()
 
-    def parse_message(self, message):
-        """ override in subclass for each protocol """
+
+    def create_message(self, frames):
+        """
+            override in subclass for each protocol
+
+            Function recieves a list of Frame objects.
+
+            Function should return a Message instance. If fatal errors were
+            found, this function should return None (the Message is dropped).
+        """
         raise NotImplementedError()

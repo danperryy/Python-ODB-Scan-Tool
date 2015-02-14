@@ -1,8 +1,5 @@
 
-
-from protocol import Protocol
-from obd.utils import ascii_to_bytes
-from obd.debug import debug
+from protocol import *
 
 
 class LegacyProtocol(Protocol):
@@ -12,8 +9,10 @@ class LegacyProtocol(Protocol):
 	def __init__(self, baud):
 		Protocol.__init__(self, baud)
 
-	def parse_frame(self, frame):
-		raw_bytes = ascii_to_bytes(frame.raw)
+	def create_frame(self, raw):
+
+		frame = Frame(raw)
+		raw_bytes = ascii_to_bytes(raw)
 
 		frame.data_bytes = raw_bytes[3:-1] # exclude trailing checksum (handled by ELM adapter)
 
@@ -22,13 +21,19 @@ class LegacyProtocol(Protocol):
 		frame.rx_id    = raw_bytes[1]
 		frame.tx_id    = raw_bytes[2]
 
-	def parse_message(self, message):
-		if len(message.frames) == 1:
+		return frame
+
+	def create_message(self, frames, tx_id):
+
+		message = Message(frames, tx_id)
+
+		if len(frames) == 1:
 			message.data_bytes = message.frames[0].data_bytes
 		else:
 			debug("Recieved multi-frame response. Can't parse those yet")
+			return None
 
-
+		return message
 
 
 

@@ -42,3 +42,8 @@ class Debug():
 			self.handler(msg)
 
 debug = Debug()
+
+
+class ProtocolError(Exception):
+	def __init__(self):
+		pass

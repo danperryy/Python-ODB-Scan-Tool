@@ -1,26 +1,29 @@
 
-
-from protocol import Protocol
-from obd.utils import ascii_to_bytes
-from obd.debug import debug
+from protocol import *
 
 
 class CANProtocol(Protocol):
 
     PRIMARY_ECU = 0
 
+    FRAME_TYPE_SF = 0x00  # single frame
+    FRAME_TYPE_FF = 0x10  # first frame of multi-frame message
+    FRAME_TYPE_CF = 0x20  # consecutive frame(s) of multi-frame message
+
+
     def __init__(self, baud, id_bits):
         Protocol.__init__(self, baud)
         self.id_bits = id_bits
 
-    def parse_frame(self, frame):
+    def create_frame(self, raw):
 
         # pad 11-bit CAN headers out to 32 bits for consistency,
         # since ELM already does this for 29-bit CAN headers
         if self.id_bits == 11:
-            frame.raw = "00000" + frame.raw
+            raw = "00000" + raw
 
-        raw_bytes = ascii_to_bytes(frame.raw)
+        frame = Frame(raw)
+        raw_bytes = ascii_to_bytes(raw)
 
         # read header information
         if self.id_bits == 11:
@@ -45,14 +48,31 @@ class CANProtocol(Protocol):
             frame.rx_id     = raw_bytes[2]  # 0x33 = broadcast (functional)
             frame.tx_id     = raw_bytes[3]  # 0xF1 = tester ID
 
-        frame.data_bytes = raw_bytes[5:]
+
+        frame.data_bytes = raw_bytes[4:]
 
 
-    def parse_message(self, message):
+        # extra frame info in data section
+        frame.type = frame.data_bytes[0] & 0xF0
+        if frame.type is not in [self.FRAME_TYPE_CF,
+                                 self.FRAME_TYPE_FF,
+                                 self.FRAME_TYPE_SF]:
+            return None
+
+        return frame
+
+
+    def create_message(self, frames, tx_id):
+
+        message = Message(frames, tx_id)
+
         if len(message.frames) == 1:
             message.data_bytes = message.frames[0].data_bytes
         else:
             debug("Recieved multi-frame response. Can't parse those yet")
+            return None
+
+        return message
 
 
 ##############################################
