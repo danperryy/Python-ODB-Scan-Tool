@@ -29,7 +29,7 @@
 ########################################################################
 
 import time
-from port import OBDPort
+from elm327 import ELM327
 from commands import commands
 from utils import scanSerial, Response
 from debug import debug
@@ -49,7 +49,7 @@ class OBD(object):
 
 
 	def connect(self, portstr=None):
-		""" attempts to instantiate an OBDPort object. Loads commands on success"""
+		""" attempts to instantiate an ELM327 object. Loads commands on success"""
 
 		if portstr is None:
 			debug("Using scanSerial to select port")
@@ -58,14 +58,14 @@ class OBD(object):
 
 			for port in portnames:
 
-				self.port = OBDPort(port)
+				self.port = ELM327(port)
 
 				if self.port.is_connected():
 					# success! stop searching for serial
 					break
 		else:
 			debug("Explicit port defined")
-			self.port = OBDPort(portstr)
+			self.port = ELM327(portstr)
 
 		# if a connection was made, query for commands
 		if self.is_connected():

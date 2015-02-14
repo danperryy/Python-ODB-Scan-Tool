@@ -30,14 +30,30 @@
 
 import serial
 import time
-import protocols
+from protocols import *
 from utils import strip
 from debug import debug
 
 
 
-class OBDPort:
-	""" OBDPort abstracts all communication with OBD-II device."""
+class ELM327:
+	""" ELM327 abstracts all communication with OBD-II device."""
+
+	_SUPPORTED_PROTOCOLS = {
+		"0" : None,
+		"1" : SAE_J1850_PWM,
+		"2" : SAE_J1850_VPW,
+		"3" : ISO_9141_2,
+		"4" : ISO_14230_4_5baud,
+		"5" : ISO_14230_4_fast,
+		"6" : ISO_15765_4_11bit_500k,
+		"7" : ISO_15765_4_29bit_500k,
+		"8" : ISO_15765_4_11bit_250k,
+		"9" : ISO_15765_4_29bit_250k,
+		"A" : SAE_J1939,
+		"B" : None,
+		"C" : None,
+	}
 
 	def __init__(self, portname):
 		"""Initializes port by resetting device and gettings supported PIDs. """
@@ -80,7 +96,7 @@ class OBDPort:
 		# -------------------------- ATE0 (echo OFF) --------------------------
 		r = self.send("ATE0")
 		r = strip(r)
-		if (len(r) < 2) or (r[-2:] != "OK"):
+		if not r.endswith("OK"):
 			self.__error("ATE0 did not return 'OK'")
 			return
 
@@ -105,15 +121,17 @@ class OBDPort:
 		r = self.send("0100", delay=1) # give it a second to search
 
 
-		# ----------------------- ATDP (list protocol) -----------------------
-		r = self.send("ATDP")
+		# ------------------- ATDPN (list protocol number) -------------------
+		r = self.send("ATDPN")
 		r = strip(r)
-		protocol_class = protocols.get(r) # lookup the protocol by name
-		if protocol_class is None:
+		# suppress any "automatic" prefix
+		r = r[1:] if (len(r) > 1 and r.startswith("A")) else r
+
+		if r not in _SUPPORTED_PROTOCOLS:
 			self.__error("ELM responded with unknown protocol")
 			return
 
-		self.protocol = protocol_class()
+		self.protocol = _SUPPORTED_PROTOCOLS[r]()
 
 
 		# ------------------------------- done -------------------------------
@@ -128,10 +146,10 @@ class OBDPort:
 
 		if msg is not None:
 			debug('    ' + str(msg), True)
-		
+
 		if self.port is not None:
 			self.port.close()
-		
+
 		self.connected = False
 
 
@@ -156,7 +174,7 @@ class OBDPort:
 
 
 	def send_and_parse(self, cmd, delay=None):
-		
+
 		r = self.send(cmd, delay)
 
 		messages = self.protocol(r) # parses string into list of messages

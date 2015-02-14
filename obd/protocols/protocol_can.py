@@ -54,7 +54,7 @@ class CANProtocol(Protocol):
 
         # extra frame info in data section
         frame.type = frame.data_bytes[0] & 0xF0
-        if frame.type is not in [self.FRAME_TYPE_CF,
+        if frame.type not in [self.FRAME_TYPE_CF,
                                  self.FRAME_TYPE_FF,
                                  self.FRAME_TYPE_SF]:
             return None
@@ -67,7 +67,7 @@ class CANProtocol(Protocol):
         message = Message(frames, tx_id)
 
         if len(message.frames) == 1:
-            message.data_bytes = message.frames[0].data_bytes
+            message.data_bytes = message.frames[0].data_bytes[1:]
         else:
             debug("Recieved multi-frame response. Can't parse those yet")
             return None
