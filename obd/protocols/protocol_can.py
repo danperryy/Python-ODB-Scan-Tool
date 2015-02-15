@@ -55,9 +55,6 @@ class CANProtocol(Protocol):
         frame = Frame(raw)
         raw_bytes = ascii_to_bytes(raw)
 
-        print raw
-        print raw_bytes
-
         # read header information
         if self.id_bits == 11:
             frame.priority = raw_bytes[2] & 0x0F  # always 7
