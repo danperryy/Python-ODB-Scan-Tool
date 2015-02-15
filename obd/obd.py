@@ -94,7 +94,11 @@ class OBD(object):
 
 
 	def load_commands(self):
-		""" queries for available PIDs, sets their support status, and compiles a list of command objects """
+		"""
+			queries for available PIDs,
+			sets their support status,
+			and compiles a list of command objects
+		"""
 
 		debug("querying for supported PIDs (commands)...")
 
@@ -103,8 +107,8 @@ class OBD(object):
 		pid_getters = commands.pid_getters()
 
 		for get in pid_getters:
-			# GET commands should sequentialy turn themselves on (become marked as supported)
-			# MODE 1 PID 0 is marked supported by default 
+			# PID listing commands should sequentialy become supported
+			# Mode 1 PID 0 is assumed to always be supported
 			if not self.supports(get):
 				continue
 
@@ -151,15 +155,20 @@ class OBD(object):
 
 		debug("Sending command: %s" % str(c))
 
-		c_str = c.get_command()
-		m = self.port.send_and_parse(c_str) # send command and retrieve message
-		r = c.compute(m)                    # compute a response object
+		# send command and retrieve message
+		m = self.port.send_and_parse(c.get_command())
 
-		return r
+		if m is None:
+			return Response() # return empty response
+		else:
+			return c.compute(m) # compute a response object
 		
 
 	def query(self, c, force=False):
-		""" facade 'send' command, protects against sending unsupported commands """
+		"""
+			facade 'send' command function
+			protects against sending unsupported commands.
+		"""
 
 		# check that the command is supported
 		if not (self.supports(c) or force):

@@ -100,6 +100,15 @@ def ascii_to_bytes(a):
 def strip():
 	return "".join(s.split())
 
+def numBitsSet(n):
+	# TODO: there must be a better way to do this...
+	total = 0
+	ref = 1
+	for b in range(8):
+		total += int(bool(n & ref))
+		ref = ref << 1
+	return total
+
 def unhex(_hex):
 	_hex = "0" if _hex == "" else _hex
 	return int(_hex, 16)

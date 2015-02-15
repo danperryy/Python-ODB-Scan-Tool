@@ -32,16 +32,25 @@
 import serial
 import time
 from protocols import *
-from utils import strip
+from utils import strip, numBitsSet
 from debug import debug
 
 
 
 class ELM327:
-	""" ELM327 abstracts all communication with OBD-II device."""
+	"""
+		Provides interface for the vehicles primary ECU.
+		After instantiation with a portname (/dev/ttyUSB0, etc...),
+		the following functions become available:
+
+			send_and_parse()
+			get_port_name()
+			is_connected()
+			close()
+	"""
 
 	_SUPPORTED_PROTOCOLS = {
-		"0" : None,
+		#"0" : None, # automatic mode
 		"1" : SAE_J1850_PWM,
 		"2" : SAE_J1850_VPW,
 		"3" : ISO_9141_2,
@@ -52,16 +61,17 @@ class ELM327:
 		"8" : ISO_15765_4_11bit_250k,
 		"9" : ISO_15765_4_29bit_250k,
 		"A" : SAE_J1939,
-		"B" : None,
-		"C" : None,
+		#"B" : None, # user defined 1
+		#"C" : None, # user defined 2
 	}
 
 	def __init__(self, portname):
 		"""Initializes port by resetting device and gettings supported PIDs. """
 
-		self.__connected = False
-		self.__port      = None
-		self.__protocol  = None
+		self.__connected   = False
+		self.__port        = None
+		self.__protocol    = None
+		self.__primary_ecu = None # message.tx_id
 
 		# ------------- open port -------------
 
@@ -87,7 +97,7 @@ class ELM327:
 
 		# ---------------------------- ATZ (reset) ----------------------------
 		try:
-			r = self.send("ATZ", delay=1) # wait 1 second for ELM to initialize
+			r = self.__send("ATZ", delay=1) # wait 1 second for ELM to initialize
 			# return data can be junk, so don't bother checking
 		except serial.SerialException as e:
 			self.__error(e)
@@ -95,7 +105,7 @@ class ELM327:
 
 
 		# -------------------------- ATE0 (echo OFF) --------------------------
-		r = self.send("ATE0")
+		r = self.__send("ATE0")
 		r = strip(r)
 		if not r.endswith("OK"):
 			self.__error("ATE0 did not return 'OK'")
@@ -103,7 +113,7 @@ class ELM327:
 
 
 		# ------------------------- ATH1 (headers ON) -------------------------
-		r = self.send("ATH1")
+		r = self.__send("ATH1")
 		r = strip(r)
 		if r != 'OK':
 			self.__error("ATH1 did not return 'OK', or echoing is still ON")
@@ -111,7 +121,7 @@ class ELM327:
 
 
 		# ----------------------- ATSP0 (protocol AUTO) -----------------------
-		r = self.send("ATSP0")
+		r = self.__send("ATSP0")
 		r = strip(r)
 		if r != 'OK':
 			self.__error("ATSP0 did not return 'OK'")
@@ -119,11 +129,11 @@ class ELM327:
 
 
 		# -------------- 0100 (first command, SEARCH protocols) --------------
-		r = self.send("0100", delay=1) # give it a second to search
+		r0100 = self.__send("0100", delay=1) # give it a second to search
 
 
 		# ------------------- ATDPN (list protocol number) -------------------
-		r = self.send("ATDPN")
+		r = self.__send("ATDPN")
 		r = strip(r)
 		# suppress any "automatic" prefix
 		r = r[1:] if (len(r) > 1 and r.startswith("A")) else r
@@ -135,9 +145,50 @@ class ELM327:
 		self.__protocol = _SUPPORTED_PROTOCOLS[r]()
 
 
+		# Now that a protocol has been selected, we can figure out
+		# which ECU is the primary.
+
+		m = self.__protocol(r0100)
+		self.__primary_ecu = self.__find_primary_ecu(m)
+		if self.__primary_ecu is None:
+			self.__error("Failed to choose primary ECU")
+			return
+
 		# ------------------------------- done -------------------------------
 		debug("Connection successful")
 		self.__connected = True
+
+
+	def __find_primary_ecu(messages):
+		"""
+			Given a list of messages from different ECUS,
+			(in response to the 0100 PID listing command)
+			choose the ID of the primary ECU
+		"""
+
+		if len(messages) == 0:
+			return None
+		elif len(messages) == 1:
+			return messages[0].tx_id
+		else:
+			# first, try filtering for the standard ECU IDs
+			test = lambda m: m.tx_id == self.__protocol.PRIMARY_ECU
+
+			if bool(filter(test, messages)):
+				return self.__protocol.PRIMARY_ECU
+			else:
+				# last resort solution, choose ECU
+				# with the most PIDs supported
+				best = 0
+				tx_id = None
+
+				for message in messages:
+					bits = sum([numBitsSet(b) for b in message.data_bytes])
+					if bits > best:
+						best = bits
+						tx_id = message.tx_id
+
+				return tx_id
 
 
 	def __error(self, msg=None):
@@ -159,36 +210,59 @@ class ELM327:
 
 
 	def is_connected(self):
-		return self.__connected
+		return self.__connected and (self.__port is not None)
 
 
 	def close(self):
-		""" Resets device and closes all associated filehandles"""
+		"""
+			Resets the device, and clears all attributes to unconnected state
+		"""
 
 		if (self.__port != None) and self.__connected:
 			self.__write("ATZ")
 			self.__port.close()
 
-			self.__connected = False
-			self.__port      = None
-			self.__protocol  = None
+			self.__connected   = False
+			self.__port        = None
+			self.__protocol    = None
+			self.__primary_ecu = None
 
 
 	def send_and_parse(self, cmd, delay=None):
+		"""
+			send() function used to service all OBDCommands
 
-		r = self.send(cmd, delay)
+			Sends the given command string (rejects "AT" command),
+			parses the response string with the appropriate protocol object.
 
-		messages = self.__protocol(r) # parses string into list of messages
+			Returns the Message object from the primary ECU, or None,
+			if no appropriate response was recieved.
+		"""
 
-		# if more than one ECUs have responded, pick the primary
-		# TODO: add support for more ECU types
-		if len(messages) > 1:
-			messages = filter(lambda m: m.tx_id == self.__protocol.PRIMARY_ECU, messages)
+		if "AT" not in cmd.upper():
 
-		return messages[0]
+			r = self.__send(cmd, delay)
+
+			messages = self.__protocol(r) # parses string into list of messages
+
+			# select the first message with the ECU ID we're looking for
+			# TODO: use ELM header settings to query ECU by address directly
+			for message in messages:
+				if message.tx_id == self.__primary_ecu:
+					return message
+
+		else:
+			debug("Rejected sending AT command")
+			return None
 
 
-	def send(self, cmd, delay=None):
+	def __send(self, cmd, delay=None):
+		"""
+			unprotected send() function
+
+			will __write() the given string, no questions asked.
+			returns result of __read() after an optional delay.
+		"""
 
 		self.__write(cmd)
 
@@ -197,13 +271,15 @@ class ELM327:
 
 		r = self.__read()
 
-		return r # return raw string only
+		return r
 
 
-	# sends the hex string to the port
 	def __write(self, cmd):
+		"""
+			"low-level" function to write a string to the port
+		"""
 
-		if self.__port:
+		if self.is_connected():
 			cmd += "\r\n" # terminate
 			self.__port.flushOutput()
 			self.__port.flushInput()
@@ -213,9 +289,13 @@ class ELM327:
 			debug("cannot perform write() when unconnected", True)
 
 
-	# accumulates until the prompt character is seen
-	# returns raw string
 	def __read(self):
+		"""
+			"low-level" read function
+
+			accumulates characters until the prompt character is seen
+			returns the raw string
+		"""
 
 		attempts = 2
 		result = ""
@@ -230,11 +310,11 @@ class ELM327:
 					if attempts <= 0:
 						break
 
-					debug("read() found nothing")
+					debug("__read() found nothing")
 					attempts -= 1
 					continue
 
-				# end on chevron
+				# end on chevron (ELM prompt character)
 				if c == ">":
 					break
 
@@ -248,58 +328,3 @@ class ELM327:
 
 		debug("read: " + repr(result))
 		return result
-
-
-	#
-	# fixme: j1979 specifies that the program should poll until the number
-	# of returned DTCs matches the number indicated by a call to PID 01
-	#
-	'''
-	def get_dtc(self):
-		"""Returns a list of all pending DTC codes. Each element consists of
-		a 2-tuple: (DTC code (string), Code description (string) )"""
-		dtcLetters = ["P", "C", "B", "U"]
-		r = self.sensor(1)[1] #data
-		dtcNumber = r[0]
-		mil = r[1]
-		DTCCodes = []
-
-
-		print "Number of stored DTC:" + str(dtcNumber) + " MIL: " + str(mil)
-		# get all DTC, 3 per mesg response
-		for i in range(0, ((dtcNumber+2)/3)):
-			self.write(GET_DTC_COMMAND)
-			res = self.read()
-			print "DTC result:" + res
-			for i in range(0, 3):
-				val1 = unhex(res[3+i*6:5+i*6])
-				val2 = unhex(res[6+i*6:8+i*6]) #get DTC codes from response (3 DTC each 2 bytes)
-				val  = (val1<<8)+val2 #DTC val as int
-
-				if val==0: #skip fill of last packet
-					break
-
-				DTCStr=dtcLetters[(val&0xC000)>14]+str((val&0x3000)>>12)+str((val&0x0f00)>>8)+str((val&0x00f0)>>4)+str(val&0x000f)
-				DTCCodes.append(["Active",DTCStr])
-
-		#read mode 7
-		self.write(GET_FREEZE_DTC_COMMAND)
-		res = self.read()
-
-		if res[:7] == "NODATA": #no freeze frame
-			return DTCCodes
-
-		print "DTC freeze result:" + res
-		for i in range(0, 3):
-			val1 = unhex(res[3+i*6:5+i*6])
-			val2 = unhex(res[6+i*6:8+i*6]) #get DTC codes from response (3 DTC each 2 bytes)
-			val  = (val1<<8)+val2 #DTC val as int
-
-			if val==0: #skip fill of last packet
-				break
-
-			DTCStr=dtcLetters[(val&0xC000)>14]+str((val&0x3000)>>12)+str((val&0x0f00)>>8)+str((val&0x00f0)>>4)+str(val&0x000f)
-			DTCCodes.append(["Passive",DTCStr])
-
-		return DTCCodes
-	'''
