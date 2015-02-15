@@ -59,16 +59,16 @@ class ELM327:
 	def __init__(self, portname):
 		"""Initializes port by resetting device and gettings supported PIDs. """
 
-		self.connected = False
-		self.port      = None
-		self.protocol  = None
+		self.__connected = False
+		self.__port      = None
+		self.__protocol  = None
 
 		# ------------- open port -------------
 
 		debug("Opening serial port '%s'" % portname)
 
 		try:
-			self.port = serial.Serial(portname, \
+			self.__port = serial.Serial(portname, \
 									  baudrate = 38400, \
 									  parity   = serial.PARITY_NONE, \
 									  stopbits = 1, \
@@ -132,12 +132,12 @@ class ELM327:
 			self.__error("ELM responded with unknown protocol")
 			return
 
-		self.protocol = _SUPPORTED_PROTOCOLS[r]()
+		self.__protocol = _SUPPORTED_PROTOCOLS[r]()
 
 
 		# ------------------------------- done -------------------------------
 		debug("Connection successful")
-		self.connected = True
+		self.__connected = True
 
 
 	def __error(self, msg=None):
@@ -148,42 +148,42 @@ class ELM327:
 		if msg is not None:
 			debug('    ' + str(msg), True)
 
-		if self.port is not None:
-			self.port.close()
+		if self.__port is not None:
+			self.__port.close()
 
-		self.connected = False
+		self.__connected = False
 
 
 	def get_port_name(self):
-		return self.port.portstr if (self.port is not None) else "No Port"
+		return self.__port.portstr if (self.__port is not None) else "No Port"
 
 
 	def is_connected(self):
-		return self.connected
+		return self.__connected
 
 
 	def close(self):
 		""" Resets device and closes all associated filehandles"""
 
-		if (self.port != None) and self.connected:
+		if (self.__port != None) and self.__connected:
 			self.__write("ATZ")
-			self.port.close()
+			self.__port.close()
 
-			self.connected = False
-			self.port      = None
-			self.protocol  = None
+			self.__connected = False
+			self.__port      = None
+			self.__protocol  = None
 
 
 	def send_and_parse(self, cmd, delay=None):
 
 		r = self.send(cmd, delay)
 
-		messages = self.protocol(r) # parses string into list of messages
+		messages = self.__protocol(r) # parses string into list of messages
 
 		# if more than one ECUs have responded, pick the primary
 		# TODO: add support for more ECU types
 		if len(messages) > 1:
-			messages = filter(lambda m: m.tx_id == self.protocol.PRIMARY_ECU, messages)
+			messages = filter(lambda m: m.tx_id == self.__protocol.PRIMARY_ECU, messages)
 
 		return messages[0]
 
@@ -202,11 +202,12 @@ class ELM327:
 
 	# sends the hex string to the port
 	def __write(self, cmd):
-		if self.port:
+
+		if self.__port:
 			cmd += "\r\n" # terminate
-			self.port.flushOutput()
-			self.port.flushInput()
-			self.port.write(cmd)
+			self.__port.flushOutput()
+			self.__port.flushInput()
+			self.__port.write(cmd)
 			debug("write: " + repr(cmd))
 		else:
 			debug("cannot perform write() when unconnected", True)
@@ -219,9 +220,9 @@ class ELM327:
 		attempts = 2
 		result = ""
 
-		if self.port:
+		if self.__port:
 			while True:
-				c = self.port.read(1)
+				c = self.__port.read(1)
 
 				# if nothing was recieved
 				if not c:

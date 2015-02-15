@@ -61,34 +61,25 @@ class OBDCommand():
 	def get_pid_int(self):
 		return unhex(self.pid)
 
-	def compute(self, messages):
-
-		_bytes = []
-
-		if len(messages) == 1:
-			_bytes = messages[0].data_bytes
-		else:
-			pass
-
+	def compute(self, message):
 
 		# create the response object with the raw data recieved
 		r = Response(message)
 
-		# combine the bytes back into a hex string, excluding the header + mode + pid, and trailing checksum
-		_bytes = "".join(lines[0][5:-1])
+		# combine the bytes back into a hex string
+		# TODO: rewrite decoders to handle raw byte arrays
+		_data = ""
+		for b in message.data_bytes:
+			h = hex(b)[2:].upper()
+			h = "0" + h if len(h) < 2 else h
+			_data += h
 
-		if ("NODATA" not in _data) and isHex(_data):
+		# constrain number of bytes in response
+		if (self.bytes > 0): # zero bytes means flexible response
+			_data = constrainHex(_data, self.bytes)
 
-			# constrain number of bytes in response
-			if (self.bytes > 0): # zero bytes means flexible response
-				_data = constrainHex(_data, self.bytes)
-
-			# decoded value into the response object
-			r.set(self.decode(_data))
-
-		else:
-			# not a parseable response
-			debug("return data could not be decoded")
+		# decoded value into the response object
+		r.set(self.decode(_data))
 
 		return r
 

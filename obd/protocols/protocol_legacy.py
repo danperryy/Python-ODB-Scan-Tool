@@ -44,6 +44,9 @@ class LegacyProtocol(Protocol):
 		frame = Frame(raw)
 		raw_bytes = ascii_to_bytes(raw)
 
+		if len(raw_bytes) < 5:
+			return None
+
 		frame.data_bytes = raw_bytes[3:-1] # exclude trailing checksum (handled by ELM adapter)
 
 		# read header information

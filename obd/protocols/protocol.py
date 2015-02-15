@@ -30,7 +30,7 @@
 ########################################################################
 
 import re
-from obd.utils import ascii_to_bytes
+from obd.utils import ascii_to_bytes, isHex
 from obd.debug import debug
 
 
@@ -60,6 +60,15 @@ class Message(object):
         self.tx_id      = tx_id
         self.data_bytes = []
 
+    def __eq__(self, other):
+        if isinstance(other, Message):
+            for attr in ["frames", "tx_id", "data_bytes"]:
+                if getattr(self, attr) != getattr(other, attr):
+                    return False
+            return True
+        else:
+            return False
+
 
 
 
@@ -86,6 +95,9 @@ class Protocol(object):
 
         # ditch spaces
         lines = [line.replace(' ', '') for line in lines]
+
+        # ditch frames without valid hex (trashes "NO DATA", etc...)
+        lines = filter(isHex, lines)
 
         frames = []
         for line in lines:

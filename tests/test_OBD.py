@@ -3,6 +3,7 @@ import obd
 from obd.utils import Response
 from obd.commands import OBDCommand
 from obd.decoders import noop
+from obd.protocols import SAE_J1850_PWM
 
 
 def test_is_connected():
@@ -12,11 +13,12 @@ def test_is_connected():
 	# todo
 
 
+# TODO: rewrite for new protocol architecture
 def test_query():
 	# we don't need an actual serial connection
 	o = obd.OBD("/dev/null")
 	# forge our own command, to control the output
-	cmd = OBDCommand("", "", "01", "23", 2, noop)
+	cmd = OBDCommand("TEST", "Test command", "01", "23", 2, noop)
 
 	# forge IO from the car by overwriting the read/write functions
 	
@@ -28,9 +30,11 @@ def test_query():
 		toCar[0] = cmd
 
 	o.is_connected = lambda *args: True
-	o.port.port = True
-	o.port._OBDPort__write = write
-	o.port._OBDPort__read = lambda *args: fromCar
+	o.port.is_connected = lambda *args: True
+
+	o.port._ELM327__protocol = SAE_J1850_PWM()
+	o.port._ELM327__write = write
+	o.port._ELM327__read = lambda *args: fromCar
 
 	# make sure unsupported commands don't write ------------------------------
 	fromCar = "48 6B 10 41 23 AB CD 10\r\r"
@@ -104,7 +108,6 @@ def test_query():
 	assert toCar[0] == "0123"
 	assert r.raw_data == fromCar
 	assert r.is_null()
-
 
 def test_load_commands():
 	pass
