@@ -129,7 +129,7 @@ class ELM327:
 
 
 		# -------------- 0100 (first command, SEARCH protocols) --------------
-		r0100 = self.__send("0100", delay=1) # give it a second to search
+		r0100 = self.__send("0100", delay=3) # give it a second (or three) to search
 
 
 		# ------------------- ATDPN (list protocol number) -------------------
@@ -138,11 +138,11 @@ class ELM327:
 		# suppress any "automatic" prefix
 		r = r[1:] if (len(r) > 1 and r.startswith("A")) else r
 
-		if r not in _SUPPORTED_PROTOCOLS:
+		if r not in self._SUPPORTED_PROTOCOLS:
 			self.__error("ELM responded with unknown protocol")
 			return
 
-		self.__protocol = _SUPPORTED_PROTOCOLS[r]()
+		self.__protocol = self._SUPPORTED_PROTOCOLS[r]()
 
 
 		# Now that a protocol has been selected, we can figure out
@@ -159,7 +159,7 @@ class ELM327:
 		self.__connected = True
 
 
-	def __find_primary_ecu(messages):
+	def __find_primary_ecu(self, messages):
 		"""
 			Given a list of messages from different ECUS,
 			(in response to the 0100 PID listing command)
@@ -239,21 +239,25 @@ class ELM327:
 			if no appropriate response was recieved.
 		"""
 
-		if "AT" not in cmd.upper():
-
-			r = self.__send(cmd, delay)
-
-			messages = self.__protocol(r) # parses string into list of messages
-
-			# select the first message with the ECU ID we're looking for
-			# TODO: use ELM header settings to query ECU by address directly
-			for message in messages:
-				if message.tx_id == self.__primary_ecu:
-					return message
-
-		else:
-			debug("Rejected sending AT command")
+		if not self.is_connected():
+			debug("cannot send_and_parse() when unconnected", True)
 			return None
+
+		if "AT" in cmd.upper():
+			debug("Rejected sending AT command", True)
+			return None
+
+		r = self.__send(cmd, delay)
+
+		messages = self.__protocol(r) # parses string into list of messages
+
+		# select the first message with the ECU ID we're looking for
+		# TODO: use ELM header settings to query ECU by address directly
+		for message in messages:
+			if message.tx_id == self.__primary_ecu:
+				return message
+
+		return None # no suitable response was returned
 
 
 	def __send(self, cmd, delay=None):
@@ -279,14 +283,11 @@ class ELM327:
 			"low-level" function to write a string to the port
 		"""
 
-		if self.is_connected():
-			cmd += "\r\n" # terminate
-			self.__port.flushOutput()
-			self.__port.flushInput()
-			self.__port.write(cmd)
-			debug("write: " + repr(cmd))
-		else:
-			debug("cannot perform write() when unconnected", True)
+		cmd += "\r\n" # terminate
+		self.__port.flushOutput()
+		self.__port.flushInput()
+		self.__port.write(cmd)
+		debug("write: " + repr(cmd))
 
 
 	def __read(self):
@@ -300,31 +301,28 @@ class ELM327:
 		attempts = 2
 		result = ""
 
-		if self.__port:
-			while True:
-				c = self.__port.read(1)
+		while True:
+			c = self.__port.read(1)
 
-				# if nothing was recieved
-				if not c:
+			# if nothing was recieved
+			if not c:
 
-					if attempts <= 0:
-						break
-
-					debug("__read() found nothing")
-					attempts -= 1
-					continue
-
-				# end on chevron (ELM prompt character)
-				if c == ">":
+				if attempts <= 0:
 					break
 
-				# skip null characters (ELM spec page 9)
-				if c == '\x00':
-					continue
+				debug("__read() found nothing")
+				attempts -= 1
+				continue
 
-				result += c # whatever is left must be part of the response
-		else:
-			debug("cannot perform read() when unconnected", True)
+			# end on chevron (ELM prompt character)
+			if c == ">":
+				break
+
+			# skip null characters (ELM spec page 9)
+			if c == '\x00':
+				continue
+
+			result += c # whatever is left must be part of the response
 
 		debug("read: " + repr(result))
 		return result
