@@ -1,7 +1,7 @@
 
 import re
-from utils import *
-from debug import debug
+from .utils import *
+from .debug import debug
 
 
 
@@ -46,17 +46,17 @@ class OBDCommand():
 		r = Response(_data)
 
 		# split by lines, and remove empty lines
-		lines = filter(bool, re.split("[\r\n]", _data))
+		lines = list(filter(bool, re.split("[\r\n]", _data)))
 
 		# splits each line by spaces (each element should be a hex byte)
 		lines = [line.split() for line in lines]
 
 		# filter by minimum response length (number of space delimited chunks (bytes))
-		lines = filter(lambda line: len(line) >= 7, lines)
+		lines = [line for line in lines if len(line) >= 7]
 
 		if len(lines) > 1:
 			# filter for ECU 10 (engine)
-			lines = filter(lambda line: line[2] == '10', lines)
+			lines = [line for line in lines if line[2] == '10']
 
 		# by now, we should have only one line.
 		# Any more, and its a multiline response (which this library can't handle yet)

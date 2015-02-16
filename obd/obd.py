@@ -29,10 +29,10 @@
 ########################################################################
 
 import time
-from port import OBDPort, State
-from commands import commands
-from utils import scanSerial, Response
-from debug import debug
+from .port import OBDPort, State
+from .commands import commands
+from .utils import scanSerial, Response
+from .debug import debug
 
 
 
@@ -135,7 +135,7 @@ class OBD(object):
 
 	def print_commands(self):
 		for c in self.supported_commands:
-			print str(c)
+			print(str(c))
 
 
 	def supports(self, c):

@@ -31,8 +31,8 @@
 import serial
 import string
 import time
-from utils import Response, unhex
-from debug import debug
+from .utils import Response, unhex
+from .debug import debug
 
 
 class State():

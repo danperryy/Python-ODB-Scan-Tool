@@ -29,9 +29,9 @@
 ########################################################################
 
 import math
-from utils import *
-from codes import *
-from debug import debug
+from .utils import *
+from .codes import *
+from .debug import debug
 
 '''
 All decoders take the form:
