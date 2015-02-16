@@ -283,11 +283,14 @@ class ELM327:
 			"low-level" function to write a string to the port
 		"""
 
-		cmd += "\r\n" # terminate
-		self.__port.flushOutput()
-		self.__port.flushInput()
-		self.__port.write(cmd)
-		debug("write: " + repr(cmd))
+		if self.__port:
+			cmd += "\r\n" # terminate
+			self.__port.flushOutput()
+			self.__port.flushInput()
+			self.__port.write(cmd)
+			debug("write: " + repr(cmd))
+		else:
+			debug("cannot perform __write() when unconnected", True)
 
 
 	def __read(self):
@@ -301,28 +304,32 @@ class ELM327:
 		attempts = 2
 		result = ""
 
-		while True:
-			c = self.__port.read(1)
+		if self.__port:
+			while True:
+				c = self.__port.read(1)
 
-			# if nothing was recieved
-			if not c:
+				# if nothing was recieved
+				if not c:
 
-				if attempts <= 0:
+					if attempts <= 0:
+						break
+
+					debug("__read() found nothing")
+					attempts -= 1
+					continue
+
+				# end on chevron (ELM prompt character)
+				if c == ">":
 					break
 
-				debug("__read() found nothing")
-				attempts -= 1
-				continue
+				# skip null characters (ELM spec page 9)
+				if c == '\x00':
+					continue
 
-			# end on chevron (ELM prompt character)
-			if c == ">":
-				break
-
-			# skip null characters (ELM spec page 9)
-			if c == '\x00':
-				continue
-
-			result += c # whatever is left must be part of the response
+				result += c # whatever is left must be part of the response
+		else:
+			debug("cannot perform __read() when unconnected", True)
+			return ""
 
 		debug("read: " + repr(result))
 		return result
