@@ -31,9 +31,9 @@
 
 import serial
 import time
-from protocols import *
-from utils import strip, numBitsSet
-from debug import debug
+from .protocols import *
+from .utils import strip, numBitsSet
+from .debug import debug
 
 
 

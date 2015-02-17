@@ -35,7 +35,7 @@ import string
 import time
 import glob
 import sys
-from debug import debug
+from .debug import debug
 
 
 class Unit:
@@ -88,7 +88,7 @@ class Test():
 	def __str__(self):
 		a = "Available" if self.available else "Unavailable"
 		c = "Incomplete" if self.incomplete else "Complete"
-		return "Test %s: %s, %s" % (name, a, c)
+		return "Test %s: %s, %s" % (self.name, a, c)
 
 
 def ascii_to_bytes(a):

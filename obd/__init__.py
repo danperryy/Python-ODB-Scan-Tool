@@ -31,9 +31,9 @@
 
 __version__ = '0.3.0'
 
-from obd import OBD
-from OBDCommand import OBDCommand
-from commands import commands
-from utils import scanSerial, Unit
-from debug import debug
-from async import Async
+from .obd import OBD
+from .OBDCommand import OBDCommand
+from .commands import commands
+from .utils import scanSerial, Unit
+from .debug import debug
+from .async import Async

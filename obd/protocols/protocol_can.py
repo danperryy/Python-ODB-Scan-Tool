@@ -29,7 +29,7 @@
 #                                                                      #
 ########################################################################
 
-from protocol import *
+from .protocol import *
 
 
 class CANProtocol(Protocol):

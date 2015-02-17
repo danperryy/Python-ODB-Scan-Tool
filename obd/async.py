@@ -29,16 +29,13 @@
 #                                                                      #
 ########################################################################
 
-import obd
 import time
 import threading
-from utils import Response
-from commands import OBDCommand
-from debug import debug
+from .utils import Response
+from .debug import debug
+from . import OBD
 
-
-
-class Async(obd.OBD):
+class Async(OBD):
 	""" subclass representing an OBD-II connection """
 
 	def __init__(self, portstr=None):
@@ -86,7 +83,7 @@ class Async(obd.OBD):
 				return
 
 			# new command being watched, store the command
-			if not self.commands.has_key(c):
+			if c not in self.commands:
 				debug("Watching command: %s" % str(c))
 				self.commands[c] = Response() # give it an initial value
 				self.callbacks[c] = [] # create an empty list
@@ -131,7 +128,7 @@ class Async(obd.OBD):
 
 
 	def query(self, c):
-		if self.commands.has_key(c):
+		if c in self.commands:
 			return self.commands[c]
 		else:
 			return Response()
