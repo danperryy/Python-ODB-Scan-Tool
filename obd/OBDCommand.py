@@ -61,10 +61,11 @@ class OBDCommand():
 	def get_pid_int(self):
 		return unhex(self.pid)
 
-	def compute(self, message):
+	def __call__(self, message):
 
 		# create the response object with the raw data recieved
-		r = Response(message)
+		# and reference to original command
+		r = Response(self, message)
 
 		# combine the bytes back into a hex string
 		# TODO: rewrite decoders to handle raw byte arrays
@@ -79,7 +80,9 @@ class OBDCommand():
 			_data = constrainHex(_data, self.bytes)
 
 		# decoded value into the response object
-		r.set(self.decode(_data))
+		d = self.decode(_data)
+		r.value = d[0]
+		r.unit  = d[1]
 
 		return r
 

@@ -1,6 +1,8 @@
 
 from obd.commands import OBDCommand
 from obd.decoders import noop
+from obd.protocols import *
+from obd.protocols.protocol import Message
 
 
 def test_constructor():
@@ -24,7 +26,7 @@ def test_constructor():
 
 def test_clone():
 	#                 name       description        mode  cmd bytes decoder
-	cmd = OBDCommand("Test", "example OBD command", "01", "23", 2, noop)
+	cmd = OBDCommand("", "", "01", "23", 2, noop)
 	other = cmd.clone()
 
 	assert cmd.name      == other.name
@@ -36,30 +38,43 @@ def test_clone():
 	assert cmd.supported == cmd.supported
 
 
-# TODO: rewrite these for new commands accepting messages (rather than strings)
-"""
+def test_call():
+	p = SAE_J1850_PWM()
+	m = p("48 6B 10 41 00 BE 1F B8 11 AA\r\r") # parse valid data into response object 
 
-def test_data_stripping():
-	#                 name       description        mode  cmd bytes decoder
-	cmd = OBDCommand("Test", "example OBD command", "01", "00", 2, noop)
-	r = cmd.compute("48 6B 10 41 00 01 01 10\r\n")
-	assert not r.is_null()
-	assert r.value == "0101"
+	# valid response size
+	cmd = OBDCommand("", "", "01", "23", 4, noop)
+	r = cmd(m[0])
+	assert r.value == "BE1FB811"
+
+	# response too short (pad)
+	cmd = OBDCommand("", "", "01", "23", 5, noop)
+	r = cmd(m[0])
+	assert r.value == "BE1FB81100"
+
+	# response too long (clip)
+	cmd = OBDCommand("", "", "01", "23", 3, noop)
+	r = cmd(m[0])
+	assert r.value == "BE1FB8"
 
 
-def test_data_not_hex():
-	#                 name       description        mode  cmd bytes decoder
-	cmd = OBDCommand("Test", "example OBD command", "01", "00", 2, noop)
-	r = cmd.compute("48 6B 10 41 00 wx yz 10\r\n")
-	assert r.is_null()
-	
+def test_get_command():
+	cmd = OBDCommand("", "", "01", "23", 4, noop)
+	assert cmd.get_command() == "0123" # simple concat of mode and PID
 
-def test_data_length():
-	#                 name       description        mode  cmd bytes decoder
-	cmd = OBDCommand("Test", "example OBD command", "01", "00", 2, noop)
-	r = cmd.compute("48 6B 10 41 00 01 23 45 10\r\n")
-	assert r.value == "0123"
-	r = cmd.compute("48 6B 10 41 00 01 10\r\n")
-	assert r.value == "0100"
 
-"""
+def test_get_mode_int():
+	cmd = OBDCommand("", "", "01", "23", 4, noop)
+	assert cmd.get_mode_int() == 0x01
+
+	cmd = OBDCommand("", "", "", "23", 4, noop)
+	assert cmd.get_mode_int() == 0
+
+
+def test_get_pid_int():
+	cmd = OBDCommand("", "", "01", "23", 4, noop)
+	assert cmd.get_pid_int() == 0x23
+
+	cmd = OBDCommand("", "", "01", "", 4, noop)
+	assert cmd.get_pid_int() == 0
+

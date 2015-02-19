@@ -184,6 +184,7 @@ class ELM327:
 
 				for message in messages:
 					bits = sum([numBitsSet(b) for b in message.data_bytes])
+
 					if bits > best:
 						best = bits
 						tx_id = message.tx_id

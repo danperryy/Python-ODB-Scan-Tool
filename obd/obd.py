@@ -34,7 +34,6 @@ from .elm327 import ELM327
 from .commands import commands
 from .utils import scanSerial, Response
 from .debug import debug
-from .port import OBDPort, State
 from .commands import commands
 from .utils import scanSerial, Response
 from .debug import debug
@@ -165,7 +164,7 @@ class OBD(object):
 		if m is None:
 			return Response() # return empty response
 		else:
-			return c.compute(m) # compute a response object
+			return c(m) # compute a response object
 		
 
 	def query(self, c, force=False):

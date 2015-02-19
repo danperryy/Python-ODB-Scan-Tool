@@ -93,5 +93,6 @@ def test_query():
 	assert toCar[0] == "0123"
 	assert r.is_null()
 
+
 def test_load_commands():
 	pass
