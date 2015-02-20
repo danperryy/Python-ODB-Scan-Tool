@@ -65,7 +65,7 @@ class ELM327:
 		#"C" : None, # user defined 2
 	}
 
-	def __init__(self, portname):
+	def __init__(self, portname, baudrate=38400):
 		"""Initializes port by resetting device and gettings supported PIDs. """
 
 		self.__connected   = False
@@ -79,7 +79,7 @@ class ELM327:
 
 		try:
 			self.__port = serial.Serial(portname, \
-									  baudrate = 38400, \
+									  baudrate = baudrate, \
 									  parity   = serial.PARITY_NONE, \
 									  stopbits = 1, \
 									  bytesize = 8, \
@@ -97,7 +97,7 @@ class ELM327:
 
 		# ---------------------------- ATZ (reset) ----------------------------
 		try:
-			r = self.__send("ATZ", delay=1) # wait 1 second for ELM to initialize
+			self.__send("ATZ", delay=1) # wait 1 second for ELM to initialize
 			# return data can be junk, so don't bother checking
 		except serial.SerialException as e:
 			self.__error(e)
@@ -106,24 +106,21 @@ class ELM327:
 
 		# -------------------------- ATE0 (echo OFF) --------------------------
 		r = self.__send("ATE0")
-		r = strip(r)
-		if not r.endswith("OK"):
+		if not self.__isok(r, expectEcho=True):
 			self.__error("ATE0 did not return 'OK'")
 			return
 
 
 		# ------------------------- ATH1 (headers ON) -------------------------
 		r = self.__send("ATH1")
-		r = strip(r)
-		if r != 'OK':
+		if not self.__isok(r):
 			self.__error("ATH1 did not return 'OK', or echoing is still ON")
 			return
 
 
 		# ----------------------- ATSP0 (protocol AUTO) -----------------------
 		r = self.__send("ATSP0")
-		r = strip(r)
-		if r != 'OK':
+		if not self.__isok(r):
 			self.__error("ATSP0 did not return 'OK'")
 			return
 
@@ -136,7 +133,7 @@ class ELM327:
 		r = self.__send("ATDPN")
 		r = strip(r)
 		# suppress any "automatic" prefix
-		r = r[1:] if (len(r) > 1 and r.startswith("A")) else r
+		r = r[1:] if (len(r) > 1 and r.startswith("A")) else r[:-1]
 
 		if r not in self._SUPPORTED_PROTOCOLS:
 			self.__error("ELM responded with unknown protocol")
@@ -157,6 +154,17 @@ class ELM327:
 		# ------------------------------- done -------------------------------
 		debug("Connection successful")
 		self.__connected = True
+
+	def __isok(self, data, expectEcho=False):
+		if not data:
+			return False
+		lines = list(map(str.strip, filter(None, data.split('\r\n'))))
+		if len(lines) < 2:
+			return False
+		if expectEcho:
+			return len(lines) == 3 and lines[1] == 'OK' and lines[2] == '>'
+		else:
+			return len(lines) == 2 and lines[0] == 'OK' and lines[1] == '>'
 
 
 	def __find_primary_ecu(self, messages):
@@ -288,7 +296,7 @@ class ELM327:
 			cmd += "\r\n" # terminate
 			self.__port.flushOutput()
 			self.__port.flushInput()
-			self.__port.write(cmd)
+			self.__port.write(cmd.encode())
 			debug("write: " + repr(cmd))
 		else:
 			debug("cannot perform __write() when unconnected", True)
@@ -303,7 +311,7 @@ class ELM327:
 		"""
 
 		attempts = 2
-		result = ""
+		buffer = b''
 
 		if self.__port:
 			while True:
@@ -327,10 +335,10 @@ class ELM327:
 				if c == '\x00':
 					continue
 
-				result += c # whatever is left must be part of the response
+				buffer += c # whatever is left must be part of the response
 		else:
 			debug("cannot perform __read() when unconnected", True)
 			return ""
 
-		debug("read: " + repr(result))
-		return result
+		debug("read: " + repr(buffer))
+		return buffer.decode()
