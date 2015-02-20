@@ -120,13 +120,12 @@ class ELM327:
 			return
 
 
-		# ----------------------- ATSP0 (protocol AUTO) -----------------------
-		r = self.__send("ATSP0")
+		# ----------------------- ATSPA8 (protocol AUTO) -----------------------
+		r = self.__send("ATSPA8")
 		r = strip(r)
 		if r != 'OK':
 			self.__error("ATSP0 did not return 'OK'")
 			return
-
 
 		# -------------- 0100 (first command, SEARCH protocols) --------------
 		r0100 = self.__send("0100", delay=3) # give it a second (or three) to search
