@@ -43,16 +43,16 @@ from .debug import debug
 class OBD(object):
 	""" class representing an OBD-II connection with it's assorted sensors """
 
-	def __init__(self, portstr=None):
+	def __init__(self, portstr=None, baudrate=38400):
 		self.port = None
 		self.supported_commands = []
 
 		debug("========================== Starting python-OBD ==========================")
-		self.connect(portstr) # initialize by connecting and loading sensors
+		self.connect(portstr, baudrate) # initialize by connecting and loading sensors
 		debug("=========================================================================")
 
 
-	def connect(self, portstr=None):
+	def connect(self, portstr=None, baudrate=38400):
 		""" attempts to instantiate an ELM327 object. Loads commands on success"""
 
 		if portstr is None:
@@ -61,15 +61,15 @@ class OBD(object):
 			debug("Available ports: " + str(portnames))
 
 			for port in portnames:
-
-				self.port = ELM327(port)
+				debug("Attempting to use port: " + str(port))
+				self.port = ELM327(port, baudrate=baudrate)
 
 				if self.port.is_connected():
 					# success! stop searching for serial
 					break
 		else:
 			debug("Explicit port defined")
-			self.port = ELM327(portstr)
+			self.port = ELM327(portstr, baudrate=baudrate)
 
 		# if a connection was made, query for commands
 		if self.is_connected():
