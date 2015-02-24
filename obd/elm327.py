@@ -29,10 +29,11 @@
 #                                                                      #
 ########################################################################
 
+import re
 import serial
 import time
 from .protocols import *
-from .utils import strip, numBitsSet
+from .utils import numBitsSet
 from .debug import debug
 
 
@@ -126,20 +127,28 @@ class ELM327:
 
 
 		# -------------- 0100 (first command, SEARCH protocols) --------------
+		# TODO: rewrite this using a "wait for prompt character"
+		# rather than a fixed wait period
 		r0100 = self.__send("0100", delay=3) # give it a second (or three) to search
 
 
 		# ------------------- ATDPN (list protocol number) -------------------
 		r = self.__send("ATDPN")
-		r = strip(r)
-		# suppress any "automatic" prefix
-		r = r[1:] if (len(r) > 1 and r.startswith("A")) else r[:-1]
 
-		if r not in self._SUPPORTED_PROTOCOLS:
+		if not r:
+			self.__error("Describe protocol command didn't return ")
+			return
+
+		p = r[0]
+
+		# suppress any "automatic" prefix
+		p = p[1:] if (len(p) > 1 and p.startswith("A")) else p[:-1]
+
+		if p not in self._SUPPORTED_PROTOCOLS:
 			self.__error("ELM responded with unknown protocol")
 			return
 
-		self.__protocol = self._SUPPORTED_PROTOCOLS[r]()
+		self.__protocol = self._SUPPORTED_PROTOCOLS[p]()
 
 
 		# Now that a protocol has been selected, we can figure out
@@ -155,16 +164,13 @@ class ELM327:
 		debug("Connection successful")
 		self.__connected = True
 
-	def __isok(self, data, expectEcho=False):
-		if not data:
-			return False
-		lines = list(map(str.strip, filter(None, data.split('\r\n'))))
-		if len(lines) < 2:
+	def __isok(self, lines, expectEcho=False):
+		if not lines:
 			return False
 		if expectEcho:
-			return len(lines) == 3 and lines[1] == 'OK' and lines[2] == '>'
+			return len(lines) == 2 and lines[1] == 'OK'
 		else:
-			return len(lines) == 2 and lines[0] == 'OK' and lines[1] == '>'
+			return len(lines) == 1 and lines[0] == 'OK'
 
 
 	def __find_primary_ecu(self, messages):
@@ -296,7 +302,7 @@ class ELM327:
 			cmd += "\r\n" # terminate
 			self.__port.flushOutput()
 			self.__port.flushInput()
-			self.__port.write(cmd.encode())
+			self.__port.write(cmd.encode()) # turn the string into bytes
 			debug("write: " + repr(cmd))
 		else:
 			debug("cannot perform __write() when unconnected", True)
@@ -307,7 +313,7 @@ class ELM327:
 			"low-level" read function
 
 			accumulates characters until the prompt character is seen
-			returns the raw string
+			returns a list of [/r/n] delimited strings
 		"""
 
 		attempts = 2
@@ -328,11 +334,11 @@ class ELM327:
 					continue
 
 				# end on chevron (ELM prompt character)
-				if c == ">":
+				if c == b'>':
 					break
 
 				# skip null characters (ELM spec page 9)
-				if c == '\x00':
+				if c == b'\x00':
 					continue
 
 				buffer += c # whatever is left must be part of the response
@@ -341,4 +347,13 @@ class ELM327:
 			return ""
 
 		debug("read: " + repr(buffer))
-		return buffer.decode()
+
+		# convert bytes into a standard string
+		raw = buffer.decode()
+
+		# splits into lines
+		# removes empty lines
+		# removes trailing spaces
+		lines = [ s.strip() for s in re.split("[\r\n]", raw) if bool(s) ]
+
+		return lines

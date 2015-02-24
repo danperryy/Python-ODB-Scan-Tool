@@ -29,7 +29,6 @@
 #                                                                      #
 ########################################################################
 
-import re
 from obd.utils import ascii_to_bytes, isHex
 from obd.debug import debug
 
@@ -89,9 +88,6 @@ class Protocol(object):
 
 
     def __call__(self, raw):
-
-        # split by lines into frames, and remove empty lines
-        lines = filter(bool, re.split("[\r\n]", raw))
 
         # ditch spaces
         lines = [line.replace(' ', '') for line in lines]
