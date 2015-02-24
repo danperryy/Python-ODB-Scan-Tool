@@ -94,9 +94,6 @@ def ascii_to_bytes(a):
 		b.append(int(a[i:i+2], 16))
 	return b
 
-def strip(s):
-	return "".join(s.split())
-
 def numBitsSet(n):
 	# TODO: there must be a better way to do this...
 	total = 0

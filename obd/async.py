@@ -38,8 +38,8 @@ from . import OBD
 class Async(OBD):
 	""" subclass representing an OBD-II connection """
 
-	def __init__(self, portstr=None):
-		super(Async, self).__init__(portstr)
+	def __init__(self, portstr=None, baudrate=38400):
+		super(Async, self).__init__(portstr, baudrate)
 		self.commands  = {} # key = OBDCommand, value = Response
 		self.callbacks = {} # key = OBDCommand, value = list of Functions
 		self.thread    = None
