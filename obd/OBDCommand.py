@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# debug.py                                                             #
+# OBDCommand.py                                                        #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,22 +29,72 @@
 #                                                                      #
 ########################################################################
 
-class Debug():
-	def __init__(self):
-		self.console = False
-		self.handler = None
-
-	def __call__(self, msg, forcePrint=False):
-
-		if self.console or forcePrint:
-			print("[obd] " + str(msg))
-
-		if hasattr(self.handler, '__call__'):
-			self.handler(msg)
-
-debug = Debug()
+import re
+from .utils import *
+from .debug import debug
 
 
-class ProtocolError(Exception):
-	def __init__(self):
-		pass
+class OBDCommand():
+	def __init__(self, name, desc, mode, pid, returnBytes, decoder, supported=False):
+		self.name       = name
+		self.desc       = desc
+		self.mode       = mode
+		self.pid        = pid
+		self.bytes      = returnBytes # number of bytes expected in return
+		self.decode     = decoder
+		self.supported  = supported
+
+	def clone(self):
+		return OBDCommand(self.name,
+		                  self.desc,
+		                  self.mode,
+		                  self.pid,
+		                  self.bytes,
+		                  self.decode)
+
+	def get_command(self):
+		return self.mode + self.pid # the actual command transmitted to the port
+
+	def get_mode_int(self):
+		return unhex(self.mode)
+
+	def get_pid_int(self):
+		return unhex(self.pid)
+
+	def __call__(self, message):
+
+		# create the response object with the raw data recieved
+		# and reference to original command
+		r = Response(self, message)
+
+		# combine the bytes back into a hex string
+		# TODO: rewrite decoders to handle raw byte arrays
+		_data = ""
+		for b in message.data_bytes[2:]:
+			h = hex(b)[2:].upper()
+			h = "0" + h if len(h) < 2 else h
+			_data += h
+
+		# constrain number of bytes in response
+		if (self.bytes > 0): # zero bytes means flexible response
+			_data = constrainHex(_data, self.bytes)
+
+		# decoded value into the response object
+		d = self.decode(_data)
+		r.value = d[0]
+		r.unit  = d[1]
+
+		return r
+
+	def __str__(self):
+		return "%s%s: %s" % (self.mode, self.pid, self.desc)
+
+	def __hash__(self):
+		# needed for using commands as keys in a dict (see async.py)
+		return hash((self.mode, self.pid))
+
+	def __eq__(self, other):
+		if isinstance(other, OBDCommand):
+			return (self.mode, self.pid) == (other.mode, other.pid)
+		else:
+			return False

@@ -5,7 +5,8 @@
 #                                                                      #
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
-# Copyright 2014 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2009 Peter J. Creath                                       #
+# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -28,10 +29,11 @@
 #                                                                      #
 ########################################################################
 
-__version__ = '0.3b0.0'
+__version__ = '0.3.0'
 
-from obd import OBD
-from commands import commands, OBDCommand
-from utils import scanSerial, Unit
-from debug import debug
-from async import Async
+from .obd import OBD
+from .OBDCommand import OBDCommand
+from .commands import commands
+from .utils import scanSerial, Unit
+from .debug import debug
+from .async import Async

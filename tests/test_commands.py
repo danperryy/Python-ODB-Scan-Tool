@@ -28,7 +28,7 @@ def test_unique_names():
 
 	for cmds in obd.commands.modes:
 		for cmd in cmds:
-			assert not names.has_key(cmd.name), "Two commands share the same name: %s" % cmd.name
+			assert not names.__contains__(cmd.name), "Two commands share the same name: %s" % cmd.name
 			names[cmd.name] = True
 
 

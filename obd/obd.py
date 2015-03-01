@@ -5,7 +5,8 @@
 #                                                                      #
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
-# Copyright 2014 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2009 Peter J. Creath                                       #
+# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -29,27 +30,30 @@
 ########################################################################
 
 import time
-from port import OBDPort, State
-from commands import commands
-from utils import scanSerial, Response
-from debug import debug
+from .elm327 import ELM327
+from .commands import commands
+from .utils import scanSerial, Response
+from .debug import debug
+from .commands import commands
+from .utils import scanSerial, Response
+from .debug import debug
 
 
 
 class OBD(object):
 	""" class representing an OBD-II connection with it's assorted sensors """
 
-	def __init__(self, portstr=None):
+	def __init__(self, portstr=None, baudrate=38400):
 		self.port = None
 		self.supported_commands = []
 
 		debug("========================== Starting python-OBD ==========================")
-		self.connect(portstr) # initialize by connecting and loading sensors
+		self.connect(portstr, baudrate) # initialize by connecting and loading sensors
 		debug("=========================================================================")
 
 
-	def connect(self, portstr=None):
-		""" attempts to instantiate an OBDPort object. Loads commands on success"""
+	def connect(self, portstr=None, baudrate=38400):
+		""" attempts to instantiate an ELM327 object. Loads commands on success"""
 
 		if portstr is None:
 			debug("Using scanSerial to select port")
@@ -57,15 +61,15 @@ class OBD(object):
 			debug("Available ports: " + str(portnames))
 
 			for port in portnames:
+				debug("Attempting to use port: " + str(port))
+				self.port = ELM327(port, baudrate=baudrate)
 
-				self.port = OBDPort(port)
-
-				if(self.port.state == State.Connected):
+				if self.port.is_connected():
 					# success! stop searching for serial
 					break
 		else:
 			debug("Explicit port defined")
-			self.port = OBDPort(portstr)
+			self.port = ELM327(portstr, baudrate=baudrate)
 
 		# if a connection was made, query for commands
 		if self.is_connected():
@@ -81,7 +85,6 @@ class OBD(object):
 			self.port = None
 
 
-	# checks the port state for conncetion status
 	def is_connected(self):
 		return (self.port is not None) and self.port.is_connected()
 
@@ -94,7 +97,11 @@ class OBD(object):
 
 
 	def load_commands(self):
-		""" queries for available PIDs, sets their support status, and compiles a list of command objects """
+		"""
+			queries for available PIDs,
+			sets their support status,
+			and compiles a list of command objects
+		"""
 
 		debug("querying for supported PIDs (commands)...")
 
@@ -103,8 +110,8 @@ class OBD(object):
 		pid_getters = commands.pid_getters()
 
 		for get in pid_getters:
-			# GET commands should sequentialy turn themselves on (become marked as supported)
-			# MODE 1 PID 0 is marked supported by default 
+			# PID listing commands should sequentialy become supported
+			# Mode 1 PID 0 is assumed to always be supported
 			if not self.supports(get):
 				continue
 
@@ -135,29 +142,36 @@ class OBD(object):
 
 	def print_commands(self):
 		for c in self.supported_commands:
-			print str(c)
+			print(str(c))
 
 
 	def supports(self, c):
-		return commands.has_pid(c.get_mode_int(), c.get_pid_int()) and c.supported
+		return commands.has_command(c) and c.supported
 
 
 	def send(self, c):
 		""" send the given command, retrieve and parse response """
 
-		# check for a connection
 		if not self.is_connected():
 			debug("Query failed, no connection available", True)
 			return Response() # return empty response
 
-		# send the query
 		debug("Sending command: %s" % str(c))
-		r = self.port.write_and_read(c.get_command()) # send command and retrieve response
-		return c.compute(r)                         # compute a response object
+
+		# send command and retrieve message
+		m = self.port.send_and_parse(c.get_command())
+
+		if m is None:
+			return Response() # return empty response
+		else:
+			return c(m) # compute a response object
 		
 
 	def query(self, c, force=False):
-		""" facade 'send' command, protects against sending unsupported commands """
+		"""
+			facade 'send' command function
+			protects against sending unsupported commands.
+		"""
 
 		# check that the command is supported
 		if not (self.supports(c) or force):

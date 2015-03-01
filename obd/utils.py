@@ -5,7 +5,8 @@
 #                                                                      #
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
-# Copyright 2014 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2009 Peter J. Creath                                       #
+# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -34,7 +35,7 @@ import string
 import time
 import glob
 import sys
-from debug import debug
+from .debug import debug
 
 
 class Unit:
@@ -61,18 +62,15 @@ class Unit:
 
 
 class Response():
-	def __init__(self, raw_data=""):
+	def __init__(self, command=None, raw_data=None):
+		self.command  = command
+		self.raw_data = raw_data
 		self.value    = None
 		self.unit     = Unit.NONE
-		self.raw_data = raw_data
 		self.time     = time.time()
 
 	def is_null(self):
-		return (len(self.raw_data) == 0) or (self.value == None)
-
-	def set(self, decode):
-		self.value = decode[0]
-		self.unit  = decode[1]
+		return (self.raw_data == None) or (self.value == None)
 
 	def __str__(self):
 		return "%s %s" % (str(self.value), str(self.unit))
@@ -87,9 +85,23 @@ class Test():
 	def __str__(self):
 		a = "Available" if self.available else "Unavailable"
 		c = "Incomplete" if self.incomplete else "Complete"
-		return "Test %s: %s, %s" % (name, a, c)
+		return "Test %s: %s, %s" % (self.name, a, c)
 
 
+def ascii_to_bytes(a):
+	b = []
+	for i in range(0, len(a), 2):
+		b.append(int(a[i:i+2], 16))
+	return b
+
+def numBitsSet(n):
+	# TODO: there must be a better way to do this...
+	total = 0
+	ref = 1
+	for b in range(8):
+		total += int(bool(n & ref))
+		ref = ref << 1
+	return total
 
 def unhex(_hex):
 	_hex = "0" if _hex == "" else _hex

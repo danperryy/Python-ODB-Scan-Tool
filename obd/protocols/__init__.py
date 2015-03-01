@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# debug.py                                                             #
+# protocols/__init__.py                                                #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,22 +29,14 @@
 #                                                                      #
 ########################################################################
 
-class Debug():
-	def __init__(self):
-		self.console = False
-		self.handler = None
+from .protocol_legacy import SAE_J1850_PWM, \
+                            SAE_J1850_VPW, \
+                            ISO_9141_2, \
+                            ISO_14230_4_5baud, \
+                            ISO_14230_4_fast
 
-	def __call__(self, msg, forcePrint=False):
-
-		if self.console or forcePrint:
-			print("[obd] " + str(msg))
-
-		if hasattr(self.handler, '__call__'):
-			self.handler(msg)
-
-debug = Debug()
-
-
-class ProtocolError(Exception):
-	def __init__(self):
-		pass
+from .protocol_can import ISO_15765_4_11bit_500k, \
+                         ISO_15765_4_29bit_500k, \
+                         ISO_15765_4_11bit_250k, \
+                         ISO_15765_4_29bit_250k, \
+                         SAE_J1939

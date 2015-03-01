@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# debug.py                                                             #
+# protocols/protocol_legacy.py                                         #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,22 +29,75 @@
 #                                                                      #
 ########################################################################
 
-class Debug():
+from .protocol import *
+
+
+class LegacyProtocol(Protocol):
+
+	PRIMARY_ECU = 0x10
+
+	def __init__(self, baud):
+		Protocol.__init__(self, baud)
+
+	def create_frame(self, raw):
+
+		frame = Frame(raw)
+		raw_bytes = ascii_to_bytes(raw)
+
+		if len(raw_bytes) < 5:
+			return None
+
+		frame.data_bytes = raw_bytes[3:-1] # exclude trailing checksum (handled by ELM adapter)
+
+		# read header information
+		frame.priority = raw_bytes[0]
+		frame.rx_id    = raw_bytes[1]
+		frame.tx_id    = raw_bytes[2]
+
+		return frame
+
+	def create_message(self, frames, tx_id):
+
+		message = Message(frames, tx_id)
+
+		if len(frames) == 1:
+			message.data_bytes = message.frames[0].data_bytes
+		else:
+			debug("Recieved multi-frame response. Can't parse those yet")
+			return None
+
+		return message
+
+
+
+##############################################
+#                                            #
+# Here lie the class stubs for each protocol #
+#                                            #
+##############################################
+
+
+
+class SAE_J1850_PWM(LegacyProtocol):
 	def __init__(self):
-		self.console = False
-		self.handler = None
-
-	def __call__(self, msg, forcePrint=False):
-
-		if self.console or forcePrint:
-			print("[obd] " + str(msg))
-
-		if hasattr(self.handler, '__call__'):
-			self.handler(msg)
-
-debug = Debug()
+		LegacyProtocol.__init__(self, baud=41600)
 
 
-class ProtocolError(Exception):
+class SAE_J1850_VPW(LegacyProtocol):
 	def __init__(self):
-		pass
+		LegacyProtocol.__init__(self, baud=10400)
+
+
+class ISO_9141_2(LegacyProtocol):
+	def __init__(self):
+		LegacyProtocol.__init__(self, baud=10400)
+
+
+class ISO_14230_4_5baud(LegacyProtocol):
+	def __init__(self):
+		LegacyProtocol.__init__(self, baud=10400)
+
+
+class ISO_14230_4_fast(LegacyProtocol):
+	def __init__(self):
+		LegacyProtocol.__init__(self, baud=10400)

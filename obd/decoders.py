@@ -5,7 +5,8 @@
 #                                                                      #
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
-# Copyright 2014 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2009 Peter J. Creath                                       #
+# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -29,9 +30,9 @@
 ########################################################################
 
 import math
-from utils import *
-from codes import *
-from debug import debug
+from .utils import *
+from .codes import *
+from .debug import debug
 
 '''
 All decoders take the form:
