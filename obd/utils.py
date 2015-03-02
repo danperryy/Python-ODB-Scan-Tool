@@ -76,6 +76,14 @@ class Response():
 		return "%s %s" % (str(self.value), str(self.unit))
 
 
+class Status():
+	def __init__(self):
+		self.MIL           = False
+		self.DTC_count     = 0
+		self.ignition_type = ""
+		self.tests         = []
+
+
 class Test():
 	def __init__(self, name, available, incomplete):
 		self.name       = name

@@ -184,7 +184,7 @@ class OBD(object):
 	def query_DTC(self):
 		""" read all DTCs """
 
-		n = self.query(commands.STATUS).value['DTC Count'];
+		n = self.query(commands.STATUS).value.DTC_count;
 		n = n if (n < 128) else 0  # if this number is over 128, it's invalid
 
 		codes = [];

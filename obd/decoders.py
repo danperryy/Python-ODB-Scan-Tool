@@ -218,27 +218,26 @@ Return objects, lists, etc
 def status(_hex):
 	bits = bitstring(_hex, 32)
 
-	output = {}
-	output["Check_Engine_Light"] = bitToBool(bits[0])
-	output["DTC_Count"]          = unbin(bits[1:8])
-	output["Ignition_Type"]      = IGNITION_TYPE[unbin(bits[12])]
-	output["Tests"]              = []
+	output = Status()
+	output.MIL           = bitToBool(bits[0])
+	output.DTC_count     = unbin(bits[1:8])
+	output.ignition_type = IGNITION_TYPE[unbin(bits[12])]
 
-	output["Tests"].append(Test("Misfire", \
-								bitToBool(bits[15]), \
-								bitToBool(bits[11])))
+	output.tests.append(Test("Misfire", \
+							bitToBool(bits[15]), \
+							bitToBool(bits[11])))
 
-	output["Tests"].append(Test("Fuel System", \
-								bitToBool(bits[14]), \
-								bitToBool(bits[10])))
+	output.tests.append(Test("Fuel System", \
+							bitToBool(bits[14]), \
+							bitToBool(bits[10])))
 
-	output["Tests"].append(Test("Components", \
-								bitToBool(bits[13]), \
-								bitToBool(bits[9])))
+	output.tests.append(Test("Components", \
+							bitToBool(bits[13]), \
+							bitToBool(bits[9])))
 
 
 	# different tests for different ignition types 
-	if(output["Ignition_Type"] == IGNITION_TYPE[0]): # spark
+	if(output.ignition_type == IGNITION_TYPE[0]): # spark
 		for i in range(8):
 			if SPARK_TESTS[i] is not None:
 
@@ -246,9 +245,9 @@ def status(_hex):
 						 bitToBool(bits[(2 * 8) + i]), \
 						 bitToBool(bits[(3 * 8) + i]))
 
-				output["Tests"].append(t)
+				output.tests.append(t)
 
-	elif(output["Ignition_Type"] == IGNITION_TYPE[1]): # compression
+	elif(output.ignition_type == IGNITION_TYPE[1]): # compression
 		for i in range(8):
 			if COMPRESSION_TESTS[i] is not None:
 
@@ -256,7 +255,7 @@ def status(_hex):
 						 bitToBool(bits[(2 * 8) + i]), \
 						 bitToBool(bits[(3 * 8) + i]))
 				
-				output["Tests"].append(t)
+				output.tests.append(t)
 
 	return (output, Unit.NONE)
 
