@@ -184,14 +184,25 @@ class OBD(object):
 	def query_DTC(self):
 		""" read all DTCs """
 
-		n = self.query(commands.STATUS).value.DTC_count;
+		status = self.query(commands.STATUS);
+
+		if status.is_null():
+			debug("Failed to retrieve number of DTCs", True)
+			return []
+
+		n = status.value.DTC_count
 		n = n if (n < 128) else 0  # if this number is over 128, it's invalid
 
 		codes = [];
 
 		while n > 0:
-			current_codes = self.query(commands.GET_DTC).value
-			codes += current_codes
-			n -= len(current_codes)
+			get_dtc = self.query(commands.GET_DTC)
+
+			if get_dtc.is_null():
+				debug("Failed to retrieve DTCs", True)
+				break
+
+			codes += get_dtc.value
+			n -= len(get_dtc.value)
 
 		return codes

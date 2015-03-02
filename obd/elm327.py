@@ -287,6 +287,7 @@ class ELM327:
 		self.__write(cmd)
 
 		if delay is not None:
+			debug("wait: %d seconds" % delay)
 			time.sleep(delay)
 
 		return self.__read()
