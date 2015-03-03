@@ -174,11 +174,11 @@ class OBD(object):
 		"""
 
 		# check that the command is supported
-		if not (self.supports(c) or force):
+		if self.supports(c) or force:
+			return self.send(c)
+		else:
 			debug("'%s' is not supported" % str(c), True)
 			return Response() # return empty response
-		else:
-			return self.send(c)
 
 
 	def query_DTC(self):

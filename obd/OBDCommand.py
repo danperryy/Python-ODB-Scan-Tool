@@ -71,7 +71,7 @@ class OBDCommand():
 		# TODO: rewrite decoders to handle raw byte arrays
 		_data = ""
 
-		for b in message.data_bytes[header_bytes_expected:]:
+		for b in message.data_bytes:
 			h = hex(b)[2:].upper()
 			h = "0" + h if len(h) < 2 else h
 			_data += h
