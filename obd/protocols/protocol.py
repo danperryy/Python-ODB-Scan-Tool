@@ -49,8 +49,8 @@ class Frame(object):
         self.rx_id      = None
         self.tx_id      = None
         self.type       = None
-        self.seq_id     = 0
-        self.msg_len    = None
+        self.seq_index  = 0 # only used when type = CF
+        self.data_len   = None
 
 
 class Message(object):

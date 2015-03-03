@@ -58,6 +58,7 @@ class CANProtocol(Protocol):
         # read header information
         if self.id_bits == 11:
             # Ex.
+            #       [   ]
             # 00 00 07 E8 06 41 00 BE 7F B8 13
 
             frame.priority = raw_bytes[2] & 0x0F  # always 7
@@ -81,16 +82,31 @@ class CANProtocol(Protocol):
             frame.rx_id     = raw_bytes[2]  # 0x33 = broadcast (functional)
             frame.tx_id     = raw_bytes[3]  # 0xF1 = tester ID
 
+        # Ex.
+        #             [      Frame       ]
+        # 00 00 07 E8 06 41 00 BE 7F B8 13
 
         frame.data_bytes = raw_bytes[4:]
 
 
-        # extra frame info in data section
+        # read PCI byte (always first byte in the data section)
         frame.type = frame.data_bytes[0] & 0xF0
-        if frame.type not in [self.FRAME_TYPE_CF,
-                                 self.FRAME_TYPE_FF,
-                                 self.FRAME_TYPE_SF]:
+        if frame.type not in [self.FRAME_TYPE_SF,
+                              self.FRAME_TYPE_FF,
+                              self.FRAME_TYPE_CF]:
+            debug("Dropping frame carrying unknown PCI frame type")
             return None
+
+        if frame.type == self.FRAME_TYPE_SF:
+            # single frames have 4 bit length codes
+            frame.data_len = frame.data_bytes[0] & 0x0F
+        elif frame.type == self.FRAME_TYPE_FF:
+            # First frames have 12 bit length codes
+            frame.data_len = (frame.data_bytes[0] & 0x0F) << 8
+            frame.data_len += frame.data_bytes[1]
+        elif frame.type == self.FRAME_TYPE_CF:
+            # Consecutive frames have 4 bit sequence indices
+            frame.seq_index = frame.data_bytes[0] & 0x0F
 
         return frame
 
@@ -100,10 +116,54 @@ class CANProtocol(Protocol):
         message = Message(frames, tx_id)
 
         if len(message.frames) == 1:
-            message.data_bytes = message.frames[0].data_bytes[1:] # ignore PCI byte
+            frame = frames[0]
+
+            if frame.type != self.FRAME_TYPE_SF:
+                debug("Recieved lone frame not marked as single frame")
+                return None
+
+            # extract data, ignore PCI byte and anything after the marked length
+            message.data_bytes = frame.data_bytes[1:1+frame.data_len]
+
         else:
-            debug("Recieved multi-frame response. Can't parse those yet")
-            return None
+            # sort FF and CF into their own lists
+
+            ff = []
+            cf = []
+
+            for f in frames:
+                if f.type == self.FRAME_TYPE_FF:
+                    ff.append(f)
+                elif f.type == self.FRAME_TYPE_CF:
+                    cf.append(f)
+                else:
+                    debug("Dropping frame in multi-frame response not marked as FF or CF")
+
+            # check that we captured only one first-frame
+            if len(ff) > 1:
+                debug("Recieved multiple frames marked FF")
+                return None
+            elif len(ff) == 0:
+                debug("Never received frame marked FF")
+                return None
+
+            # check that there was at least one consecutive-frame
+            if len(cf) == 0:
+                debug("Never received frame marked CF")
+                return None
+
+            # TODO
+
+
+
+        # chop off the Mode/PID bytes based on the mode number
+        mode = message.data_bytes[0]
+        if mode == 0x43:
+            # GET_DTC requests (mode 03) do not have a PID byte
+            message.data_bytes = message.data_bytes[1:]
+        else:
+            # handles cases when there is both a Mode and PID byte
+            message.data_bytes = message.data_bytes[2:]            
 
         return message
 

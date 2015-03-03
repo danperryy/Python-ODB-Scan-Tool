@@ -45,7 +45,7 @@ class LegacyProtocol(Protocol):
 		raw_bytes = ascii_to_bytes(raw)
 
 		if len(raw_bytes) < 5:
-			debug("Discarded frame for being too short")
+			debug("Dropped frame for being too short")
 			return None
 
 		# Ex.

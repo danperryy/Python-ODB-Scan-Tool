@@ -40,10 +40,6 @@ def test_legacy():
 		assert len(r) == 1
 		check_message(r[0], 1, 16, [190, 31, 184, 17])
 
-		r = p(["48 6B 10 41 00 BE 1F B8 11 AA"])
-		assert len(r) == 1
-		check_message(r[0], 1, 16, [190, 31, 184, 17])
-
 		r = p(["NO DATA"])
 		assert len(r) == 0
 
@@ -70,44 +66,40 @@ def test_legacy():
 		assert len(r) == 1
 		check_message(r[0], 2, 16, [0x03, 0x0, 0x03, 0x02, 0x03, 0x03, 0x03, 0x04, 0x0, 0x0, 0x0, 0x0])
 
-'''
+
 def test_can_11():
 	for protocol in CAN_11_PROTOCOLS:
 		p = protocol()
 
 		# single frame cases
 
-		r = p("7E8 06 41 00 BE 7F B8 13\r\r")
+		r = p(["7E8 06 41 00 BE 7F B8 13"])
 		assert len(r) == 1
-		check_message(r[0], 1, 0, [65, 0, 190, 127, 184, 19])
+		check_message(r[0], 1, 0, [190, 127, 184, 19])
 
-		r = p("7E8 06 41 00 BE 7F B8 13")
-		assert len(r) == 1
-		check_message(r[0], 1, 0, [65, 0, 190, 127, 184, 19])
-
-		r = p("NO DATA")
+		r = p(["NO DATA"])
 		assert len(r) == 0
 
-		r = p("TOTALLY NOT HEX")
+		r = p(["TOTALLY NOT HEX"])
 		assert len(r) == 0
 
 		# multi-frame cases
 
 		# seperate ECUs, single frames each
-		r = p("7E8 06 41 00 BE 7F B8 13 \r7EB 06 41 00 80 40 00 01 \r7EA 06 41 00 80 00 00 01 \r\r")
+		r = p(["7E8 06 41 00 BE 7F B8 13", "7EB 06 41 00 80 40 00 01", "7EA 06 41 00 80 00 00 01"])
 		assert len(r) == 3
 		# messages are returned in ECU order
-		check_message(r[0], 1, 0, [65, 0, 190, 127, 184, 19])
-		check_message(r[1], 1, 2, [65, 0, 128, 0,   0,   1 ])
-		check_message(r[2], 1, 3, [65, 0, 128, 64,  0,   1 ])
+		check_message(r[0], 1, 0, [190, 127, 184, 19])
+		check_message(r[1], 1, 2, [128, 0,   0,   1 ])
+		check_message(r[2], 1, 3, [128, 64,  0,   1 ])
 
-		r = p("NO DATA\r\r7E8 06 41 00 BE 7F B8 13\r\r")
+		r = p(["NO DATA", "7E8 06 41 00 BE 7F B8 13"])
 		assert len(r) == 1
-		check_message(r[0], 1, 0, [65, 0, 190, 127, 184, 19])
+		check_message(r[0], 1, 0, [190, 127, 184, 19])
 
-		r = p("NO DATA\r\rNO DATA\r\r")
+		r = p(["NO DATA", "NO DATA"])
 		assert len(r) == 0
-'''
+
 
 def test_can_29():
 	pass
