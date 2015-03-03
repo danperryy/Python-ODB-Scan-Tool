@@ -36,36 +36,41 @@ def test_legacy():
 
 		# single frame cases
 
-		r = p("48 6B 10 41 00 BE 1F B8 11 AA\r\r")
+		r = p(["48 6B 10 41 00 BE 1F B8 11 AA"])
 		assert len(r) == 1
-		check_message(r[0], 1, 16, [65, 0, 190, 31, 184, 17])
+		check_message(r[0], 1, 16, [190, 31, 184, 17])
 
-		r = p("48 6B 10 41 00 BE 1F B8 11 AA")
+		r = p(["48 6B 10 41 00 BE 1F B8 11 AA"])
 		assert len(r) == 1
-		check_message(r[0], 1, 16, [65, 0, 190, 31, 184, 17])
+		check_message(r[0], 1, 16, [190, 31, 184, 17])
 
-		r = p("NO DATA")
+		r = p(["NO DATA"])
 		assert len(r) == 0
 
-		r = p("TOTALLY NOT HEX")
+		r = p(["TOTALLY NOT HEX"])
 		assert len(r) == 0
 
 		# multi-frame cases
 
 		# seperate ECUs, single frames each
-		r = p("48 6B 10 41 00 BE 1F B8 11 AA\r\r48 6B 11 41 00 01 02 03 04 AA\r\r")
+		r = p(["48 6B 10 41 00 BE 1F B8 11 AA", "48 6B 11 41 00 01 02 03 04 AA"])
 		assert len(r) == 2
-		check_message(r[0], 1, 16, [65, 0, 190, 31, 184, 17])
-		check_message(r[1], 1, 17, [65, 0, 1,   2,  3,   4 ])
+		check_message(r[0], 1, 16, [190, 31, 184, 17])
+		check_message(r[1], 1, 17, [1,   2,  3,   4 ])
 
-		r = p("NO DATA\r\r48 6B 10 41 00 BE 1F B8 11 AA\r\r")
+		r = p(["NO DATA", "48 6B 10 41 00 BE 1F B8 11 AA"])
 		assert len(r) == 1
-		check_message(r[0], 1, 16, [65, 0, 190, 31, 184, 17])
+		check_message(r[0], 1, 16, [190, 31, 184, 17])
 
-		r = p("NO DATA\r\rNO DATA\r\r")
+		r = p(["NO DATA", "NO DATA"])
 		assert len(r) == 0
 
+		# GET_DTC requests
+		r = p(["48 6B 10 43 03 00 03 02 03 03 14", "48 6B 10 43 03 04 00 00 00 00 0D"])
+		assert len(r) == 1
+		check_message(r[0], 2, 16, [0x03, 0x0, 0x03, 0x02, 0x03, 0x03, 0x03, 0x04, 0x0, 0x0, 0x0, 0x0])
 
+'''
 def test_can_11():
 	for protocol in CAN_11_PROTOCOLS:
 		p = protocol()
@@ -102,7 +107,7 @@ def test_can_11():
 
 		r = p("NO DATA\r\rNO DATA\r\r")
 		assert len(r) == 0
-
+'''
 
 def test_can_29():
 	pass

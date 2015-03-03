@@ -128,7 +128,7 @@ class Protocol(object):
         """
             override in subclass for each protocol
 
-            Function recieves the raw string data for a frame.
+            Function recieves a list of byte values for a frame.
 
             Function should return a Frame instance. If fatal errors were
             found, this function should return None (the Frame is dropped).

@@ -45,9 +45,16 @@ class LegacyProtocol(Protocol):
 		raw_bytes = ascii_to_bytes(raw)
 
 		if len(raw_bytes) < 5:
+			debug("Discarded frame for being too short")
 			return None
 
-		frame.data_bytes = raw_bytes[3:-1] # exclude trailing checksum (handled by ELM adapter)
+		# Ex.
+		# [Header] [     Frame     ]
+		# 48 6B 10 41 00 BE 7F B8 13 ck
+		# ck = checksum byte
+
+		# exclude header and trailing checksum (handled by ELM adapter)
+		frame.data_bytes = raw_bytes[3:-1]
 
 		# read header information
 		frame.priority = raw_bytes[0]
@@ -60,11 +67,66 @@ class LegacyProtocol(Protocol):
 
 		message = Message(frames, tx_id)
 
-		if len(frames) == 1:
-			message.data_bytes = message.frames[0].data_bytes
+		# len(frames) will always be >= 1 (see the caller, protocol.py)
+		mode = frames[0].data_bytes[0]
+		
+		# test that all frames are responses to the same Mode (SID)
+		if len(frames) > 1:
+			if not all([mode == f.data_bytes[0] for f in frames[1:]]):
+				debug("Recieved frames from multiple commands")
+				return None
+
+		# legacy protocols have different re-assembly
+		# procedures for different Modes 
+
+		if mode == 0x43:
+			# GET_DTC requests return frames with no PID or order bytes
+			# accumulate all of the data, minus the Mode bytes of each frame
+
+			# Ex.
+			#          [       Frame      ]
+			# 48 6B 10 43 03 00 03 02 03 03 ck
+			# 48 6B 10 43 03 04 00 00 00 00 ck
+			#             [     Data      ]
+
+			for f in frames:
+				message.data_bytes += f.data_bytes[1:]
+
 		else:
-			debug("Recieved multi-frame response. Can't parse those yet")
-			return None
+			if len(frames) == 1:
+				# return data, excluding the mode/pid bytes
+
+				# Ex.
+				#          [     Frame     ]
+				# 48 6B 10 41 00 BE 7F B8 13 ck
+				#                [  Data   ]
+
+				message.data_bytes = frames[0].data_bytes[2:]
+
+			else: # len(frames) > 1:
+				# generic multiline requests carry an order byte
+
+				# Ex.
+				#          [      Frame       ]
+				# 48 6B 10 49 02 01 00 00 00 31 ck
+				# 48 6B 10 49 02 02 44 34 47 50 ck
+				# 48 6B 10 49 02 03 30 30 52 35 ck
+				# etc...         [] [  Data   ]
+
+				# sort the frames by the order byte
+				frames = sorted(frames, key=lambda f: f[2])
+
+				# ensure that each order byte is consecutive by looking at
+				# them in pairs. (see if anything's missing)
+				indices = [f[2] for f in frames]
+				pairs = zip(indices, indices[1:])
+				if not all([p[0]+1 == p[1] for p in pairs]):
+					debug("Recieved multiline response with missing frames")
+					return None
+
+				# now that they're in order, accumulate the data from each one
+				for f in frames:
+					message.data_bytes += f.data_bytes[3:]
 
 		return message
 

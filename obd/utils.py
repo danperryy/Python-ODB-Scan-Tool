@@ -62,15 +62,15 @@ class Unit:
 
 
 class Response():
-	def __init__(self, command=None, raw_data=None):
+	def __init__(self, command=None, message=None):
 		self.command  = command
-		self.raw_data = raw_data
+		self.message  = message
 		self.value    = None
 		self.unit     = Unit.NONE
 		self.time     = time.time()
 
 	def is_null(self):
-		return (self.raw_data == None) or (self.value == None)
+		return (self.message == None) or (self.value == None)
 
 	def __str__(self):
 		return "%s %s" % (str(self.value), str(self.unit))

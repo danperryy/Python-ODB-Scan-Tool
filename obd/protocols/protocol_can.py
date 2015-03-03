@@ -57,6 +57,9 @@ class CANProtocol(Protocol):
 
         # read header information
         if self.id_bits == 11:
+            # Ex.
+            # 00 00 07 E8 06 41 00 BE 7F B8 13
+
             frame.priority = raw_bytes[2] & 0x0F  # always 7
             frame.addr_mode = raw_bytes[3] & 0xF0  # 0xD0 = functional, 0xE0 = physical
 

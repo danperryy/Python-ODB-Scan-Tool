@@ -66,12 +66,6 @@ class OBDCommand():
 		# create the response object with the raw data recieved
 		# and reference to original command
 		r = Response(self, message)
-
-		# discard the header/echo of the given command
-		# 0101 ----> [41 01] 83 00 00 00
-		# vs.
-		# 03   ----> [43] 01 04 80 03 41 23
-		header_bytes_expected = len(self.get_command()) // 2
 		
 		# combine the bytes back into a hex string
 		# TODO: rewrite decoders to handle raw byte arrays
