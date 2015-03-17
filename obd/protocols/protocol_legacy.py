@@ -114,11 +114,11 @@ class LegacyProtocol(Protocol):
 				# etc...         [] [  Data   ]
 
 				# sort the frames by the order byte
-				frames = sorted(frames, key=lambda f: f[2])
+				frames = sorted(frames, key=lambda f: f.data_bytes[2])
 
 				# ensure that each order byte is consecutive by looking at
 				# them in pairs. (see if anything's missing)
-				indices = [f[2] for f in frames]
+				indices = [f.data_bytes[2] for f in frames]
 				pairs = zip(indices, indices[1:])
 				if not all([p[0]+1 == p[1] for p in pairs]):
 					debug("Recieved multiline response with missing frames")

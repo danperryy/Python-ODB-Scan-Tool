@@ -188,7 +188,7 @@ class ELM327:
 			# first, try filtering for the standard ECU IDs
 			test = lambda m: m.tx_id == self.__protocol.PRIMARY_ECU
 
-			if bool(filter(test, messages)):
+			if bool([m for m in messages if test(m)]):
 				return self.__protocol.PRIMARY_ECU
 			else:
 				# last resort solution, choose ECU

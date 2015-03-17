@@ -152,8 +152,35 @@ class CANProtocol(Protocol):
                 debug("Never received frame marked CF")
                 return None
 
-            # TODO
+            # calculate proper sequence indices from the lower 4 bits given
+            for prev, curr in zip(cf, cf[1:]):
+                # Frame sequence numbers only specify the low order bits, so compute the
+                # full sequence number from the frame number and the last sequence number seen:
+                # 1) take the high order bits from the last_sn and low order bits from the frame
+                seq = (prev.seq_index & ~0x0F) + (curr.seq_index)
+                # 2) if this is more than 7 frames away, we probably just wrapped (e.g.,
+                # last=0x0F current=0x01 should mean 0x11, not 0x01)
+                if seq < prev.seq_index - 7:
+                    # untested
+                    seq += 0x10
 
+                curr.seq_index = seq
+
+            # sort the sequence indices
+            cf = sorted(cf, key=lambda f: f.seq_index)
+
+            # concat these lists together
+            frames = ff + cf
+
+            # ensure that each order byte is consecutive by looking at
+            # them in pairs. (see if anything's missing)
+            indices = [f.seq_index for f in frames]
+            pairs = zip(indices, indices[1:])
+            if not all([p[0]+1 == p[1] for p in pairs]):
+                debug("Recieved multiline response with missing frames")
+                return None
+
+            # TODO: extract message data
 
 
         # chop off the Mode/PID bytes based on the mode number

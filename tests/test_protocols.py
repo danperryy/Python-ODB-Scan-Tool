@@ -100,6 +100,15 @@ def test_can_11():
 		r = p(["NO DATA", "NO DATA"])
 		assert len(r) == 0
 
+		# multi-line response
+		'''
+		r = p(["7E8 10 13 49 04 01 35 36 30",
+				"7E8 21 32 38 39 34 39 41 43",
+				"7E8 22 00 00 00 00 00 00 31"
+		])
+		assert len(r) == 1
+		'''
+
 
 def test_can_29():
 	pass
