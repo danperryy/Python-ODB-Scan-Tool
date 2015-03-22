@@ -304,6 +304,7 @@ def air_status(_hex):
 
 	return (AIR_STATUS[i], Unit.NONE)
 
+
 def obd_compliance(_hex):
 	i = unhex(_hex)
 
@@ -325,22 +326,6 @@ def fuel_type(_hex):
 
 	return (v, Unit.NONE)
 
-# Get the description of a DTC
-def describeCode(code):
-	code.upper()
-
-	v = "Unknown or manufacturer specific code. Consult the internet."
-
-	if DTC.has_key(code):
-		v = DTC[code]
-
-	return (v, Unit.NONE)
-
-
-
-'''
-The following decoders are untested due to lack of a broken car
-'''
 
 # converts 2 bytes of hex into a DTC code
 def single_dtc(_hex):

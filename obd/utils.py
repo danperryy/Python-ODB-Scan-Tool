@@ -182,7 +182,6 @@ def try_port(portStr):
 	return False
 
 
-
 def scanSerial():
 	"""scan for available ports. return a list of serial names"""
 	available = []
