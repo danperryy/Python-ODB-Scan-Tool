@@ -72,18 +72,21 @@ def test_multi_ecu():
 
 
 		test_case = [
+			"48 6B 13 41 00 00 01 02 03 FF",			
 			"48 6B 10 41 00 00 01 02 03 FF",
 			"48 6B 11 41 00 00 01 02 03 FF",
-			"48 6B 12 41 00 00 01 02 03 FF",			
 		]
 
 		correct_data = list(range(4))
 
+		# seperate ECUs, single frames each
 		r = p(test_case)
 		assert len(r) == len(test_case)
+
+		# messages are returned in ECU order
 		check_message(r[0], 1, 0x10, correct_data)
 		check_message(r[1], 1, 0x11, correct_data)
-		check_message(r[2], 1, 0x12, correct_data)
+		check_message(r[2], 1, 0x13, correct_data)
 
 
 
@@ -92,8 +95,42 @@ def test_multi_line():
 		p = protocol()
 
 
-		# todo: normal response stitching
+		test_case = [
+			"48 6B 10 49 02 01 00 01 02 03 FF",
+			"48 6B 10 49 02 02 04 05 06 07 FF",
+			"48 6B 10 49 02 03 08 09 0A 0B FF",
+		]
 
+		correct_data = list(range(12))
+
+		# in-order
+		r = p(test_case)
+		assert len(r) == 1
+		check_message(r[0], len(test_case), 0x10, correct_data)
+
+		# test a few out-of-order cases
+		for n in range(4):
+			random.shuffle(test_case) # mix up the frame strings
+			r = p(test_case)
+			assert len(r) == 1
+			check_message(r[0], len(test_case), 0x10, correct_data)
+
+
+		# missing frames in a multi-frame message should drop the message
+		# (tests the contiguity check, and data length byte)
+
+		test_case = [
+			"48 6B 10 49 02 01 00 01 02 03 FF",
+			"48 6B 10 49 02 02 04 05 06 07 FF",
+			"48 6B 10 49 02 03 08 09 0A 0B FF",
+		]
+
+		for n in range(len(test_case) - 1):
+			sub_test = list(test_case)
+			del sub_test[n]
+
+			r = p(sub_test)
+			assert len(r) == 0
 
 
 		# MODE 03 COMMANDS (GET_DTC) RETURN NO PID BYTE

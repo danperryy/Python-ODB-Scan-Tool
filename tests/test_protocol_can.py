@@ -102,14 +102,14 @@ def test_multi_line():
 		# in-order
 		r = p(test_case)
 		assert len(r) == 1
-		check_message(r[0], len(test_case), 0, correct_data)
+		check_message(r[0], len(test_case), 0x0, correct_data)
 
 		# test a few out-of-order cases
 		for n in range(4):
 			random.shuffle(test_case) # mix up the frame strings
 			r = p(test_case)
 			assert len(r) == 1
-			check_message(r[0], len(test_case), 0, correct_data)
+			check_message(r[0], len(test_case), 0x0, correct_data)
 
 
 		# missing frames in a multi-frame message should drop the message
