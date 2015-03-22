@@ -149,6 +149,22 @@ def constrainHex(_hex, b):
 
 	return _hex
 
+# checks that a list of integers are consequtive
+def contiguous(l, start, end):
+	if not l:
+		return False
+	if l[0] != start:
+		return False
+	if l[-1] != end:
+		return False
+
+	# for consequtiveness, look at the integers in pairs
+	pairs = zip(l, l[1:])
+	if not all([p[0]+1 == p[1] for p in pairs]):
+		return False
+
+	return True
+
 
 def try_port(portStr):
 	"""returns boolean for port availability"""

@@ -122,7 +122,7 @@ def test_multi_line():
 			"7E8 23 12 13 14 15 16 17 18"
 		]
 
-		for n in range(len(test_case)):
+		for n in range(len(test_case) - 1):
 			sub_test = list(test_case)
 			del sub_test[n]
 

@@ -29,6 +29,7 @@
 #                                                                      #
 ########################################################################
 
+from obd.utils import contiguous
 from .protocol import *
 
 
@@ -46,6 +47,10 @@ class LegacyProtocol(Protocol):
 
 		if len(raw_bytes) < 6:
 			debug("Dropped frame for being too short")
+			return None
+
+		if len(raw_bytes) > 11:
+			debug("Dropped frame for being too long")
 			return None
 
 		# Ex.
@@ -116,17 +121,15 @@ class LegacyProtocol(Protocol):
 				# sort the frames by the order byte
 				frames = sorted(frames, key=lambda f: f.data_bytes[2])
 
-				# ensure that each order byte is consecutive by looking at
-				# them in pairs. (see if anything's missing)
+				# check contiguity
 				indices = [f.data_bytes[2] for f in frames]
-				pairs = zip(indices, indices[1:])
-				if not all([p[0]+1 == p[1] for p in pairs]):
+				if not contiguous(indices, 1, len(frames)):
 					debug("Recieved multiline response with missing frames")
 					return None
 
-				# now that they're in order, accumulate the data from each one
+				# now that they're in order, accumulate the data from each frame
 				for f in frames:
-					message.data_bytes += f.data_bytes[3:]
+					message.data_bytes += f.data_bytes[3:] # loose the mode/pid/seq bytes
 
 		return message
 

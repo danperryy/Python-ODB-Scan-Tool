@@ -29,6 +29,7 @@
 #                                                                      #
 ########################################################################
 
+from obd.utils import contiguous
 from .protocol import *
 
 
@@ -169,25 +170,17 @@ class CANProtocol(Protocol):
             # sort the sequence indices
             cf = sorted(cf, key=lambda f: f.seq_index)
 
-            # ensure that the last CF frame has the right
-            # index for the total frames recieved
-            if cf[-1].seq_index != len(cf): # not len() - 1, because FF is zero
-                debug("Recieved multiline response with incorrect frame count")
-                return None
-
-            # ensure that each order byte is consecutive by looking at
-            # them in pairs. (see if anything's missing)
+            # check contiguity
             indices = [f.seq_index for f in cf]
-            pairs = zip(indices, indices[1:])
-            if not all([p[0]+1 == p[1] for p in pairs]):
+            if not contiguous(indices, 1, len(cf)):
                 debug("Recieved multiline response with missing frames")
                 return None
 
-            # now that they're in order, load/accumulate the data from each frame
 
             # on the first frame, skip PCI byte AND length code
             message.data_bytes += ff[0].data_bytes[2:]
 
+            # now that they're in order, load/accumulate the data from each CF frame
             for f in cf:
                 message.data_bytes += f.data_bytes[1:] # chop off the PCI byte
 

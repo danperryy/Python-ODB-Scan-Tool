@@ -27,18 +27,23 @@ def test_single_frame():
 	for protocol in LEGACY_PROTOCOLS:
 		p = protocol()
 
-		# valid case
-		r = p(["48 6B 10 41 00 00 01 02 03 FF"])
+		# minimum valid length
+		r = p(["48 6B 10 41 00 FF"])
 		assert len(r) == 1
-		check_message(r[0], 1, 0x10, list(range(4)))
+		check_message(r[0], 1, 0x10, [])
+
+		# maximum valid length
+		r = p(["48 6B 10 41 00 00 01 02 03 04 FF"])
+		assert len(r) == 1
+		check_message(r[0], 1, 0x10, list(range(5)))
 
 		# to short
 		r = p(["48 6B 10 41 FF"])
 		assert len(r) == 0
 
 		# to long
-		# r = p(["48 6B 10 41 00 00 01 02 03 04 05 06 07 FF"])
-		# assert len(r) == 0
+		r = p(["48 6B 10 41 00 00 01 02 03 04 05 FF"])
+		assert len(r) == 0
 
 
 def test_hex_straining():
