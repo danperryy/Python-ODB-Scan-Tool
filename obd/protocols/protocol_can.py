@@ -169,18 +169,21 @@ class CANProtocol(Protocol):
             # sort the sequence indices
             cf = sorted(cf, key=lambda f: f.seq_index)
 
-            # concat these lists together
-            frames = ff + cf
-
             # ensure that each order byte is consecutive by looking at
             # them in pairs. (see if anything's missing)
-            indices = [f.seq_index for f in frames]
+            indices = [f.seq_index for f in cf]
             pairs = zip(indices, indices[1:])
             if not all([p[0]+1 == p[1] for p in pairs]):
                 debug("Recieved multiline response with missing frames")
                 return None
 
-            # TODO: extract message data
+            # now that they're in order, load/accumulate the data from each frame
+
+            # on the first frame, skip PCI byte AND length code
+            message.data_bytes += ff[0].data_bytes[2:]
+
+            for f in cf:
+                message.data_bytes += f.data_bytes[1:] # chop off the PCI byte
 
 
         # chop off the Mode/PID bytes based on the mode number
