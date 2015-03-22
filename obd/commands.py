@@ -170,7 +170,7 @@ __mode4__ = [
 
 __mode7__ = [
 	#                  sensor name                          description                   mode  cmd bytes       decoder
-	OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07", "" , 0, noop                   , True),
+	OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07", "" , 0, dtc                    , True),
 ]
 
 

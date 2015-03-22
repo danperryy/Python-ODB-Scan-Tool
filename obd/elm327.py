@@ -119,7 +119,14 @@ class ELM327:
 			return
 
 
-		# ----------------------- ATSPA8 (protocol AUTO) -----------------------
+		# ------------------------ ATL0 (linefeeds OFF) -----------------------
+		r = self.__send("ATL0")
+		if not self.__isok(r):
+			self.__error("ATL0 did not return 'OK'")
+			return
+
+
+		# ---------------------- ATSPA8 (protocol AUTO) -----------------------
 		r = self.__send("ATSPA8")
 		if not self.__isok(r):
 			self.__error("ATSPA8 did not return 'OK'")
@@ -148,8 +155,8 @@ class ELM327:
 			self.__error("ELM responded with unknown protocol")
 			return
 
+		# instantiate the correct protocol handler
 		self.__protocol = self._SUPPORTED_PROTOCOLS[p]()
-
 
 		# Now that a protocol has been selected, we can figure out
 		# which ECU is the primary.
@@ -163,6 +170,7 @@ class ELM327:
 		# ------------------------------- done -------------------------------
 		debug("Connection successful")
 		self.__connected = True
+
 
 	def __isok(self, lines, expectEcho=False):
 		if not lines:
@@ -233,7 +241,7 @@ class ELM327:
 			Resets the device, and clears all attributes to unconnected state
 		"""
 
-		if (self.__port != None) and self.__connected:
+		if self.is_connected():
 			self.__write("ATZ")
 			self.__port.close()
 
