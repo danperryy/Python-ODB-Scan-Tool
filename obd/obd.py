@@ -38,141 +38,141 @@ from .debug import debug
 
 
 class OBD(object):
-	""" class representing an OBD-II connection with it's assorted sensors """
+    """ class representing an OBD-II connection with it's assorted sensors """
 
-	def __init__(self, portstr=None, baudrate=38400):
-		self.port = None
-		self.supported_commands = []
+    def __init__(self, portstr=None, baudrate=38400):
+        self.port = None
+        self.supported_commands = []
 
-		debug("========================== Starting python-OBD ==========================")
-		self.connect(portstr, baudrate) # initialize by connecting and loading sensors
-		debug("=========================================================================")
-
-
-	def connect(self, portstr=None, baudrate=38400):
-		""" attempts to instantiate an ELM327 object. Loads commands on success"""
-
-		if portstr is None:
-			debug("Using scanSerial to select port")
-			portnames = scanSerial()
-			debug("Available ports: " + str(portnames))
-
-			for port in portnames:
-				debug("Attempting to use port: " + str(port))
-				self.port = ELM327(port, baudrate=baudrate)
-
-				if self.port.is_connected():
-					# success! stop searching for serial
-					break
-		else:
-			debug("Explicit port defined")
-			self.port = ELM327(portstr, baudrate=baudrate)
-
-		# if a connection was made, query for commands
-		if self.is_connected():
-			self.load_commands()
-		else:
-			debug("Failed to connect")
+        debug("========================== Starting python-OBD ==========================")
+        self.connect(portstr, baudrate) # initialize by connecting and loading sensors
+        debug("=========================================================================")
 
 
-	def close(self):
-		if self.is_connected():
-			debug("Closing connection")
-			self.port.close()
-			self.port = None
+    def connect(self, portstr=None, baudrate=38400):
+        """ attempts to instantiate an ELM327 object. Loads commands on success"""
+
+        if portstr is None:
+            debug("Using scanSerial to select port")
+            portnames = scanSerial()
+            debug("Available ports: " + str(portnames))
+
+            for port in portnames:
+                debug("Attempting to use port: " + str(port))
+                self.port = ELM327(port, baudrate=baudrate)
+
+                if self.port.is_connected():
+                    # success! stop searching for serial
+                    break
+        else:
+            debug("Explicit port defined")
+            self.port = ELM327(portstr, baudrate=baudrate)
+
+        # if a connection was made, query for commands
+        if self.is_connected():
+            self.load_commands()
+        else:
+            debug("Failed to connect")
 
 
-	def is_connected(self):
-		return (self.port is not None) and self.port.is_connected()
+    def close(self):
+        if self.is_connected():
+            debug("Closing connection")
+            self.port.close()
+            self.port = None
 
 
-	def get_port_name(self):
-		if self.is_connected():
-			return self.port.get_port_name()
-		else:
-			return "Not connected to any port"
+    def is_connected(self):
+        return (self.port is not None) and self.port.is_connected()
 
 
-	def load_commands(self):
-		"""
-			queries for available PIDs,
-			sets their support status,
-			and compiles a list of command objects
-		"""
-
-		debug("querying for supported PIDs (commands)...")
-
-		self.supported_commands = []
-
-		pid_getters = commands.pid_getters()
-
-		for get in pid_getters:
-			# PID listing commands should sequentialy become supported
-			# Mode 1 PID 0 is assumed to always be supported
-			if not self.supports(get):
-				continue
-
-			response = self.send(get) # ask nicely
-
-			if response.is_null():
-				continue
-			
-			supported = response.value # string of binary 01010101010101
-
-			# loop through PIDs binary
-			for i in range(len(supported)):
-				if supported[i] == "1":
-
-					mode = get.get_mode_int()
-					pid  = get.get_pid_int() + i + 1
-
-					if commands.has_pid(mode, pid):
-						c = commands[mode][pid]
-						c.supported = True
-
-						# don't add PID getters to the command list
-						if c not in pid_getters:
-							self.supported_commands.append(c)
-
-		debug("finished querying with %d commands supported" % len(self.supported_commands))
+    def get_port_name(self):
+        if self.is_connected():
+            return self.port.get_port_name()
+        else:
+            return "Not connected to any port"
 
 
-	def print_commands(self):
-		for c in self.supported_commands:
-			print(str(c))
+    def load_commands(self):
+        """
+            queries for available PIDs,
+            sets their support status,
+            and compiles a list of command objects
+        """
+
+        debug("querying for supported PIDs (commands)...")
+
+        self.supported_commands = []
+
+        pid_getters = commands.pid_getters()
+
+        for get in pid_getters:
+            # PID listing commands should sequentialy become supported
+            # Mode 1 PID 0 is assumed to always be supported
+            if not self.supports(get):
+                continue
+
+            response = self.send(get) # ask nicely
+
+            if response.is_null():
+                continue
+            
+            supported = response.value # string of binary 01010101010101
+
+            # loop through PIDs binary
+            for i in range(len(supported)):
+                if supported[i] == "1":
+
+                    mode = get.get_mode_int()
+                    pid  = get.get_pid_int() + i + 1
+
+                    if commands.has_pid(mode, pid):
+                        c = commands[mode][pid]
+                        c.supported = True
+
+                        # don't add PID getters to the command list
+                        if c not in pid_getters:
+                            self.supported_commands.append(c)
+
+        debug("finished querying with %d commands supported" % len(self.supported_commands))
 
 
-	def supports(self, c):
-		return commands.has_command(c) and c.supported
+    def print_commands(self):
+        for c in self.supported_commands:
+            print(str(c))
 
 
-	def send(self, c):
-		""" send the given command, retrieve and parse response """
+    def supports(self, c):
+        return commands.has_command(c) and c.supported
 
-		if not self.is_connected():
-			debug("Query failed, no connection available", True)
-			return Response() # return empty response
 
-		debug("Sending command: %s" % str(c))
+    def send(self, c):
+        """ send the given command, retrieve and parse response """
 
-		# send command and retrieve message
-		m = self.port.send_and_parse(c.get_command())
+        if not self.is_connected():
+            debug("Query failed, no connection available", True)
+            return Response() # return empty response
 
-		if m is None:
-			return Response() # return empty response
-		else:
-			return c(m) # compute a response object
-		
+        debug("Sending command: %s" % str(c))
 
-	def query(self, c, force=False):
-		"""
-			facade 'send' command function
-			protects against sending unsupported commands.
-		"""
+        # send command and retrieve message
+        m = self.port.send_and_parse(c.get_command())
 
-		# check that the command is supported
-		if self.supports(c) or force:
-			return self.send(c)
-		else:
-			debug("'%s' is not supported" % str(c), True)
-			return Response() # return empty response
+        if m is None:
+            return Response() # return empty response
+        else:
+            return c(m) # compute a response object
+        
+
+    def query(self, c, force=False):
+        """
+            facade 'send' command function
+            protects against sending unsupported commands.
+        """
+
+        # check that the command is supported
+        if self.supports(c) or force:
+            return self.send(c)
+        else:
+            debug("'%s' is not supported" % str(c), True)
+            return Response() # return empty response
