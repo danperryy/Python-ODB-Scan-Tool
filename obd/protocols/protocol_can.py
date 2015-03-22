@@ -169,6 +169,12 @@ class CANProtocol(Protocol):
             # sort the sequence indices
             cf = sorted(cf, key=lambda f: f.seq_index)
 
+            # ensure that the last CF frame has the right
+            # index for the total frames recieved
+            if cf[-1].seq_index != len(cf): # not len() - 1, because FF is zero
+                debug("Recieved multiline response with incorrect frame count")
+                return None
+
             # ensure that each order byte is consecutive by looking at
             # them in pairs. (see if anything's missing)
             indices = [f.seq_index for f in cf]
@@ -193,7 +199,7 @@ class CANProtocol(Protocol):
             message.data_bytes = message.data_bytes[1:]
         else:
             # handles cases when there is both a Mode and PID byte
-            message.data_bytes = message.data_bytes[2:]            
+            message.data_bytes = message.data_bytes[2:]
 
         return message
 

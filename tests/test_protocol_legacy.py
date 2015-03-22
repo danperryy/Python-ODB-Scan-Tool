@@ -23,15 +23,28 @@ def check_message(m, num_frames, tx_id, data_bytes):
 		assert m.data_bytes  == data_bytes
 
 
-def test_legacy():
+def test_single_frame():
 	for protocol in LEGACY_PROTOCOLS:
 		p = protocol()
 
-		# single frame cases
-
-		r = p(["48 6B 10 41 00 BE 1F B8 11 AA"])
+		# valid case
+		r = p(["48 6B 10 41 00 00 01 02 03 FF"])
 		assert len(r) == 1
-		check_message(r[0], 1, 16, [190, 31, 184, 17])
+		check_message(r[0], 1, 0x10, list(range(4)))
+
+		# to short
+		r = p(["48 6B 10 41 FF"])
+		assert len(r) == 0
+
+		# to long
+		# r = p(["48 6B 10 41 00 00 01 02 03 04 05 06 07 FF"])
+		# assert len(r) == 0
+
+
+def test_hex_straining():
+	for protocol in LEGACY_PROTOCOLS:
+		p = protocol()
+
 
 		r = p(["NO DATA"])
 		assert len(r) == 0
@@ -39,21 +52,42 @@ def test_legacy():
 		r = p(["TOTALLY NOT HEX"])
 		assert len(r) == 0
 
-		# multi-frame cases
-
-		# seperate ECUs, single frames each
-		r = p(["48 6B 10 41 00 BE 1F B8 11 AA", "48 6B 11 41 00 01 02 03 04 AA"])
-		assert len(r) == 2
-		check_message(r[0], 1, 16, [190, 31, 184, 17])
-		check_message(r[1], 1, 17, [1,   2,  3,   4 ])
-
-		r = p(["NO DATA", "48 6B 10 41 00 BE 1F B8 11 AA"])
-		assert len(r) == 1
-		check_message(r[0], 1, 16, [190, 31, 184, 17])
-
 		r = p(["NO DATA", "NO DATA"])
 		assert len(r) == 0
 
+		r = p(["NO DATA", "48 6B 10 41 00 00 01 02 03 FF"])
+		assert len(r) == 1
+		check_message(r[0], 1, 0x10, list(range(4)))
+
+
+
+def test_multi_ecu():
+	for protocol in LEGACY_PROTOCOLS:
+		p = protocol()
+
+
+		test_case = [
+			"48 6B 10 41 00 00 01 02 03 FF",
+			"48 6B 11 41 00 00 01 02 03 FF",
+			"48 6B 12 41 00 00 01 02 03 FF",			
+		]
+
+		correct_data = list(range(4))
+
+		r = p(test_case)
+		assert len(r) == len(test_case)
+		check_message(r[0], 1, 0x10, correct_data)
+		check_message(r[1], 1, 0x11, correct_data)
+		check_message(r[2], 1, 0x12, correct_data)
+
+
+
+def test_multi_line():
+	for protocol in LEGACY_PROTOCOLS:
+		p = protocol()
+
+
+		# todo: normal response stitching
 
 
 
