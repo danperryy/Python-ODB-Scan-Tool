@@ -345,12 +345,15 @@ The following decoders are untested due to lack of a broken car
 # converts 2 bytes of hex into a DTC code
 def single_dtc(_hex):
 
+	if len(_hex) != 4:
+		return None
+
 	if _hex == "0000":
 		return None
 
-	dtc = ""
 	bits = bitstring(_hex[0], 4)
 
+	dtc = ""
 	dtc += ['P', 'C', 'B', 'U'][unbin(bits[0:2])]
 	dtc += str(unbin(bits[2:4]))
 	dtc += _hex[1:4]
@@ -358,21 +361,20 @@ def single_dtc(_hex):
 	return dtc
 
 # converts a frame of 2-byte DTCs into a list of DTCs
-# example input = 01 04 80 03 41 23
-#                 [DTC] [DTC] [DTC]
-def dtc_frame(_hex):
+# example input = "010480034123"
+#                  [  ][  ][  ]
+def dtc(_hex):
 	codes = []
-	for n in range(0, 12, 4):
+	for n in range(0, len(_hex), 4):
 		dtc = single_dtc(_hex[n:n+4])
 
 		if dtc is not None:
 
 			# pull a description if we have one
+			desc = "Unknown error code"
 			if dtc in DTC:
-				dtc += ": %s" % DTC[dtc]
-			else:
-				dtc += ": unknown error code"
+				desc = DTC[dtc]
 
-			codes.append(dtc)
+			codes.append( (dtc, desc) )
 
 	return (codes, Unit.NONE)

@@ -34,9 +34,6 @@ from .elm327 import ELM327
 from .commands import commands
 from .utils import scanSerial, Response
 from .debug import debug
-from .commands import commands
-from .utils import scanSerial, Response
-from .debug import debug
 
 
 

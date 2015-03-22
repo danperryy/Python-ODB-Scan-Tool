@@ -139,3 +139,26 @@ def test_air_status():
 	assert d.air_status("01") == ("Upstream",                          Unit.NONE)
 	assert d.air_status("08") == ("Pump commanded on for diagnostics", Unit.NONE)
 	assert d.air_status("03") == (None,                                Unit.NONE)
+
+def test_dtc():
+	assert d.dtc("0104") == ([
+		("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
+	], Unit.NONE)
+
+	# multiple codes
+	assert d.dtc("010480034123") == ([
+		("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
+		("B0003", "Unknown error code"),
+		("C0123", "Unknown error code"),
+	], Unit.NONE)
+
+	# invalid code lengths are dropped
+	assert d.dtc("01048003412") == ([
+		("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
+		("B0003", "Unknown error code"),
+	], Unit.NONE)
+
+	# 0000 codes are dropped
+	assert d.dtc("000001040000") == ([
+		("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
+	], Unit.NONE)
