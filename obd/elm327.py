@@ -84,7 +84,7 @@ class ELM327:
                                       parity   = serial.PARITY_NONE, \
                                       stopbits = 1, \
                                       bytesize = 8, \
-                                      timeout  = 1) # seconds
+                                      timeout  = 3) # seconds
 
         except serial.SerialException as e:
             self.__error(e)
@@ -136,7 +136,7 @@ class ELM327:
         # -------------- 0100 (first command, SEARCH protocols) --------------
         # TODO: rewrite this using a "wait for prompt character"
         # rather than a fixed wait period
-        r0100 = self.__send("0100", delay=3) # give it a second (or three) to search
+        r0100 = self.__send("0100")
 
 
         # ------------------- ATDPN (list protocol number) -------------------
@@ -335,6 +335,7 @@ class ELM327:
                 if not c:
 
                     if attempts <= 0:
+                        debug("__read() never recieved prompt character")
                         break
 
                     debug("__read() found nothing")
