@@ -203,7 +203,7 @@ class Commands():
     def __getitem__(self, key):
         if isinstance(key, int):
             return self.modes[key]
-        elif isinstance(key, str):
+        elif isinstance(key, str) or isinstance(key, unicode):
             return self.__dict__[key]
         else:
             debug("OBD commands can only be retrieved by PID value or dict name", True)
@@ -250,7 +250,7 @@ class Commands():
 
     # checks for existance of command by name
     def has_name(self, s):
-        if isinstance(s, str):
+        if isinstance(s, str) or isinstance(s, unicode):
             return s.isupper() and (s in self.__dict__.keys())
         else:
             debug("has_name() only accepts string names for commands", True)
