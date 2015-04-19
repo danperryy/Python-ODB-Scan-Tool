@@ -36,7 +36,10 @@ from .debug import debug
 from . import OBD
 
 class Async(OBD):
-    """ subclass representing an OBD-II connection """
+    """
+        Class representing an OBD-II connection with it's assorted commands/sensors
+        Specialized for asynchronous value reporting.
+    """
 
     def __init__(self, portstr=None, baudrate=38400):
         super(Async, self).__init__(portstr, baudrate)
@@ -47,6 +50,7 @@ class Async(OBD):
 
 
     def start(self):
+        """ Starts the async update loop """
         if self.is_connected():
             debug("Starting async thread")
             self.running = True
@@ -58,6 +62,7 @@ class Async(OBD):
 
 
     def stop(self):
+        """ Stops the async update loop """
         if self.thread is not None:
             debug("Stopping async thread...")
             self.running = False
@@ -67,11 +72,17 @@ class Async(OBD):
 
 
     def close(self):
+        """ Closes the connection """
         self.stop()
         super(Async, self).close()
 
 
     def watch(self, c, callback=None, force=False):
+        """
+            Subscribes the given command for continuous updating. Once subscribed,
+            query() will return that command's latest value. Optional callbacks can
+            be given, which will be fired upon every new value.
+        """
 
         # the dict shouldn't be changed while the daemon thread is iterating
         if self.running:
@@ -95,6 +106,11 @@ class Async(OBD):
 
 
     def unwatch(self, c, callback=None):
+        """
+            Unsubscribes a specific command (and optionally, a specific callback)
+            from being updated. If no callback is specified, all callbacks for
+            that command are dropped.
+        """
 
         # the dict shouldn't be changed while the daemon thread is iterating
         if self.running:
@@ -117,6 +133,7 @@ class Async(OBD):
 
 
     def unwatch_all(self):
+        """ Unsubscribes all commands and callbacks from being updated """
 
         # the dict shouldn't be changed while the daemon thread is iterating
         if self.running:
@@ -128,6 +145,11 @@ class Async(OBD):
 
 
     def query(self, c):
+        """
+            Non-blocking query().
+            Only commands that have been watch()ed will return valid responses
+        """
+
         if c in self.commands:
             return self.commands[c]
         else:
@@ -155,4 +177,4 @@ class Async(OBD):
                         callback(r)
 
             else:
-                time.sleep(1) # idle
+                time.sleep(0.25) # idle
