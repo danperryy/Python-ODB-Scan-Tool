@@ -36,8 +36,7 @@
 #                                                                      #
 ########################################################################
 
-__version__ = '0.3.0'
-
+from .__version__ import __version__
 from .obd import OBD
 from .OBDCommand import OBDCommand
 from .commands import commands

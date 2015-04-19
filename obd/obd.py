@@ -31,7 +31,7 @@
 
 import time
 
-from obd import __version__
+from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
 from .utils import scanSerial, Response
