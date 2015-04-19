@@ -30,6 +30,8 @@
 ########################################################################
 
 import time
+
+from obd import __version__
 from .elm327 import ELM327
 from .commands import commands
 from .utils import scanSerial, Response
@@ -38,19 +40,24 @@ from .debug import debug
 
 
 class OBD(object):
-    """ class representing an OBD-II connection with it's assorted sensors """
+    """
+        Class representing an OBD-II connection with it's assorted commands/sensors
+    """
 
     def __init__(self, portstr=None, baudrate=38400):
         self.port = None
         self.supported_commands = []
 
-        debug("========================== Starting python-OBD ==========================")
-        self.connect(portstr, baudrate) # initialize by connecting and loading sensors
+        debug("========================== python-OBD (v%s) ==========================" % __version__)
+        self.__connect(portstr, baudrate) # initialize by connecting and loading sensors
         debug("=========================================================================")
 
 
-    def connect(self, portstr=None, baudrate=38400):
-        """ attempts to instantiate an ELM327 object. Loads commands on success"""
+    def __connect(self, portstr=None, baudrate=38400):
+        """
+            Attempts to instantiate an ELM327 connection object.
+            Upon success, __load_commands() is called
+        """
 
         if portstr is None:
             debug("Using scanSerial to select port")
@@ -70,34 +77,37 @@ class OBD(object):
 
         # if a connection was made, query for commands
         if self.is_connected():
-            self.load_commands()
+            self.__load_commands()
         else:
             debug("Failed to connect")
 
 
     def close(self):
+        """ Closes the connection """
         if self.is_connected():
             debug("Closing connection")
             self.port.close()
             self.port = None
+            self.supported_commands = []
 
 
     def is_connected(self):
+        """ Returns a boolean for whether a successful serial connection was made """
         return (self.port is not None) and self.port.is_connected()
 
 
     def get_port_name(self):
+        """ Returns the name of the currently connected port """
         if self.is_connected():
             return self.port.get_port_name()
         else:
             return "Not connected to any port"
 
 
-    def load_commands(self):
+    def __load_commands(self):
         """
-            queries for available PIDs,
-            sets their support status,
-            and compiles a list of command objects
+            Queries for available PIDs, sets their support status,
+            and compiles a list of command objects.
         """
 
         debug("querying for supported PIDs (commands)...")
@@ -112,7 +122,7 @@ class OBD(object):
             if not self.supports(get):
                 continue
 
-            response = self.send(get) # ask nicely
+            response = self.__send(get) # ask nicely
 
             if response.is_null():
                 continue
@@ -138,16 +148,24 @@ class OBD(object):
 
 
     def print_commands(self):
+        """
+            Utility function meant for working in interactive mode.
+            Prints all commands supported by the car.
+        """
         for c in self.supported_commands:
             print(str(c))
 
 
     def supports(self, c):
+        """ Returns a boolean for whether the car supports the given command """
         return commands.has_command(c) and c.supported
 
 
-    def send(self, c):
-        """ send the given command, retrieve and parse response """
+    def __send(self, c):
+        """
+            Back-end implementation of query()
+            sends the given command, retrieves and parses the response
+        """
 
         if not self.is_connected():
             debug("Query failed, no connection available", True)
@@ -162,17 +180,17 @@ class OBD(object):
             return Response() # return empty response
         else:
             return c(m) # compute a response object
-        
+
 
     def query(self, c, force=False):
         """
-            facade 'send' command function
+            primary API function. Sends commands to the car, and
             protects against sending unsupported commands.
         """
 
         # check that the command is supported
         if self.supports(c) or force:
-            return self.send(c)
+            return self.__send(c)
         else:
             debug("'%s' is not supported" % str(c), True)
             return Response() # return empty response

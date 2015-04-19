@@ -143,7 +143,9 @@ class Async(OBD):
             if len(self.commands) > 0:
                 # loop over the requested commands, send, and collect the response
                 for c in self.commands:
-                    r = self.send(c)
+
+                    # force, since commands are checked for support in watch()
+                    r = super(Async, self).query(c, force=True)
 
                     # store the response
                     self.commands[c] = r
