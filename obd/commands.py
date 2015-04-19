@@ -201,6 +201,14 @@ class Commands():
 
 
     def __getitem__(self, key):
+        """
+            commands can be accessed by name, or by mode/pid
+
+            obd.commands.RPM
+            obd.commands["RPM"]
+            obd.commands[1][12] # mode 1, PID 12 (RPM)
+        """
+
         if isinstance(key, int):
             return self.modes[key]
         elif isinstance(key, str) or isinstance(key, unicode):
@@ -210,6 +218,7 @@ class Commands():
 
 
     def __len__(self):
+        """ returns the number of commands supported by python-OBD """
         l = 0
         for m in self.modes:
             l += len(m)
@@ -217,11 +226,12 @@ class Commands():
 
 
     def __contains__(self, s):
+        """ calls has_name(s) """
         return self.has_name(s)
 
 
-    # returns a list of PID GET commands
     def pid_getters(self):
+        """ returns a list of PID GET commands """
         getters = []
         for m in self.modes:
             for c in m:
@@ -230,8 +240,8 @@ class Commands():
         return getters
 
 
-    # sets the boolean supported flag for the given command 
     def set_supported(self, mode, pid, v):
+        """ sets the boolean supported flag for the given command """
         if isinstance(v, bool):
             if self.has(mode, pid):
                 self.modes[mode][pid].supported = v
@@ -239,8 +249,8 @@ class Commands():
             debug("set_supported() only accepts boolean values", True)
 
 
-    # checks for existance of command by OBDCommand object
     def has_command(self, c):
+        """ checks for existance of a command by OBDCommand object """
         if isinstance(c, OBDCommand):
             return c in self.__dict__.values()
         else:
@@ -248,8 +258,8 @@ class Commands():
             return False
 
 
-    # checks for existance of command by name
     def has_name(self, s):
+        """ checks for existance of a command by name """
         if isinstance(s, str) or isinstance(s, unicode):
             return s.isupper() and (s in self.__dict__.keys())
         else:
@@ -257,8 +267,8 @@ class Commands():
             return False
 
 
-    # checks for existance of int mode and int pid
     def has_pid(self, mode, pid):
+        """ checks for existance of a command by int mode and int pid """
         if isinstance(mode, int) and isinstance(pid, int):
             if (mode < 0) or (pid < 0):
                 return False
