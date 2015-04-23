@@ -188,8 +188,13 @@ class CANProtocol(Protocol):
         # chop off the Mode/PID bytes based on the mode number
         mode = message.data_bytes[0]
         if mode == 0x43:
-            # GET_DTC requests (mode 03) do not have a PID byte
-            message.data_bytes = message.data_bytes[1:]
+
+            # fetch the DTC count, and use it as a length code
+            num_dtc_bytes = message.data_bytes[1] * 2
+
+            # skip the PID byte and the DTC count,
+            message.data_bytes = message.data_bytes[2:][:num_dtc_bytes]
+
         else:
             # handles cases when there is both a Mode and PID byte
             message.data_bytes = message.data_bytes[2:]

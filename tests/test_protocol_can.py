@@ -133,11 +133,11 @@ def test_multi_line():
 		# MODE 03 COMMANDS (GET_DTC) RETURN NO PID BYTE
 
 		test_case = [
-			"7E8 10 20 43 00 01 02 03 04",
-			"7E8 21 05 06 07 08 09 0A 0B",
+			"7E8 10 20 43 04 00 01 02 03",
+			"7E8 21 04 05 06 07 08 09 0A",
 		]
 
-		correct_data = list(range(12))
+		correct_data = list(range(8))
 
 		r = p(test_case)
 		assert len(r) == 1
