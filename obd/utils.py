@@ -73,7 +73,10 @@ class Response():
         return (self.message == None) or (self.value == None)
 
     def __str__(self):
-        return "%s %s" % (str(self.value), str(self.unit))
+        if self.unit != Unit.NONE:
+            return "%s %s" % (str(self.value), str(self.unit))
+        else:
+            return str(self.value)
 
 
 class Status():
