@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# port.py                                                              #
+# elm327.py                                                            #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -66,7 +66,7 @@ class ELM327:
         #"C" : None, # user defined 2
     }
 
-    def __init__(self, portname, baudrate=38400):
+    def __init__(self, portname, baudrate):
         """Initializes port by resetting device and gettings supported PIDs. """
 
         self.__connected   = False

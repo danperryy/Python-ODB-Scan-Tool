@@ -53,7 +53,7 @@ class OBD(object):
         debug("=========================================================================")
 
 
-    def __connect(self, portstr=None, baudrate=38400):
+    def __connect(self, portstr, baudrate):
         """
             Attempts to instantiate an ELM327 connection object.
             Upon success, __load_commands() is called
