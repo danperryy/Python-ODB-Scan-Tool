@@ -66,14 +66,14 @@ class OBD(object):
 
             for port in portnames:
                 debug("Attempting to use port: " + str(port))
-                self.port = ELM327(port, baudrate=baudrate)
+                self.port = ELM327(port, baudrate)
 
                 if self.port.is_connected():
                     # success! stop searching for serial
                     break
         else:
             debug("Explicit port defined")
-            self.port = ELM327(portstr, baudrate=baudrate)
+            self.port = ELM327(portstr, baudrate)
 
         # if a connection was made, query for commands
         if self.is_connected():
