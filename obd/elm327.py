@@ -308,7 +308,7 @@ class ELM327:
 
         if self.__port:
             cmd += "\r\n" # terminate
-            self.__port.flushOutput()
+            self.__port.flush()
             self.__port.flushInput()
             self.__port.write(cmd.encode()) # turn the string into bytes
             debug("write: " + repr(cmd))
