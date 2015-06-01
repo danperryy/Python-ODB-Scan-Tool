@@ -33,6 +33,7 @@ import math
 from .utils import *
 from .codes import *
 from .debug import debug
+from .OBDResponse import Unit, Status, Test
 
 '''
 All decoders take the form:

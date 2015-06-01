@@ -31,7 +31,7 @@
 
 import time
 import threading
-from .utils import Response
+from .utils import OBDResponse
 from .debug import debug
 from . import OBD
 
@@ -197,7 +197,7 @@ class Async(OBD):
         if c in self.__commands:
             return self.__commands[c]
         else:
-            return Response()
+            return OBDResponse()
 
 
     def run(self):

@@ -65,7 +65,7 @@ class OBDCommand():
 
         # create the response object with the raw data recieved
         # and reference to original command
-        r = Response(self, message)
+        r = OBDResponse(self, message)
         
         # combine the bytes back into a hex string
         # TODO: rewrite decoders to handle raw byte arrays

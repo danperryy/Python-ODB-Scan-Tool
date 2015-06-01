@@ -34,7 +34,7 @@ import time
 from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
-from .utils import scanSerial, Response
+from .utils import scanSerial, OBDResponse
 from .debug import debug
 
 
@@ -169,7 +169,7 @@ class OBD(object):
 
         if not self.is_connected():
             debug("Query failed, no connection available", True)
-            return Response() # return empty response
+            return OBDResponse() # return empty response
 
         debug("Sending command: %s" % str(c))
 
@@ -177,7 +177,7 @@ class OBD(object):
         m = self.port.send_and_parse(c.get_command())
 
         if m is None:
-            return Response() # return empty response
+            return OBDResponse() # return empty response
         else:
             return c(m) # compute a response object
 
@@ -193,4 +193,4 @@ class OBD(object):
             return self.__send(c)
         else:
             debug("'%s' is not supported" % str(c), True)
-            return Response() # return empty response
+            return OBDResponse() # return empty response

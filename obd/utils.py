@@ -32,71 +32,10 @@
 import serial
 import errno
 import string
-import time
 import glob
 import sys
 from .debug import debug
 
-
-class Unit:
-    NONE    = None
-    RATIO   = "Ratio"
-    COUNT   = "Count"
-    PERCENT = "%"
-    RPM     = "RPM"
-    VOLT    = "Volt"
-    F       = "F"
-    C       = "C"
-    SEC     = "Second"
-    MIN     = "Minute"
-    PA      = "Pa"
-    KPA     = "kPa"
-    PSI     = "psi"
-    KPH     = "kph"
-    MPH     = "mph"
-    DEGREES = "Degrees"
-    GPS     = "Grams per Second"
-    MA      = "mA"
-    KM      = "km"
-    LPH     = "Liters per Hour"
-
-
-class Response():
-    def __init__(self, command=None, message=None):
-        self.command  = command
-        self.message  = message
-        self.value    = None
-        self.unit     = Unit.NONE
-        self.time     = time.time()
-
-    def is_null(self):
-        return (self.message == None) or (self.value == None)
-
-    def __str__(self):
-        if self.unit != Unit.NONE:
-            return "%s %s" % (str(self.value), str(self.unit))
-        else:
-            return str(self.value)
-
-
-class Status():
-    def __init__(self):
-        self.MIL           = False
-        self.DTC_count     = 0
-        self.ignition_type = ""
-        self.tests         = []
-
-
-class Test():
-    def __init__(self, name, available, incomplete):
-        self.name       = name
-        self.available  = available
-        self.incomplete = incomplete
-
-    def __str__(self):
-        a = "Available" if self.available else "Unavailable"
-        c = "Incomplete" if self.incomplete else "Complete"
-        return "Test %s: %s, %s" % (self.name, a, c)
 
 
 def ascii_to_bytes(a):
