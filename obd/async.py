@@ -31,7 +31,7 @@
 
 import time
 import threading
-from .utils import OBDResponse
+from .OBDResponse import OBDResponse
 from .debug import debug
 from . import OBD
 

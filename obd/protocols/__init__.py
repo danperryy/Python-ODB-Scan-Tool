@@ -29,6 +29,8 @@
 #                                                                      #
 ########################################################################
 
+from .protocol_unknown import UnknownProtocol
+
 from .protocol_legacy import SAE_J1850_PWM, \
                              SAE_J1850_VPW, \
                              ISO_9141_2, \

@@ -32,6 +32,7 @@
 import re
 from .utils import *
 from .debug import debug
+from .OBDResponse import OBDResponse
 
 
 class OBDCommand():

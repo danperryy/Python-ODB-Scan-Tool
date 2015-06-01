@@ -33,7 +33,7 @@ import re
 import serial
 import time
 from .protocols import *
-from .utils import numBitsSet
+from .utils import SerialStatus, numBitsSet
 from .debug import debug
 
 
@@ -46,7 +46,7 @@ class ELM327:
 
             send_and_parse()
             get_port_name()
-            is_connected()
+            status()
             close()
     """
 
@@ -69,9 +69,9 @@ class ELM327:
     def __init__(self, portname, baudrate):
         """Initializes port by resetting device and gettings supported PIDs. """
 
-        self.__connected   = False
+        self.__status      = SerialStatus.NOT_CONNECTED
         self.__port        = None
-        self.__protocol    = None
+        self.__protocol    = UnknownProtocol
         self.__primary_ecu = None # message.tx_id
 
         # ------------- open port -------------
@@ -132,6 +132,7 @@ class ELM327:
             self.__error("ATSPA8 did not return 'OK'")
             return
 
+        self.__status = SerialStatus.ELM_CONNECTED
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
         # TODO: rewrite this using a "wait for prompt character"
@@ -169,7 +170,7 @@ class ELM327:
 
         # ------------------------------- done -------------------------------
         debug("Connection successful")
-        self.__connected = True
+        self.__status = SerialStatus.CAR_CONNECTED
 
 
     def __isok(self, lines, expectEcho=False):
@@ -225,15 +226,16 @@ class ELM327:
         if self.__port is not None:
             self.__port.close()
 
-        self.__connected = False
+        self.__status = SerialStatus.NOT_CONNECTED
 
 
     def get_port_name(self):
         return self.__port.portstr if (self.__port is not None) else "No Port"
 
 
-    def is_connected(self):
-        return self.__connected and (self.__port is not None)
+    @property
+    def status(self):
+        return self.__status
 
 
     def close(self):
@@ -241,11 +243,11 @@ class ELM327:
             Resets the device, and clears all attributes to unconnected state
         """
 
-        if self.is_connected():
+        if self.__status >= SerialStatus.ELM_CONNECTED:
             self.__write("ATZ")
             self.__port.close()
 
-            self.__connected   = False
+            self.__status      = SerialStatus.NOT_CONNECTED
             self.__port        = None
             self.__protocol    = None
             self.__primary_ecu = None
@@ -262,7 +264,7 @@ class ELM327:
             if no appropriate response was recieved.
         """
 
-        if not self.is_connected():
+        if not self.__status == SerialStatus.NOT_CONNECTED:
             debug("cannot send_and_parse() when unconnected", True)
             return None
 

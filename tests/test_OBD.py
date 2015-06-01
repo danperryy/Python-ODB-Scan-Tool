@@ -1,7 +1,7 @@
 
 import obd
-from obd.utils import OBDResponse
-from obd.commands import OBDCommand
+from obd.OBDResponse import OBDResponse
+from obd.OBDCommand import OBDCommand
 from obd.decoders import noop
 from obd.protocols import SAE_J1850_PWM
 

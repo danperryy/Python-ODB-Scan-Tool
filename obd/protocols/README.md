@@ -40,6 +40,7 @@ Inheritance structure
 
 ```
 Protocol
+    UnknownProtocol
     LegacyProtocol
         SAE_J1850_PWM
         SAE_J1850_VPM

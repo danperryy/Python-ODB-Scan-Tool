@@ -37,6 +37,14 @@ import sys
 from .debug import debug
 
 
+class SerialStatus:
+    """ Values for the connection status flags """
+
+    NOT_CONNECTED = 0
+    ELM_CONNECTED = 1
+    CAR_CONNECTED = 2
+
+
 
 def ascii_to_bytes(a):
     b = []

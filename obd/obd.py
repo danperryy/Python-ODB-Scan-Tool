@@ -34,7 +34,8 @@ import time
 from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
-from .utils import scanSerial, OBDResponse
+from .OBDResponse import OBDResponse
+from .utils import scanSerial, SerialStatus
 from .debug import debug
 
 
@@ -68,7 +69,7 @@ class OBD(object):
                 debug("Attempting to use port: " + str(port))
                 self.port = ELM327(port, baudrate)
 
-                if self.port.is_connected():
+                if self.port.status >= SerialStatus.ELM_CONNECTED:
                     # success! stop searching for serial
                     break
         else:
@@ -76,7 +77,7 @@ class OBD(object):
             self.port = ELM327(portstr, baudrate)
 
         # if a connection was made, query for commands
-        if self.is_connected():
+        if self.port.status == SerialStatus.CAR_CONNECTED:
             self.__load_commands()
         else:
             debug("Failed to connect")
@@ -91,9 +92,17 @@ class OBD(object):
             self.supported_commands = []
 
 
+    @property
+    def status(self):
+        if self.port is None:
+            return SerialStatus.NOT_CONNECTED
+        else:
+            return self.port.status
+
+
     def is_connected(self):
         """ Returns a boolean for whether a successful serial connection was made """
-        return (self.port is not None) and self.port.is_connected()
+        return (self.port is not None) and (self.port.status == SerialStatus.CAR_CONNECTED)
 
 
     def get_port_name(self):

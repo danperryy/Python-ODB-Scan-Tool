@@ -1,11 +1,4 @@
 
-"""
-	A serial module for accessing data from a vehicles OBD-II port
-
-	For more documentation, visit:
-	https://github.com/brendanwhitfield/python-OBD/wiki
-"""
-
 ########################################################################
 #                                                                      #
 # python-OBD: A python OBD-II serial module derived from pyobd         #
@@ -17,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# __init__.py                                                          #
+# protocols/protocol_legacy.py                                         #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -36,11 +29,23 @@
 #                                                                      #
 ########################################################################
 
-from .__version__ import __version__
-from .obd import OBD
-from .OBDCommand import OBDCommand
-from .OBDResponse import Unit
-from .commands import commands
-from .utils import scanSerial, SerialStatus
-from .debug import debug
-from .async import Async
+
+from .protocol import *
+
+
+class UnknownProtocol(Protocol):
+    """
+        Class representing an unknown protocol.
+
+        Used for when a connection to the ELM has
+        been made, but the car hasn't responded.
+    """
+
+    def __init__(self):
+        Protocol.__init__(self)
+
+    def create_frame(self, raw):
+        return Frame(raw)
+
+    def create_message(self, frames, tx_id):
+        return Message(frames, tx_id)
