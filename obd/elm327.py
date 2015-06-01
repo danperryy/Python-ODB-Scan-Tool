@@ -74,17 +74,18 @@ class ELM327:
         self.__protocol    = UnknownProtocol
         self.__primary_ecu = None # message.tx_id
 
+
+
         # ------------- open port -------------
-
-        debug("Opening serial port '%s'" % portname)
-
         try:
+            debug("Opening serial port '%s'" % portname)
             self.__port = serial.Serial(portname, \
                                       baudrate = baudrate, \
                                       parity   = serial.PARITY_NONE, \
                                       stopbits = 1, \
                                       bytesize = 8, \
                                       timeout  = 3) # seconds
+            debug("Serial port successfully opened on " + self.get_port_name())
 
         except serial.SerialException as e:
             self.__error(e)
@@ -93,7 +94,6 @@ class ELM327:
             self.__error(e)
             return
 
-        debug("Serial port successfully opened on " + self.get_port_name())
 
 
         # ---------------------------- ATZ (reset) ----------------------------
@@ -104,13 +104,11 @@ class ELM327:
             self.__error(e)
             return
 
-
         # -------------------------- ATE0 (echo OFF) --------------------------
         r = self.__send("ATE0")
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
-
 
         # ------------------------- ATH1 (headers ON) -------------------------
         r = self.__send("ATH1")
@@ -118,13 +116,11 @@ class ELM327:
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
-
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
         r = self.__send("ATL0")
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
-
 
         # ---------------------- ATSPA8 (protocol AUTO) -----------------------
         r = self.__send("ATSPA8")
@@ -132,7 +128,21 @@ class ELM327:
             self.__error("ATSPA8 did not return 'OK'")
             return
 
-        self.__status = SerialStatus.ELM_CONNECTED
+
+
+        # try to communicate with the car, and load the correct protocol parser
+        if self.load_protocol():
+            self.__status = SerialStatus.CAR_CONNECTED
+        else:
+            self.__status = SerialStatus.ELM_CONNECTED
+
+
+
+        # ------------------------------- done -------------------------------
+        debug("Connection successful")
+
+
+    def load_protocol(self):
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
         # TODO: rewrite this using a "wait for prompt character"
@@ -144,8 +154,8 @@ class ELM327:
         r = self.__send("ATDPN")
 
         if not r:
-            self.__error("Describe protocol command didn't return ")
-            return
+            debug("Describe protocol command didn't return", True)
+            return False
 
         p = r[0]
 
@@ -153,8 +163,8 @@ class ELM327:
         p = p[1:] if (len(p) > 1 and p.startswith("A")) else p[:-1]
 
         if p not in self._SUPPORTED_PROTOCOLS:
-            self.__error("ELM responded with unknown protocol")
-            return
+            debug("ELM responded with unknown protocol", True)
+            return False
 
         # instantiate the correct protocol handler
         self.__protocol = self._SUPPORTED_PROTOCOLS[p]()
@@ -163,14 +173,12 @@ class ELM327:
         # which ECU is the primary.
 
         m = self.__protocol(r0100)
-        self.__primary_ecu = self.__find_primary_ecu(m)
+        self.__primary_ecu = find_primary_ecu(m)
         if self.__primary_ecu is None:
-            self.__error("Failed to choose primary ECU")
-            return
+            debug("Failed to choose primary ECU", True)
+            return False
 
-        # ------------------------------- done -------------------------------
-        debug("Connection successful")
-        self.__status = SerialStatus.CAR_CONNECTED
+        return True
 
 
     def __isok(self, lines, expectEcho=False):
@@ -180,6 +188,20 @@ class ELM327:
             return len(lines) == 2 and lines[1] == 'OK'
         else:
             return len(lines) == 1 and lines[0] == 'OK'
+
+
+    def __error(self, msg=None):
+        """ handles fatal failures, print debug info and closes serial """
+
+        debug("Connection Error:", True)
+
+        if msg is not None:
+            debug('    ' + str(msg), True)
+
+        if self.__port is not None:
+            self.__port.close()
+
+        self.__status = SerialStatus.NOT_CONNECTED
 
 
     def __find_primary_ecu(self, messages):
@@ -213,20 +235,6 @@ class ELM327:
                         tx_id = message.tx_id
 
                 return tx_id
-
-
-    def __error(self, msg=None):
-        """ handles fatal failures, print debug info and closes serial """
-        
-        debug("Connection Error:", True)
-
-        if msg is not None:
-            debug('    ' + str(msg), True)
-
-        if self.__port is not None:
-            self.__port.close()
-
-        self.__status = SerialStatus.NOT_CONNECTED
 
 
     def get_port_name(self):
@@ -287,7 +295,8 @@ class ELM327:
             unprotected send() function
 
             will __write() the given string, no questions asked.
-            returns result of __read() after an optional delay.
+            returns result of __read() (a list of line strings)
+            after an optional delay.
         """
 
         self.__write(cmd)
