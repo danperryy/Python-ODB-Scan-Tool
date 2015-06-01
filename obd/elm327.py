@@ -264,12 +264,8 @@ class ELM327:
             if no appropriate response was recieved.
         """
 
-        if not self.__status == SerialStatus.NOT_CONNECTED:
+        if self.__status == SerialStatus.NOT_CONNECTED:
             debug("cannot send_and_parse() when unconnected", True)
-            return None
-
-        if "AT" in cmd.upper():
-            debug("Rejected sending AT command", True)
             return None
 
         lines = self.__send(cmd, delay)
