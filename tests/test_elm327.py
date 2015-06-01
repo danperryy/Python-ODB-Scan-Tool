@@ -6,7 +6,7 @@ from obd.elm327 import ELM327
 def test_find_primary_ecu():
 	# parse from messages
 
-	p = ELM327("/dev/null") # pyserial will yell, but this isn't testing tx/rx
+	p = ELM327("/dev/null", 38400) # pyserial will yell, but this isn't testing tx/rx
 	p._ELM327__protocol = SAE_J1850_PWM()
 
 	# use primary ECU when multiple are present
