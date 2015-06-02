@@ -35,33 +35,36 @@ from .OBDResponse import OBDResponse
 
 
 class OBDCommand():
-    def __init__(self, name, desc, mode, pid, returnBytes, decoder, ecu, supported=False):
-        self.name       = name
-        self.desc       = desc
-        self.mode       = mode
-        self.pid        = pid
-        self.bytes      = returnBytes # number of bytes expected in return
-        self.decode     = decoder
-        self.ecu        = ecu
-        self.supported  = supported
+    def __init__(self, name, desc, command, returnBytes, decoder, ecu, supported=False):
+        self.name      = name        # human readable name (also used as key in commands dict)
+        self.desc      = desc        # human readable description
+        self.command   = command     # command string
+        self.bytes     = returnBytes # number of bytes expected in return
+        self.decode    = decoder     # decoding function
+        self.ecu       = ecu         # ECU ID from which this command expects messages from
+        self.supported = supported   # bool for support
 
     def clone(self):
         return OBDCommand(self.name,
                           self.desc,
-                          self.mode,
-                          self.pid,
+                          self.command,
                           self.bytes,
                           self.decode,
                           self.ecu)
 
-    def get_command(self):
-        return self.mode + self.pid # the actual command transmitted to the port
+    @property
+    def mode_int(self):
+        if len(self.command) >= 2:
+            return unhex(self.command[:2])
+        else:
+            return 0
 
-    def get_mode_int(self):
-        return unhex(self.mode)
-
-    def get_pid_int(self):
-        return unhex(self.pid)
+    @property
+    def pid_int(self):
+        if len(self.command) > 2:
+            return unhex(self.command[2:])
+        else:
+            return 0
 
     def __call__(self, messages):
 
@@ -95,14 +98,14 @@ class OBDCommand():
         return r
 
     def __str__(self):
-        return "%s%s: %s" % (self.mode, self.pid, self.desc)
+        return "%s: %s" % (self.command, self.desc)
 
     def __hash__(self):
         # needed for using commands as keys in a dict (see async.py)
-        return hash((self.mode, self.pid))
+        return hash(self.command)
 
     def __eq__(self, other):
         if isinstance(other, OBDCommand):
-            return (self.mode, self.pid) == (other.mode, other.pid)
+            return (self.command == other.command)
         else:
             return False

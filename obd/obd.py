@@ -111,8 +111,8 @@ class OBD(object):
             for i in range(len(supported)):
                 if supported[i] == "1":
 
-                    mode = get.get_mode_int()
-                    pid  = get.get_pid_int() + i + 1
+                    mode = get.mode_int
+                    pid  = get.pid_int + i + 1
 
                     if commands.has_pid(mode, pid):
                         c = commands[mode][pid]
@@ -197,7 +197,7 @@ class OBD(object):
 
         # send command and retrieve message
         debug("Sending command: %s" % str(cmd))
-        messages = self.port.send_and_parse(cmd.get_command())
+        messages = self.port.send_and_parse(cmd.command)
 
         if not messages:
             debug("No valid OBD Messages returned", True)
