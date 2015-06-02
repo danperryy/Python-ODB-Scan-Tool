@@ -43,8 +43,8 @@ class CANProtocol(Protocol):
 
 
     def __init__(self, lines_0100, id_bits):
-        Protocol.__init__(self, lines_0100)
         self.id_bits = id_bits
+        Protocol.__init__(self, lines_0100)
 
 
     def parse_frame(self, frame):

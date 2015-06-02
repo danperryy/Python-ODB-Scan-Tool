@@ -29,20 +29,20 @@
 #                                                                      #
 ########################################################################
 
-import re
 from .utils import *
 from .debug import debug
 from .OBDResponse import OBDResponse
 
 
 class OBDCommand():
-    def __init__(self, name, desc, mode, pid, returnBytes, decoder, supported=False):
+    def __init__(self, name, desc, mode, pid, returnBytes, decoder, ecu, supported=False):
         self.name       = name
         self.desc       = desc
         self.mode       = mode
         self.pid        = pid
         self.bytes      = returnBytes # number of bytes expected in return
         self.decode     = decoder
+        self.ecu        = ecu
         self.supported  = supported
 
     def clone(self):
@@ -51,7 +51,8 @@ class OBDCommand():
                           self.mode,
                           self.pid,
                           self.bytes,
-                          self.decode)
+                          self.decode,
+                          self.ecu)
 
     def get_command(self):
         return self.mode + self.pid # the actual command transmitted to the port
@@ -62,26 +63,29 @@ class OBDCommand():
     def get_pid_int(self):
         return unhex(self.pid)
 
-    def __call__(self, message):
-
-        # TODO: handle list of messages as parameter
+    def __call__(self, messages):
 
         # create the response object with the raw data recieved
         # and reference to original command
-        r = OBDResponse(self, message)
+        r = OBDResponse(self, messages)
         
         # combine the bytes back into a hex string
         # TODO: rewrite decoders to handle raw byte arrays
         _data = ""
 
-        for b in message.data:
-            h = hex(b)[2:].upper()
-            h = "0" + h if len(h) < 2 else h
-            _data += h
+        # filter for applicable messages
+        for message in messages:
 
-        # constrain number of bytes in response
-        if (self.bytes > 0): # zero bytes means flexible response
-            _data = constrainHex(_data, self.bytes)
+            # if this command accepts messages from this ECU
+            if self.ecu & message.ecu > 0:
+                for b in message.data:
+                    h = hex(b)[2:].upper()
+                    h = "0" + h if len(h) < 2 else h
+                    _data += h
+
+                # constrain number of bytes in response
+                if (self.bytes > 0): # zero bytes means flexible response
+                    _data = constrainHex(_data, self.bytes)
 
         # decoded value into the response object
         d = self.decode(_data)

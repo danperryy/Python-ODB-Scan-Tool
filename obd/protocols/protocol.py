@@ -43,7 +43,7 @@ Basic data models for all protocols to use
 class ECU:
     """ constant flags used for marking and filtering messages """
 
-    ANY          = 0b11111111 # used by OBDCommands to accept messages from any ECU
+    ALL          = 0b11111111 # used by OBDCommands to accept messages from any ECU
     UNKNOWN      = 0b00000000
 
     ENGINE       = 0b00000001 # each ECU gets its own bit for ease of making OR filters

@@ -41,11 +41,8 @@ class UnknownProtocol(Protocol):
         been made, but the car hasn't responded.
     """
 
-    def __init__(self):
-        Protocol.__init__(self)
+    def parse_frame(self, frame):
+        return True # pass everything
 
-    def parse_frame(self, raw):
-        return False
-
-    def parse_message(self, frames, tx_id):
-        return False
+    def parse_message(self, message):
+        return True # pass everything

@@ -71,7 +71,7 @@ class ELM327:
 
         self.__status      = SerialStatus.NOT_CONNECTED
         self.__port        = None
-        self.__protocol    = UnknownProtocol
+        self.__protocol    = UnknownProtocol([])
         self.__primary_ecu = None # message.tx_id
 
 
@@ -167,16 +167,7 @@ class ELM327:
             return False
 
         # instantiate the correct protocol handler
-        self.__protocol = self._SUPPORTED_PROTOCOLS[p]()
-
-        # Now that a protocol has been selected, we can figure out
-        # which ECU is the primary.
-
-        m = self.__protocol(r0100)
-        self.__primary_ecu = find_primary_ecu(m)
-        if self.__primary_ecu is None:
-            debug("Failed to choose primary ECU", True)
-            return False
+        self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
 
         return True
 

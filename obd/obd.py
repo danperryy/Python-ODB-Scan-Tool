@@ -192,9 +192,4 @@ class OBD(object):
             debug("No valid OBD Messages returned", True)
             return OBDResponse()
 
-        # select the first message with the ECU ID we're looking for
-        for message in messages:
-            if message.tx_id == self.__primary_ecu:
-                return message
-
         return cmd(messages) # compute a response object
