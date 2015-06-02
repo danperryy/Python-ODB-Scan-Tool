@@ -41,11 +41,11 @@ from .debug import debug
 Define command tables
 '''
 
-# NOTE: the SENSOR NAME field will be used as the dict key for that sensor
+# NOTE: the NAME field will be used as the dict key for that sensor
 # NOTE: commands MUST be in PID order, one command per PID (for fast lookup using __mode1__[pid])
 
 __mode1__ = [
-    #                  sensor name                          description                    cmd  bytes       decoder           ECU
+    #                      name                             description                    cmd  bytes       decoder           ECU
     OBDCommand("PIDS_A"                     , "Supported PIDs [01-20]"                  , "0100", 4, pid,                   ECU.ALL    , True), # the first PID getter is assumed to be supported
     OBDCommand("STATUS"                     , "Status since DTCs cleared"               , "0101", 4, status,                ECU.ENGINE),
     OBDCommand("FREEZE_DTC"                 , "Freeze DTC"                              , "0102", 2, noop,                  ECU.ENGINE),
@@ -79,7 +79,7 @@ __mode1__ = [
     OBDCommand("AUX_INPUT_STATUS"           , "Auxiliary input status"                  , "011E", 1, noop,                  ECU.ENGINE),
     OBDCommand("RUN_TIME"                   , "Engine Run Time"                         , "011F", 2, seconds,               ECU.ENGINE),
 
-    #                  sensor name                          description                    cmd  bytes       decoder           ECU
+    #                      name                             description                    cmd  bytes       decoder           ECU
     OBDCommand("PIDS_B"                     , "Supported PIDs [21-40]"                  , "0120", 4, pid,                   ECU.ALL   ),
     OBDCommand("DISTANCE_W_MIL"             , "Distance Traveled with MIL on"           , "0121", 2, distance,              ECU.ENGINE),
     OBDCommand("FUEL_RAIL_PRESSURE_VAC"     , "Fuel Rail Pressure (relative to vacuum)" , "0122", 2, fuel_pres_vac,         ECU.ENGINE),
@@ -113,7 +113,7 @@ __mode1__ = [
     OBDCommand("CATALYST_TEMP_B1S2"         , "Catalyst Temperature: Bank 1 - Sensor 2" , "013E", 2, catalyst_temp,         ECU.ENGINE),
     OBDCommand("CATALYST_TEMP_B2S2"         , "Catalyst Temperature: Bank 2 - Sensor 2" , "013F", 2, catalyst_temp,         ECU.ENGINE),
 
-    #                  sensor name                          description                    cmd  bytes       decoder           ECU
+    #                      name                             description                    cmd  bytes       decoder           ECU
     OBDCommand("PIDS_C"                     , "Supported PIDs [41-60]"                  , "0140", 4, pid,                   ECU.ALL   ),
     OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , "0141", 4, todo,                  ECU.ENGINE),
     OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , "0142", 2, todo,                  ECU.ENGINE),
@@ -160,24 +160,24 @@ for c in __mode1__:
 
 
 __mode3__ = [
-    #                  sensor name                          description                    cmd  bytes       decoder           ECU
+    #                      name                             description                    cmd  bytes       decoder           ECU
     OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL, True),
 ]
 
 __mode4__ = [
-    #                  sensor name                          description                    cmd  bytes       decoder           ECU
+    #                      name                             description                    cmd  bytes       decoder           ECU
     OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, noop,                  ECU.ALL, True),
 ]
 
 __mode7__ = [
-    #                  sensor name                          description                    cmd  bytes       decoder           ECU
+    #                      name                             description                    cmd  bytes       decoder           ECU
     OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL, True),
 ]
 
 
 
 '''
-Assemble the command tables by mode, and allow access by sensor name
+Assemble the command tables by mode, and allow access by name
 '''
 
 class Commands():
@@ -195,7 +195,7 @@ class Commands():
             __mode7__
         ]
 
-        # allow commands to be accessed by sensor name
+        # allow commands to be accessed by name
         for m in self.modes:
             for c in m:
                 self.__dict__[c.name] = c
