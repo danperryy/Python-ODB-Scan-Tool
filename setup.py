@@ -17,7 +17,7 @@ setup(
         "Topic :: System :: Logging",
         "Intended Audience :: Developers",
     ],
-    keywords="obd obd-II obd-ii obd2 car serial vehicle diagnostic",
+    keywords="obd obdii obd-ii obd2 car serial vehicle diagnostic",
     author="Brendan Whitfield",
     author_email="brendanw@windworksdesign.com",
     url="http://github.com/brendanwhitfield/python-OBD",
