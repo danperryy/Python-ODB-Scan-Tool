@@ -35,23 +35,26 @@ from .protocol import *
 
 class LegacyProtocol(Protocol):
 
-    PRIMARY_ECU = 0x10
+    TX_ID_ENGINE = 0x10
 
-    def __init__(self, baud):
-        Protocol.__init__(self, baud)
 
-    def create_frame(self, raw):
+    def __init__(self, lines_0100):
+        Protocol.__init__(self, lines_0100)
 
-        frame = Frame(raw)
+
+    def parse_frame(self, frame):
+
+        raw = frame.raw
+
         raw_bytes = ascii_to_bytes(raw)
 
         if len(raw_bytes) < 6:
             debug("Dropped frame for being too short")
-            return None
+            return False
 
         if len(raw_bytes) > 11:
             debug("Dropped frame for being too long")
-            return None
+            return False
 
         # Ex.
         # [Header] [     Frame     ]
@@ -59,27 +62,28 @@ class LegacyProtocol(Protocol):
         # ck = checksum byte
 
         # exclude header and trailing checksum (handled by ELM adapter)
-        frame.data_bytes = raw_bytes[3:-1]
+        frame.data = raw_bytes[3:-1]
 
         # read header information
         frame.priority = raw_bytes[0]
         frame.rx_id    = raw_bytes[1]
         frame.tx_id    = raw_bytes[2]
 
-        return frame
+        return True
 
-    def create_message(self, frames, tx_id):
 
-        message = Message(frames, tx_id)
+    def parse_message(self, message):
+
+        frames = message.frames
 
         # len(frames) will always be >= 1 (see the caller, protocol.py)
-        mode = frames[0].data_bytes[0]
+        mode = frames[0].data[0]
         
         # test that all frames are responses to the same Mode (SID)
         if len(frames) > 1:
-            if not all([mode == f.data_bytes[0] for f in frames[1:]]):
+            if not all([mode == f.data[0] for f in frames[1:]]):
                 debug("Recieved frames from multiple commands")
-                return None
+                return False
 
         # legacy protocols have different re-assembly
         # procedures for different Modes 
@@ -95,7 +99,7 @@ class LegacyProtocol(Protocol):
             #             [     Data      ]
 
             for f in frames:
-                message.data_bytes += f.data_bytes[1:]
+                message.data += f.data[1:]
 
         else:
             if len(frames) == 1:
@@ -106,7 +110,7 @@ class LegacyProtocol(Protocol):
                 # 48 6B 10 41 00 BE 7F B8 13 ck
                 #                [  Data   ]
 
-                message.data_bytes = frames[0].data_bytes[2:]
+                message.data = frames[0].data[2:]
 
             else: # len(frames) > 1:
                 # generic multiline requests carry an order byte
@@ -119,19 +123,19 @@ class LegacyProtocol(Protocol):
                 # etc...         [] [  Data   ]
 
                 # sort the frames by the order byte
-                frames = sorted(frames, key=lambda f: f.data_bytes[2])
+                frames = sorted(frames, key=lambda f: f.data[2])
 
                 # check contiguity
-                indices = [f.data_bytes[2] for f in frames]
+                indices = [f.data[2] for f in frames]
                 if not contiguous(indices, 1, len(frames)):
                     debug("Recieved multiline response with missing frames")
-                    return None
+                    return False
 
                 # now that they're in order, accumulate the data from each frame
                 for f in frames:
-                    message.data_bytes += f.data_bytes[3:] # loose the mode/pid/seq bytes
+                    message.data += f.data[3:] # loose the mode/pid/seq bytes
 
-        return message
+        return True
 
 
 
@@ -144,25 +148,25 @@ class LegacyProtocol(Protocol):
 
 
 class SAE_J1850_PWM(LegacyProtocol):
-    def __init__(self):
-        LegacyProtocol.__init__(self, baud=41600)
+    def __init__(self, lines_0100):
+        LegacyProtocol.__init__(self, lines_0100)
 
 
 class SAE_J1850_VPW(LegacyProtocol):
-    def __init__(self):
-        LegacyProtocol.__init__(self, baud=10400)
+    def __init__(self, lines_0100):
+        LegacyProtocol.__init__(self, lines_0100)
 
 
 class ISO_9141_2(LegacyProtocol):
-    def __init__(self):
-        LegacyProtocol.__init__(self, baud=10400)
+    def __init__(self, lines_0100):
+        LegacyProtocol.__init__(self, lines_0100)
 
 
 class ISO_14230_4_5baud(LegacyProtocol):
-    def __init__(self):
-        LegacyProtocol.__init__(self, baud=10400)
+    def __init__(self, lines_0100):
+        LegacyProtocol.__init__(self, lines_0100)
 
 
 class ISO_14230_4_fast(LegacyProtocol):
-    def __init__(self):
-        LegacyProtocol.__init__(self, baud=10400)
+    def __init__(self, lines_0100):
+        LegacyProtocol.__init__(self, lines_0100)

@@ -33,7 +33,7 @@ def test_query():
 	o.is_connected              = lambda *args: True
 	o.port.is_connected         = lambda *args: True
 	o.port._ELM327__status      = SerialStatus.CAR_CONNECTED
-	o.port._ELM327__protocol    = SAE_J1850_PWM()
+	o.port._ELM327__protocol    = SAE_J1850_PWM([])
 	o.port._ELM327__primary_ecu = 0x10
 	o.port._ELM327__write       = write
 	o.port._ELM327__read        = lambda *args: fromCar

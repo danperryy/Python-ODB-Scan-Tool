@@ -16,16 +16,16 @@ LEGACY_PROTOCOLS = [
 ]
 
 
-def check_message(m, num_frames, tx_id, data_bytes):
+def check_message(m, num_frames, tx_id, data):
 		""" generic test for correct message values """
 		assert len(m.frames) == num_frames
 		assert m.tx_id       == tx_id
-		assert m.data_bytes  == data_bytes
+		assert m.data        == data
 
 
 def test_single_frame():
 	for protocol in LEGACY_PROTOCOLS:
-		p = protocol()
+		p = protocol([])
 
 		# minimum valid length
 		r = p(["48 6B 10 41 00 FF"])
@@ -48,7 +48,7 @@ def test_single_frame():
 
 def test_hex_straining():
 	for protocol in LEGACY_PROTOCOLS:
-		p = protocol()
+		p = protocol([])
 
 
 		r = p(["NO DATA"])
@@ -68,7 +68,7 @@ def test_hex_straining():
 
 def test_multi_ecu():
 	for protocol in LEGACY_PROTOCOLS:
-		p = protocol()
+		p = protocol([])
 
 
 		test_case = [
@@ -92,7 +92,7 @@ def test_multi_ecu():
 
 def test_multi_line():
 	for protocol in LEGACY_PROTOCOLS:
-		p = protocol()
+		p = protocol([])
 
 
 		test_case = [

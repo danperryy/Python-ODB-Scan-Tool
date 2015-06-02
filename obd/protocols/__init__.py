@@ -29,6 +29,8 @@
 #                                                                      #
 ########################################################################
 
+from .protocol import ECU
+
 from .protocol_unknown import UnknownProtocol
 
 from .protocol_legacy import SAE_J1850_PWM, \

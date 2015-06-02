@@ -64,6 +64,8 @@ class OBDCommand():
 
     def __call__(self, message):
 
+        # TODO: handle list of messages as parameter
+
         # create the response object with the raw data recieved
         # and reference to original command
         r = OBDResponse(self, message)
@@ -72,7 +74,7 @@ class OBDCommand():
         # TODO: rewrite decoders to handle raw byte arrays
         _data = ""
 
-        for b in message.data_bytes:
+        for b in message.data:
             h = hex(b)[2:].upper()
             h = "0" + h if len(h) < 2 else h
             _data += h

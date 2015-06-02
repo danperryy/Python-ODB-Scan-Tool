@@ -44,8 +44,8 @@ class UnknownProtocol(Protocol):
     def __init__(self):
         Protocol.__init__(self)
 
-    def create_frame(self, raw):
-        return Frame(raw)
+    def parse_frame(self, raw):
+        return False
 
-    def create_message(self, frames, tx_id):
-        return Message(frames, tx_id)
+    def parse_message(self, frames, tx_id):
+        return False

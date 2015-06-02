@@ -85,7 +85,7 @@ class OBD(object):
 
     def close(self):
         """ Closes the connection """
-        if self.is_connected():
+        if self.status != SerialStatus.NOT_CONNECTED:
             debug("Closing connection")
             self.port.close()
             self.port = None
@@ -102,12 +102,12 @@ class OBD(object):
 
     def is_connected(self):
         """ Returns a boolean for whether a successful serial connection was made """
-        return (self.port is not None) and (self.port.status == SerialStatus.CAR_CONNECTED)
+        return self.status == SerialStatus.CAR_CONNECTED
 
 
     def get_port_name(self):
         """ Returns the name of the currently connected port """
-        if self.is_connected():
+        if self.status != SerialStatus.NOT_CONNECTED:
             return self.port.get_port_name()
         else:
             return "Not connected to any port"
@@ -131,7 +131,7 @@ class OBD(object):
             if not self.supports(get):
                 continue
 
-            response = self.__send(get) # ask nicely
+            response = self.query(get, force=True) # ask nicely
 
             if response.is_null():
                 continue
@@ -165,41 +165,36 @@ class OBD(object):
             print(str(c))
 
 
-    def supports(self, c):
+    def supports(self, cmd):
         """ Returns a boolean for whether the car supports the given command """
-        return commands.has_command(c) and c.supported
+        return commands.has_command(cmd) and cmd.supported
 
 
-    def __send(self, c):
-        """
-            Back-end implementation of query()
-            sends the given command, retrieves and parses the response
-        """
-
-        if not self.is_connected():
-            debug("Query failed, no connection available", True)
-            return OBDResponse() # return empty response
-
-        debug("Sending command: %s" % str(c))
-
-        # send command and retrieve message
-        m = self.port.send_and_parse(c.get_command())
-
-        if m is None:
-            return OBDResponse() # return empty response
-        else:
-            return c(m) # compute a response object
-
-
-    def query(self, c, force=False):
+    def query(self, cmd, force=False):
         """
             primary API function. Sends commands to the car, and
             protects against sending unsupported commands.
         """
 
-        # check that the command is supported
-        if self.supports(c) or force:
-            return self.__send(c)
-        else:
-            debug("'%s' is not supported" % str(c), True)
-            return OBDResponse() # return empty response
+        if self.status == SerialStatus.NOT_CONNECTED:
+            debug("Query failed, no connection available", True)
+            return OBDResponse()
+
+        if not self.supports(cmd) and not force:
+            debug("'%s' is not supported" % str(cmd), True)
+            return OBDResponse()
+
+        # send command and retrieve message
+        debug("Sending command: %s" % str(cmd))
+        messages = self.port.send_and_parse(cmd.get_command())
+
+        if not messages:
+            debug("No valid OBD Messages returned", True)
+            return OBDResponse()
+
+        # select the first message with the ECU ID we're looking for
+        for message in messages:
+            if message.tx_id == self.__primary_ecu:
+                return message
+
+        return cmd(messages) # compute a response object

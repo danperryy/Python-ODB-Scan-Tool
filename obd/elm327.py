@@ -204,39 +204,6 @@ class ELM327:
         self.__status = SerialStatus.NOT_CONNECTED
 
 
-    def __find_primary_ecu(self, messages):
-        """
-            Given a list of messages from different ECUS,
-            (in response to the 0100 PID listing command)
-            choose the ID of the primary ECU
-        """
-
-        if len(messages) == 0:
-            return None
-        elif len(messages) == 1:
-            return messages[0].tx_id
-        else:
-            # first, try filtering for the standard ECU IDs
-            test = lambda m: m.tx_id == self.__protocol.PRIMARY_ECU
-
-            if bool([m for m in messages if test(m)]):
-                return self.__protocol.PRIMARY_ECU
-            else:
-                # last resort solution, choose ECU
-                # with the most PIDs supported
-                best = 0
-                tx_id = None
-
-                for message in messages:
-                    bits = sum([numBitsSet(b) for b in message.data_bytes])
-
-                    if bits > best:
-                        best = bits
-                        tx_id = message.tx_id
-
-                return tx_id
-
-
     def get_port_name(self):
         return self.__port.portstr if (self.__port is not None) else "No Port"
 
@@ -261,33 +228,23 @@ class ELM327:
             self.__primary_ecu = None
 
 
-    def send_and_parse(self, cmd, delay=None):
+    def send_and_parse(self, cmd):
         """
             send() function used to service all OBDCommands
 
-            Sends the given command string (rejects "AT" command),
-            parses the response string with the appropriate protocol object.
+            Sends the given command string, and parses the
+            response lines with the protocol object.
 
-            Returns the Message object from the primary ECU, or None,
-            if no appropriate response was recieved.
+            Returns a list of Message objects
         """
 
         if self.__status == SerialStatus.NOT_CONNECTED:
             debug("cannot send_and_parse() when unconnected", True)
             return None
 
-        lines = self.__send(cmd, delay)
-
-        # parses string into list of messages
+        lines = self.__send(cmd)
         messages = self.__protocol(lines)
-
-        # select the first message with the ECU ID we're looking for
-        # TODO: use ELM header settings to query ECU by address directly
-        for message in messages:
-            if message.tx_id == self.__primary_ecu:
-                return message
-
-        return None # no suitable response was returned
+        return messages
 
 
     def __send(self, cmd, delay=None):

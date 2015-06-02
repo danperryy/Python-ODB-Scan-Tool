@@ -39,7 +39,7 @@ def test_clone():
 
 
 def test_call():
-	p = SAE_J1850_PWM()
+	p = SAE_J1850_PWM([])
 	m = p(["48 6B 10 41 00 BE 1F B8 11 AA"]) # parse valid data into response object 
 
 	# valid response size
@@ -77,4 +77,3 @@ def test_get_pid_int():
 
 	cmd = OBDCommand("", "", "01", "", 4, noop)
 	assert cmd.get_pid_int() == 0
-
