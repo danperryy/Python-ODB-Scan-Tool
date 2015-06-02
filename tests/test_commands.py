@@ -7,9 +7,11 @@ def test_list_integrity():
 	for mode, cmds in enumerate(obd.commands.modes):
 		for pid, cmd in enumerate(cmds):
 
+			assert cmd.command != "",         "The Command's command string must not be null"
+
 			# make sure the command tables are in mode & PID order
-			assert mode == cmd.get_mode_int(),      "Command is in the wrong mode list: %s" % cmd.name
-			assert pid == cmd.get_pid_int(),        "The index in the list must also be the PID: %s" % cmd.name
+			assert mode == cmd.mode_int,      "Command is in the wrong mode list: %s" % cmd.name
+			assert pid == cmd.pid_int,        "The index in the list must also be the PID: %s" % cmd.name
 
 			# make sure all the fields are set
 			assert cmd.name != "",                  "Command names must not be null"
@@ -38,8 +40,8 @@ def test_getitem():
 		for cmd in cmds:
 
 			# by [mode][pid]
-			mode = cmd.get_mode_int()
-			pid  = cmd.get_pid_int()
+			mode = cmd.mode_int
+			pid  = cmd.pid_int
 			assert cmd == obd.commands[mode][pid], "mode %d, PID %d could not be accessed through __getitem__" % (mode, pid)
 
 			# by [name]
@@ -55,8 +57,8 @@ def test_contains():
 			assert obd.commands.has_command(cmd)
 
 			# by (mode, pid)
-			mode = cmd.get_mode_int()
-			pid  = cmd.get_pid_int()
+			mode = cmd.mode_int
+			pid  = cmd.pid_int
 			assert obd.commands.has_pid(mode, pid)
 
 			# by (name)

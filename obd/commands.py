@@ -153,7 +153,7 @@ __mode1__ = [
 __mode2__ = []
 for c in __mode1__:
     c = c.clone()
-    c.mode = "02"
+    c.command = "02" + c.command[2:] # change the mode: 0100 ---> 0200
     c.name = "DTC_" + c.name
     c.desc = "DTC " + c.desc
     __mode2__.append(c)

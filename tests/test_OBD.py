@@ -19,7 +19,7 @@ def test_query():
 	# we don't need an actual serial connection
 	o = obd.OBD("/dev/null")
 	# forge our own command, to control the output
-	cmd = OBDCommand("TEST", "Test command", "01", "23", 2, noop, False)
+	cmd = OBDCommand("TEST", "Test command", "0123", 2, noop, False)
 
 	# forge IO from the car by overwriting the read/write functions
 	
