@@ -44,10 +44,11 @@ class ECU:
     """ constant flags used for marking and filtering messages """
 
     ALL          = 0b11111111 # used by OBDCommands to accept messages from any ECU
-    UNKNOWN      = 0b00000000
 
-    ENGINE       = 0b00000001 # each ECU gets its own bit for ease of making OR filters
-    # TRANSMISSION = 0b00000010
+    # each ECU gets its own bit for ease of making OR filters
+    UNKNOWN      = 0b00000001 # unknowns get their own bit, since they need to be accepted by the ALL filter
+    ENGINE       = 0b00000010
+    TRANSMISSION = 0b00000100
 
 
 class ECU_Map:
@@ -58,7 +59,8 @@ class ECU_Map:
         self.backward_map = {}      # ECU ID ---> tx_id
 
         # the backwards map is simply used to check for ECU ID collisions
-        # since it shouldn't be possible to have two tx_id's represent the engine
+        # since, for example, it shouldn't be possible to have two
+        # tx_id's represent the engine.
 
         # construct the backwards map
         for key in self.forward_map:
@@ -66,7 +68,14 @@ class ECU_Map:
             self.backward_map[value] = key
 
     def set(self, tx_id, ecu_id):
-        """ maps a tx_id to an ECU ID, and remove any old mappings to that ECU ID """
+        """
+            maps a tx_id to an ECU ID, and removes
+            any old mappings to that ECU ID
+        """
+
+        # nevery store ECU.UNKNOWNs
+        # this is the only case where multiple tx_ids resolve to the same ECU ID
+        assert ecu_id != ECU.UNKNOWN
 
         # check the backwards map to see if this ECU ID was already registered
         if ecu_id in self.backward_map:
@@ -87,7 +96,10 @@ class ECU_Map:
             return ECU.UNKNOWN
 
     def lookup(self, ecu_id):
-        """ converts an ECU ID constant into a tx_id (mostly for testing) """
+        """
+            converts an ECU ID constant into a tx_id
+            (mostly for testing)
+        """
         if ecu_id in self.backward_map:
             return self.backward_map[ecu_id]
         else:

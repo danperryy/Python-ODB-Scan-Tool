@@ -83,9 +83,9 @@ class OBDCommand():
                     h = "0" + h if len(h) < 2 else h
                     _data += h
 
-                # constrain number of bytes in response
-                if (self.bytes > 0): # zero bytes means flexible response
-                    _data = constrainHex(_data, self.bytes)
+        # constrain number of bytes in response
+        if (self.bytes > 0): # zero bytes means flexible response
+            _data = constrainHex(_data, self.bytes)
 
         # decoded value into the response object
         d = self.decode(_data)

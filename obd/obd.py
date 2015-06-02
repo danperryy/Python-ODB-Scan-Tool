@@ -42,7 +42,8 @@ from .debug import debug
 
 class OBD(object):
     """
-        Class representing an OBD-II connection with it's assorted commands/sensors
+        Class representing an OBD-II connection
+        with it's assorted commands/sensors.
     """
 
     def __init__(self, portstr=None, baudrate=38400):
@@ -51,13 +52,13 @@ class OBD(object):
 
         debug("========================== python-OBD (v%s) ==========================" % __version__)
         self.__connect(portstr, baudrate) # initialize by connecting and loading sensors
+        self.__load_commands()            # try to load the car's supported commands
         debug("=========================================================================")
 
 
     def __connect(self, portstr, baudrate):
         """
             Attempts to instantiate an ELM327 connection object.
-            Upon success, __load_commands() is called
         """
 
         if portstr is None:
@@ -70,47 +71,15 @@ class OBD(object):
                 self.port = ELM327(port, baudrate)
 
                 if self.port.status >= SerialStatus.ELM_CONNECTED:
-                    # success! stop searching for serial
-                    break
+                    break # success! stop searching for serial
         else:
             debug("Explicit port defined")
             self.port = ELM327(portstr, baudrate)
 
         # if a connection was made, query for commands
-        if self.port.status == SerialStatus.CAR_CONNECTED:
-            self.__load_commands()
-        else:
+        if self.port.status == SerialStatus.NOT_CONNECTED:
             debug("Failed to connect")
-
-
-    def close(self):
-        """ Closes the connection """
-        if self.status != SerialStatus.NOT_CONNECTED:
-            debug("Closing connection")
-            self.port.close()
             self.port = None
-            self.supported_commands = []
-
-
-    @property
-    def status(self):
-        if self.port is None:
-            return SerialStatus.NOT_CONNECTED
-        else:
-            return self.port.status
-
-
-    def is_connected(self):
-        """ Returns a boolean for whether a successful serial connection was made """
-        return self.status == SerialStatus.CAR_CONNECTED
-
-
-    def get_port_name(self):
-        """ Returns the name of the currently connected port """
-        if self.status != SerialStatus.NOT_CONNECTED:
-            return self.port.get_port_name()
-        else:
-            return "Not connected to any port"
 
 
     def __load_commands(self):
@@ -119,12 +88,12 @@ class OBD(object):
             and compiles a list of command objects.
         """
 
+        if self.status != SerialStatus.CAR_CONNECTED:
+            debug("Cannot load commands: No connection to car", True)
+            return
+
         debug("querying for supported PIDs (commands)...")
-
-        self.supported_commands = []
-
         pid_getters = commands.pid_getters()
-
         for get in pid_getters:
             # PID listing commands should sequentialy become supported
             # Mode 1 PID 0 is assumed to always be supported
@@ -156,6 +125,45 @@ class OBD(object):
         debug("finished querying with %d commands supported" % len(self.supported_commands))
 
 
+    def close(self):
+        """
+            Closes the connection, and clear supported_commands
+        """
+
+        self.supported_commands = []
+
+        if self.port is not None:
+            debug("Closing connection")
+            self.port.close()
+            self.port = None
+
+
+    @property
+    def status(self):
+        if self.port is None:
+            return SerialStatus.NOT_CONNECTED
+        else:
+            return self.port.status
+
+
+    def is_connected(self):
+        """
+            Returns a boolean for whether a connection with the car was made.
+
+            Note: this function returns False when:
+            obd.status = SerialStatus.ELM_CONNECTED
+        """
+        return self.status == SerialStatus.CAR_CONNECTED
+
+
+    def get_port_name(self):
+        """ Returns the name of the currently connected port """
+        if self.port is not None:
+            return self.port.port_name
+        else:
+            return "Not connected to any port"
+
+
     def print_commands(self):
         """
             Utility function meant for working in interactive mode.
@@ -166,7 +174,10 @@ class OBD(object):
 
 
     def supports(self, cmd):
-        """ Returns a boolean for whether the car supports the given command """
+        """
+            Returns a boolean for whether the given command
+            is supported by the car AND this library
+        """
         return commands.has_command(cmd) and cmd.supported
 
 

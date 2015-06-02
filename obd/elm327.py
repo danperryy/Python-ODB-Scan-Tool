@@ -45,7 +45,7 @@ class ELM327:
         the following functions become available:
 
             send_and_parse()
-            get_port_name()
+            port_name()
             status()
             close()
     """
@@ -72,8 +72,6 @@ class ELM327:
         self.__status      = SerialStatus.NOT_CONNECTED
         self.__port        = None
         self.__protocol    = UnknownProtocol([])
-        self.__primary_ecu = None # message.tx_id
-
 
 
         # ------------- open port -------------
@@ -85,7 +83,7 @@ class ELM327:
                                       stopbits = 1, \
                                       bytesize = 8, \
                                       timeout  = 3) # seconds
-            debug("Serial port successfully opened on " + self.get_port_name())
+            debug("Serial port successfully opened on " + self.port_name)
 
         except serial.SerialException as e:
             self.__error(e)
@@ -93,7 +91,6 @@ class ELM327:
         except OSError as e:
             self.__error(e)
             return
-
 
 
         # ---------------------------- ATZ (reset) ----------------------------
@@ -129,13 +126,11 @@ class ELM327:
             return
 
 
-
         # try to communicate with the car, and load the correct protocol parser
         if self.load_protocol():
             self.__status = SerialStatus.CAR_CONNECTED
         else:
             self.__status = SerialStatus.ELM_CONNECTED
-
 
 
         # ------------------------------- done -------------------------------
@@ -184,19 +179,19 @@ class ELM327:
     def __error(self, msg=None):
         """ handles fatal failures, print debug info and closes serial """
 
-        debug("Connection Error:", True)
+        self.close()
 
+        debug("Connection Error:", True)
         if msg is not None:
             debug('    ' + str(msg), True)
 
+
+    @property
+    def port_name(self):
         if self.__port is not None:
-            self.__port.close()
-
-        self.__status = SerialStatus.NOT_CONNECTED
-
-
-    def get_port_name(self):
-        return self.__port.portstr if (self.__port is not None) else "No Port"
+            return self.__port.portstr
+        else:
+            return "No Port"
 
 
     @property
@@ -206,17 +201,17 @@ class ELM327:
 
     def close(self):
         """
-            Resets the device, and clears all attributes to unconnected state
+            Resets the device, and sets all
+            attributes to unconnected states.
         """
 
-        if self.__status >= SerialStatus.ELM_CONNECTED:
+        self.__status   = SerialStatus.NOT_CONNECTED
+        self.__protocol = None
+
+        if self.__port is not None:
             self.__write("ATZ")
             self.__port.close()
-
-            self.__status      = SerialStatus.NOT_CONNECTED
-            self.__port        = None
-            self.__protocol    = None
-            self.__primary_ecu = None
+            self.__port = None
 
 
     def send_and_parse(self, cmd):

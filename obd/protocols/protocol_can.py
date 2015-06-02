@@ -43,6 +43,8 @@ class CANProtocol(Protocol):
 
 
     def __init__(self, lines_0100, id_bits):
+        # this needs to be set FIRST, since the base
+        # Protocol __init__ uses the parsing system.
         self.id_bits = id_bits
         Protocol.__init__(self, lines_0100)
 

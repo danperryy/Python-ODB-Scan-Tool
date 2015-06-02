@@ -38,9 +38,10 @@
 
 from .__version__ import __version__
 from .obd import OBD
-from .OBDCommand import OBDCommand
-from .OBDResponse import Unit
+from .async import Async
 from .commands import commands
+from .OBDCommand import OBDCommand
+from .protocols import ECU
+from .OBDResponse import Unit
 from .utils import scanSerial, SerialStatus
 from .debug import debug
-from .async import Async
