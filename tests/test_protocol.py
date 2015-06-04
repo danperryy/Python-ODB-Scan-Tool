@@ -1,7 +1,7 @@
 
 import random
 from obd.protocols import *
-from obd.protocols.protocol import Message, ECU_Map
+from obd.protocols.protocol import Frame, Message, ECU_Map
 
 
 def test_ECU():
@@ -16,7 +16,6 @@ def test_ECU():
             assert (ecu & other_ecu) == 0, "ECU: %d has a conflicting bit with another ECU constant" %ecu
 
         tested.append(ecu)
-
 
 
 def test_ECU_Map():
@@ -53,3 +52,77 @@ def test_ECU_Map():
     assert e.lookup(0) == 3,  "ECU_Map.set() after conflicting overwrite"
     assert e.resolve(0) == ECU.UNKNOWN
 
+
+def test_frame():
+    # constructor
+    f = Frame("asdf")
+    assert f.raw == "asdf", "Frame failed to accept raw data as __init__ argument"
+    assert f.priority  == None
+    assert f.addr_mode == None
+    assert f.rx_id     == None
+    assert f.tx_id     == None
+    assert f.type      == None
+    assert f.seq_index == 0
+    assert f.data_len  == None
+
+
+def test_message():
+
+    # constructor
+    f = Frame("")
+    f.tx_id = 42
+    R = ["asdf"]
+    F = [f]
+    m = Message(R, F)
+
+    assert m.raw == R
+    assert m.frames == F
+    assert m.tx_id == 42
+    assert m.ecu == ECU.UNKNOWN
+
+
+def test_populate_ecu_map():
+    # parse from messages
+
+    # use primary ECU when multiple are present
+    p = SAE_J1850_PWM(["48 6B 10 41 00 BE 1F B8 11 AA", "48 6B 12 41 00 BE 1F B8 11 AA"])
+    assert p.ecu_map.lookup(ECU.ENGINE) == 0x10
+
+    # use lone responses regardless
+    p = SAE_J1850_PWM(["48 6B 12 41 00 BE 1F B8 11 AA"])
+    assert p.ecu_map.lookup(ECU.ENGINE) == 0x12
+
+    # if primary ECU is not listed, use response with most PIDs supported
+    p = SAE_J1850_PWM(["48 6B 12 41 00 BE 1F B8 11 AA", "48 6B 14 41 00 00 00 B8 11 AA"])
+    assert p.ecu_map.lookup(ECU.ENGINE) == 0x12
+
+    # if no messages were received, the defaults stay in place
+    p = SAE_J1850_PWM([])
+    assert p.ecu_map.lookup(ECU.ENGINE) == p.TX_ID_ENGINE
+
+
+def test_call_filtering():
+
+    # test the basic frame construction
+    p = UnknownProtocol([])
+
+    f1 = "48 6B 12 41 00 BE 1F B8 11 AA"
+    f2 = "48 6B 14 41 00 00 00 B8 11 AA"
+    raw = [f1, f2]
+    m = p(raw)
+    assert len(m) == 1
+    assert len(m[0].frames) == 2
+    assert m[0].raw == raw
+    assert m[0].frames[0].raw == f1.replace(' ', '')
+    assert m[0].frames[1].raw == f2.replace(' ', '')
+
+
+    # test invalid hex dropping
+    p = UnknownProtocol([])
+
+    raw = ["not hex", f2]
+    m = p(raw)
+    assert len(m) == 1
+    assert len(m[0].frames) == 1
+    assert m[0].raw == raw
+    assert m[0].frames[0].raw == f2.replace(' ', '')
