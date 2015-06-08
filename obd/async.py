@@ -51,17 +51,22 @@ class Async(OBD):
 
     def start(self):
         """ Starts the async update loop """
-        if self.is_connected():
-            if len(self.commands) > 0:
-                debug("Starting async thread")
-                self.running = True
-                self.thread = threading.Thread(target=self.run)
-                self.thread.daemon = True
-                self.thread.start()
-            else:
-                debug("Async thread not started because no commands were registered")
-        else:
+        if not self.is_connected():
             debug("Async thread not started because no connection was made")
+            return
+
+        if len(self.commands) == 0:
+            debug("Async thread not started because no commands were registered")
+            return
+
+        if self.thread is None:
+            debug("Starting async thread")
+            self.running = True
+            self.thread = threading.Thread(target=self.run)
+            self.thread.daemon = True
+            self.thread.start()
+        else:
+            debug("Duplicate start(), async thread was already running")
 
 
     def stop(self):
