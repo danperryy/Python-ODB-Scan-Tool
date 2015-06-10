@@ -43,10 +43,11 @@ class Async(OBD):
 
     def __init__(self, portstr=None, baudrate=38400):
         super(Async, self).__init__(portstr, baudrate)
-        self.commands  = {} # key = OBDCommand, value = Response
-        self.callbacks = {} # key = OBDCommand, value = list of Functions
-        self.thread    = None
-        self.running   = False
+        self.commands    = {} # key = OBDCommand, value = Response
+        self.callbacks   = {} # key = OBDCommand, value = list of Functions
+        self.thread      = None
+        self.running     = False
+        self.was_running = False # used with pause() and resume()
 
 
     def start(self):
@@ -61,22 +62,32 @@ class Async(OBD):
 
         if self.thread is None:
             debug("Starting async thread")
+            self.was_running = False
             self.running = True
             self.thread = threading.Thread(target=self.run)
             self.thread.daemon = True
             self.thread.start()
-        else:
-            debug("Duplicate start(), async thread was already running")
 
 
     def stop(self):
         """ Stops the async update loop """
         if self.thread is not None:
             debug("Stopping async thread...")
+            self.was_running = True
             self.running = False
             self.thread.join()
             self.thread = None
             debug("Async thread stopped")
+
+
+    def pause(self):
+        self.was_running = self.running
+        self.stop()
+
+
+    def resume(self):
+        if not self.running and self.was_running:
+            self.start()
 
 
     def close(self):
