@@ -43,11 +43,16 @@ class Async(OBD):
 
     def __init__(self, portstr=None, baudrate=38400):
         super(Async, self).__init__(portstr, baudrate)
-        self.commands    = {} # key = OBDCommand, value = Response
-        self.callbacks   = {} # key = OBDCommand, value = list of Functions
-        self.thread      = None
-        self.running     = False
-        self.was_running = False # used with pause() and resume()
+        self.__commands    = {} # key = OBDCommand, value = Response
+        self.__callbacks   = {} # key = OBDCommand, value = list of Functions
+        self.__thread      = None
+        self.__running     = False
+        self.__was_running = False # used with __enter__() and __exit__()
+
+
+    @property
+    def running(self):
+        return self.__running    
 
 
     def start(self):
@@ -56,25 +61,25 @@ class Async(OBD):
             debug("Async thread not started because no connection was made")
             return
 
-        if len(self.commands) == 0:
+        if len(self.__commands) == 0:
             debug("Async thread not started because no commands were registered")
             return
 
-        if self.thread is None:
+        if self.__thread is None:
             debug("Starting async thread")
-            self.running = True
-            self.thread = threading.Thread(target=self.run)
-            self.thread.daemon = True
-            self.thread.start()
+            self.__running = True
+            self.__thread = threading.Thread(target=self.run)
+            self.__thread.daemon = True
+            self.__thread.start()
 
 
     def stop(self):
         """ Stops the async update loop """
-        if self.thread is not None:
+        if self.__thread is not None:
             debug("Stopping async thread...")
-            self.running = False
-            self.thread.join()
-            self.thread = None
+            self.__running = False
+            self.__thread.join()
+            self.__thread = None
             debug("Async thread stopped")
 
 
@@ -94,9 +99,9 @@ class Async(OBD):
             pauses the async loop,
             while recording the old state
         """
-        self.was_running = self.running
+        self.__was_running = self.__running
         self.stop()
-        return self.was_running
+        return self.__was_running
 
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -104,7 +109,7 @@ class Async(OBD):
             resumes the update loop if it was running
             when __enter__ was called
         """
-        if not self.running and self.was_running:
+        if not self.__running and self.__was_running:
             self.start()
 
         return False # don't suppress any exceptions
@@ -124,7 +129,7 @@ class Async(OBD):
         """
 
         # the dict shouldn't be changed while the daemon thread is iterating
-        if self.running:
+        if self.__running:
             debug("Can't watch() while running, please use stop()", True)
         else:
 
@@ -133,15 +138,15 @@ class Async(OBD):
                 return
 
             # new command being watched, store the command
-            if c not in self.commands:
+            if c not in self.__commands:
                 debug("Watching command: %s" % str(c))
-                self.commands[c] = Response() # give it an initial value
-                self.callbacks[c] = [] # create an empty list
+                self.__commands[c] = Response() # give it an initial value
+                self.__callbacks[c] = [] # create an empty list
 
             # if a callback was given, push it
-            if hasattr(callback, "__call__") and (callback not in self.callbacks[c]):
+            if hasattr(callback, "__call__") and (callback not in self.__callbacks[c]):
                 debug("subscribing callback for command: %s" % str(c))
-                self.callbacks[c].append(callback)
+                self.__callbacks[c].append(callback)
 
 
     def unwatch(self, c, callback=None):
@@ -152,35 +157,35 @@ class Async(OBD):
         """
 
         # the dict shouldn't be changed while the daemon thread is iterating
-        if self.running:
+        if self.__running:
             debug("Can't unwatch() while running, please use stop()", True)
         else:
             debug("Unwatching command: %s" % str(c))
 
-            if c in self.commands:
+            if c in self.__commands:
                 # if a callback was specified, only remove the callback
-                if hasattr(callback, "__call__") and (callback in self.callbacks[c]):
-                    self.callbacks[c].remove(callback)
+                if hasattr(callback, "__call__") and (callback in self.__callbacks[c]):
+                    self.__callbacks[c].remove(callback)
 
                     # if no more callbacks are left, remove the command entirely
-                    if len(self.callbacks[c]) == 0:
-                        self.commands.pop(c, None)
+                    if len(self.__callbacks[c]) == 0:
+                        self.__commands.pop(c, None)
                 else:
                     # no callback was specified, pop everything
-                    self.callbacks.pop(c, None)
-                    self.commands.pop(c, None)
+                    self.__callbacks.pop(c, None)
+                    self.__commands.pop(c, None)
 
 
     def unwatch_all(self):
         """ Unsubscribes all commands and callbacks from being updated """
 
         # the dict shouldn't be changed while the daemon thread is iterating
-        if self.running:
+        if self.__running:
             debug("Can't unwatch_all() while running, please use stop()", True)
         else:
             debug("Unwatching all")
-            self.commands  = {}
-            self.callbacks = {}
+            self.__commands  = {}
+            self.__callbacks = {}
 
 
     def query(self, c):
@@ -189,8 +194,8 @@ class Async(OBD):
             Only commands that have been watch()ed will return valid responses
         """
 
-        if c in self.commands:
-            return self.commands[c]
+        if c in self.__commands:
+            return self.__commands[c]
         else:
             return Response()
 
@@ -199,20 +204,20 @@ class Async(OBD):
         """ Daemon thread """
 
         # loop until the stop signal is recieved
-        while self.running:
+        while self.__running:
 
-            if len(self.commands) > 0:
+            if len(self.__commands) > 0:
                 # loop over the requested commands, send, and collect the response
-                for c in self.commands:
+                for c in self.__commands:
 
                     # force, since commands are checked for support in watch()
                     r = super(Async, self).query(c, force=True)
 
                     # store the response
-                    self.commands[c] = r
+                    self.__commands[c] = r
 
                     # fire the callbacks, if there are any
-                    for callback in self.callbacks[c]:
+                    for callback in self.__callbacks[c]:
                         callback(r)
 
             else:
