@@ -62,7 +62,6 @@ class Async(OBD):
 
         if self.thread is None:
             debug("Starting async thread")
-            self.was_running = False
             self.running = True
             self.thread = threading.Thread(target=self.run)
             self.thread.daemon = True
@@ -73,21 +72,42 @@ class Async(OBD):
         """ Stops the async update loop """
         if self.thread is not None:
             debug("Stopping async thread...")
-            self.was_running = True
             self.running = False
             self.thread.join()
             self.thread = None
             debug("Async thread stopped")
 
 
-    def pause(self):
+    def paused(self):
+        """
+            A stub function for semantic purposes only
+            enables code such as:
+
+            with connection.paused() as was_running
+                ...
+        """
+        return self
+
+
+    def __enter__(self):
+        """
+            pauses the async loop,
+            while recording the old state
+        """
         self.was_running = self.running
         self.stop()
+        return self.was_running
 
 
-    def resume(self):
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+            resumes the update loop if it was running
+            when __enter__ was called
+        """
         if not self.running and self.was_running:
             self.start()
+
+        return False # don't suppress any exceptions
 
 
     def close(self):
