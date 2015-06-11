@@ -1,3 +1,6 @@
+Custom OBD Commands
+===================
+
 If the command you need is not in python-OBDs tables, you can create a new `OBDCommand` object. The constructor accepts the following arguments (each will become a property).
 
 | Argument             | Type     | Description                                                              |

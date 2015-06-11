@@ -1,0 +1,8 @@
+site_name: python-OBD
+repo_url: https://github.com/brendanwhitfield/python-OBD
+repo_name: GitHub
+pages:
+- Home: 'index.md'
+- Commands:
+  - 'OBD Commands': 'OBD Commands.md'
+  - 'Custom Commands': 'Custom Commands.md'
