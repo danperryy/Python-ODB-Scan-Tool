@@ -16,40 +16,53 @@ print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
 connection = obd.OBD(ports[0]) # connect to the first port in the list
 ```
 
-## Methods
+<br>
 
-##### OBD.query(command, force=False)
+---
 
-Sends an `OBDCommand` to the car, and returns a `Response` object. This function will block until a response is recieved from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
+## query(command, force=False)
+
+Sends an `OBDCommand` to the car, and returns a `OBDResponse` object. This function will block until a response is recieved from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
 
 *For non-blocking querying, see [Async Querying](https://github.com/brendanwhitfield/python-OBD/wiki/Async-Querying)*
 
-- - -
+```python
+import obd
+connection = obd.OBD()
 
-##### OBD.is_connected()
+r = connection.query(obd.commands.RPM) # returns the response from the car
+```
+
+---
+
+## is_connected()
 
 Returns a boolean for whether a connection was established.
 
-- - -
+---
 
-##### OBD.get_port_name()
+## get_port_name()
 
 Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns `"Not connected to any port"`.
 
-- - -
+---
 
-##### OBD.supports(command)
+## supports(command)
 
 Returns a boolean for whether a command is supported by both the car and python-OBD
 
-- - -
+---
 
-##### OBD.close()
+## close()
 
 Closes the connection.
 
-## Properties
+---
 
-##### OBD.supported_commands
+## supported_commands
 
-A list of commands supported by the car.
+Property containing a list of commands that are supported by the car.
+
+---
+
+<br>

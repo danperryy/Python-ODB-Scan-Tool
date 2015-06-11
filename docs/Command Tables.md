@@ -1,5 +1,27 @@
-Mode 01
--------
+
+Python-OBD has built in tables for the most common commands. They can be looked up by name, or by mode/PID (for a full list, see [Command Tables](https://github.com/brendanwhitfield/python-OBD/wiki/Command-Tables)).
+
+```python
+import obd
+
+c = obd.commands.RPM
+
+# OR
+
+c = obd.commands['RPM']
+
+# OR
+
+c = obd.commands[1][12] # mode 1, PID 12 (RPM)
+```
+
+<br>
+
+---
+
+<br>
+
+# Mode 01
 
 |PID | Name                      | Description                             |
 |----|---------------------------|-----------------------------------------|
@@ -100,8 +122,14 @@ Mode 01
 | 5E | FUEL_RATE                 | Engine fuel rate                        |
 | 5F | \<unsupported\>           | \<unsupported\>                         |
 
-Mode 02
--------
+<br>
+
+---
+
+<br>
+
+# Mode 02
+
 Mode 02 commands are the same as mode 01, but are metrics from when the last DTC occurred (the freeze frame). To access them by name, simple prepend `DTC_` to the Mode 01 command name.
 
 ```python
@@ -112,8 +140,14 @@ obd.commands.RPM # the Mode 01 command
 obd.commands.DTC_RPM # the Mode 02 command
 ```
 
-Mode 03
--------
+<br>
+
+---
+
+<br>
+
+# Mode 03
+
 Mode 03 contains a single command `GET_DTC` which requests all diagnostic trouble codes from the vehicle's engine.
 
 |PID  | Name    | Description                             |
@@ -137,19 +171,34 @@ example output:
 '''
 ```
 
-Mode 04
--------
+<br>
+
+---
+
+<br>
+
+# Mode 04
 
 |PID  | Name      | Description                             |
 |-----|-----------|-----------------------------------------|
 | N/A | CLEAR_DTC | Clear DTCs and Freeze data              |
 
+<br>
 
-Mode 07
--------
+---
+
+<br>
+
+# Mode 07
 
 The return value will be encoded in the same structure as the Mode 03 `GET_DTC` command.
 
 |PID  | Name           | Description                  |
 |-----|----------------|------------------------------|
 | N/A | GET_FREEZE_DTC | Get Freeze DTCs              |
+
+<br>
+
+---
+
+<br>

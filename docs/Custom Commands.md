@@ -1,5 +1,3 @@
-Custom OBD Commands
-===================
 
 If the command you need is not in python-OBDs tables, you can create a new `OBDCommand` object. The constructor accepts the following arguments (each will become a property).
 
@@ -38,3 +36,7 @@ def rpm(_hex):
 
 c = OBDCommand("RPM", "Engine RPM", "01", "0C", 2, rpm)
 ```
+
+---
+
+<br>

@@ -1,17 +1,20 @@
-# Welcome to MkDocs
+# Installation
 
-For full documentation visit [mkdocs.org](http://mkdocs.org).
+Run the following command to download/install the latest release from pypi:
 
-## Commands
+    $ pip install obd
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
+If you are using a bluetooth adapter, you will need to install the following packages:
 
-## Project layout
+    $ sudo apt-get install bluetooth bluez-utils blueman
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+---
+
+# Dependencies
+
++ pySerial
++ OBD-II adapter (ELM327 Bluetooth Adapter or ELM327 USB Cable)
+
+---
+
+<br>

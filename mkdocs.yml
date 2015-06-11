@@ -3,6 +3,13 @@ repo_url: https://github.com/brendanwhitfield/python-OBD
 repo_name: GitHub
 pages:
 - Home: 'index.md'
-- Commands:
-  - 'OBD Commands': 'OBD Commands.md'
-  - 'Custom Commands': 'Custom Commands.md'
+- OBD Connections: 'OBD Connections.md'
+- Commands: 'OBD Commands.md'
+- Custom Commands: 'Custom Commands.md'
+- Command Tables: 'Command Tables.md'
+- Command Table Methods: 'Command Table Methods.md'
+- Responses: 'OBD Responses.md'
+- Async Connections: 'Async Connections.md'
+- Debug: 'Debug.md'
+
+theme: readthedocs
