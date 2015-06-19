@@ -67,7 +67,7 @@ obd.commands.has_pid(1, 12) # True
 |----|---------------------------|-----------------------------------------|
 | 00 | PIDS_A                    | Supported PIDs [01-20]                  |
 | 01 | STATUS                    | Status since DTCs cleared               |
-| 02 | \<unsupported\>           | \<unsupported\>                         |
+| 02 | *unsupported*             | *unsupported*                           |
 | 03 | FUEL_STATUS               | Fuel System Status                      |
 | 04 | ENGINE_LOAD               | Calculated Engine Load                  |
 | 05 | COOLANT_TEMP              | Engine Coolant Temperature              |
@@ -84,7 +84,7 @@ obd.commands.has_pid(1, 12) # True
 | 10 | MAF                       | Air Flow Rate (MAF)                     |
 | 11 | THROTTLE_POS              | Throttle Position                       |
 | 12 | AIR_STATUS                | Secondary Air Status                    |
-| 13 | \<unsupported\>           | \<unsupported\>                         |
+| 13 | *unsupported*             | *unsupported*                           |
 | 14 | O2_B1S1                   | O2: Bank 1 - Sensor 1 Voltage           |
 | 15 | O2_B1S2                   | O2: Bank 1 - Sensor 2 Voltage           |
 | 16 | O2_B1S3                   | O2: Bank 1 - Sensor 3 Voltage           |
@@ -94,8 +94,8 @@ obd.commands.has_pid(1, 12) # True
 | 1A | O2_B2S3                   | O2: Bank 2 - Sensor 3 Voltage           |
 | 1B | O2_B2S4                   | O2: Bank 2 - Sensor 4 Voltage           |
 | 1C | OBD_COMPLIANCE            | OBD Standards Compliance                |
-| 1D | \<unsupported\>           | \<unsupported\>                         |
-| 1E | \<unsupported\>           | \<unsupported\>                         |
+| 1D | *unsupported*             | *unsupported*                           |
+| 1E | *unsupported*             | *unsupported*                           |
 | 1F | RUN_TIME                  | Engine Run Time                         |
 | 20 | PIDS_B                    | Supported PIDs [21-40]                  |
 | 21 | DISTANCE_W_MIL            | Distance Traveled with MIL on           |
@@ -130,10 +130,10 @@ obd.commands.has_pid(1, 12) # True
 | 3E | CATALYST_TEMP_B1S2        | Catalyst Temperature: Bank 1 - Sensor 2 |
 | 3F | CATALYST_TEMP_B2S2        | Catalyst Temperature: Bank 2 - Sensor 2 |
 | 40 | PIDS_C                    | Supported PIDs [41-60]                  |
-| 41 | \<unsupported\>           | \<unsupported\>                         |
-| 42 | \<unsupported\>           | \<unsupported\>                         |
-| 43 | \<unsupported\>           | \<unsupported\>                         |
-| 44 | \<unsupported\>           | \<unsupported\>                         |
+| 41 | *unsupported*             | *unsupported*                           |
+| 42 | *unsupported*             | *unsupported*                           |
+| 43 | *unsupported*             | *unsupported*                           |
+| 44 | *unsupported*             | *unsupported*                           |
 | 45 | RELATIVE_THROTTLE_POS     | Relative throttle position              |
 | 46 | AMBIANT_AIR_TEMP          | Ambient air temperature                 |
 | 47 | THROTTLE_POS_B            | Absolute throttle position B            |
@@ -144,7 +144,7 @@ obd.commands.has_pid(1, 12) # True
 | 4C | THROTTLE_ACTUATOR         | Commanded throttle actuator             |
 | 4D | RUN_TIME_MIL              | Time run with MIL on                    |
 | 4E | TIME_SINCE_DTC_CLEARED    | Time since trouble codes cleared        |
-| 4F | \<unsupported\>           | \<unsupported\>                         |
+| 4F | *unsupported*             | *unsupported*                           |
 | 50 | MAX_MAF                   | Maximum value for mass air flow sensor  |
 | 51 | FUEL_TYPE                 | Fuel Type                               |
 | 52 | ETHANOL_PERCENT           | Ethanol Fuel Percent                    |
@@ -160,7 +160,7 @@ obd.commands.has_pid(1, 12) # True
 | 5C | OIL_TEMP                  | Engine oil temperature                  |
 | 5D | FUEL_INJECT_TIMING        | Fuel injection timing                   |
 | 5E | FUEL_RATE                 | Engine fuel rate                        |
-| 5F | \<unsupported\>           | \<unsupported\>                         |
+| 5F | *unsupported*             | *unsupported*                           |
 
 <br>
 
