@@ -80,6 +80,47 @@ This is likely a problem with the serial connection between the OBD-II adapter a
 - you are connecting to the right port in `/dev` (or that there is any port at all)
 - you have the correct permissions to write to the port
 
+You can use the `scanSerial()` helper function to determine which ports are available for writing.
+
+```python
+import obd
+
+ports = obd.scanSerial()       # return list of valid USB or RF ports
+print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
+```
+
+<br>
+
+### Unresponsive Vehicle
+
+```
+[obd] ========================== python-OBD (v0.4.0) ==========================
+[obd] Explicit port defined
+[obd] Opening serial port '/dev/pts/2'
+[obd] Serial port successfully opened on /dev/pts/2
+[obd] write: 'ATZ\r\n'
+[obd] wait: 1 seconds
+[obd] read: 'ATZ\rELM327 v2.1\r'
+[obd] write: 'ATE0\r\n'
+[obd] read: 'ATE0\rOK\r'
+[obd] write: 'ATH1\r\n'
+[obd] read: 'OK\r'
+[obd] write: 'ATL0\r\n'
+[obd] read: 'OK\r'
+[obd] write: 'ATSPA8\r\n'
+[obd] read: 'OK\r'
+[obd] write: '0100\r\n'
+[obd] read: 'SEARCHING...\rUNABLE TO CONNECT\r'
+[obd] write: 'ATDPN\r\n'
+[obd] read: '0\r'
+[obd] Connection Error:
+[obd]     ELM responded with unknown protocol
+[obd] Failed to connect
+[obd] =========================================================================
+```
+
+This is a connection problem between the ELM adapter and your car. Make sure that you car is powered, and that the electrical connection between the adapter and your car's OBD-II port is sound.
+
 ---
 
 <br>
