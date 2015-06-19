@@ -50,7 +50,7 @@ Here are some common logs from python-OBD, and their meanings:
 
 <br>
 
-### Non-responsive ELM
+### Unresponsive ELM
 
 ```
 [obd] ========================== python-OBD (v0.4.0) ==========================
