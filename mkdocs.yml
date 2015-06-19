@@ -5,11 +5,11 @@ pages:
 - Home: 'index.md'
 - OBD Connections: 'OBD Connections.md'
 - Commands: 'OBD Commands.md'
-- Custom Commands: 'Custom Commands.md'
 - Command Tables: 'Command Tables.md'
-- Command Table Methods: 'Command Table Methods.md'
+- Custom Commands: 'Custom Commands.md'
 - Responses: 'OBD Responses.md'
 - Async Connections: 'Async Connections.md'
 - Debug: 'Debug.md'
+- Troubleshooting: 'Troubleshooting.md'
 
 theme: readthedocs

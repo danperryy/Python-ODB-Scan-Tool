@@ -1,0 +1,85 @@
+
+# Debug Output
+
+If python-OBD is not working properly, the first thing you should do is enable debug output. The following line enables console printing:
+
+```python
+obd.debug.console = True
+```
+
+Here are some common logs from python-OBD, and their meanings:
+
+<br>
+
+### Successful Connection
+
+```none
+[obd] ========================== python-OBD (v0.4.0) ==========================
+[obd] Explicit port defined
+[obd] Opening serial port '/dev/pts/2'
+[obd] Serial port successfully opened on /dev/pts/2
+[obd] write: 'ATZ\r\n'
+[obd] wait: 1 seconds
+[obd] read: 'ATZ\rELM327 v2.1\r'
+[obd] write: 'ATE0\r\n'
+[obd] read: 'ATE0\rOK\r'
+[obd] write: 'ATH1\r\n'
+[obd] read: 'OK\r'
+[obd] write: 'ATL0\r\n'
+[obd] read: 'OK\r'
+[obd] write: 'ATSPA8\r\n'
+[obd] read: 'OK\r'
+[obd] write: '0100\r\n'
+[obd] read: '7E8 06 41 00 FF FF FF FF FC\r'
+[obd] write: 'ATDPN\r\n'
+[obd] read: 'A8\r'
+[obd] Connection successful
+[obd] querying for supported PIDs (commands)...
+[obd] Sending command: 0100: Supported PIDs [01-20]
+[obd] write: '0100\r\n'
+[obd] read: '7E8 06 41 00 FF FF FF FF FC\r'
+[obd] Sending command: 0120: Supported PIDs [21-40]
+[obd] write: '0120\r\n'
+[obd] read: '7E8 06 41 20 FF FF FF FF FC\r'
+[obd] Sending command: 0140: Supported PIDs [41-60]
+[obd] write: '0140\r\n'
+[obd] read: '7E8 06 41 40 FF FF FF FE FB\r'
+[obd] finished querying with 93 commands supported
+[obd] =========================================================================
+```
+
+<br>
+
+### Non-responsive ELM
+
+```
+[obd] ========================== python-OBD (v0.4.0) ==========================
+[obd] Explicit port defined
+[obd] Opening serial port '/dev/pts/2'
+[obd] Serial port successfully opened on /dev/pts/2
+[obd] write: 'ATZ\r\n'
+[obd] wait: 1 seconds
+[obd] __read() found nothing
+[obd] __read() found nothing
+[obd] __read() never recieved prompt character
+[obd] read: ''
+[obd] write: 'ATE0\r\n'
+[obd] __read() found nothing
+[obd] __read() found nothing
+[obd] __read() never recieved prompt character
+[obd] read: ''
+[obd] Connection Error:
+[obd]     ATE0 did not return 'OK'
+[obd] Failed to connect
+[obd] =========================================================================
+```
+
+This is likely a problem with the serial connection between the OBD-II adapter and your computer. Make sure that:
+
+- bluetooth devices have been paired properly
+- you are connecting to the right port in `/dev` (or that there is any port at all)
+- you have the correct permissions to write to the port
+
+---
+
+<br>

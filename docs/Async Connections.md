@@ -39,19 +39,19 @@ connection.stop()
 
 ---
 
-## start()
+### start()
 
 Starts the update loop.
 
 ---
 
-## stop()
+### stop()
 
 Stops the update loop.
 
 ---
 
-## paused()
+### paused()
 
 A helper function for use in a Context Manager (a `with` statement) to temporarily stop the update loop. This makes it easy to protect your `watch()` and `unwatch()` calls. If the update loop was running at the time of being paused, it will be restarted upon exitting the context block. For instance:
 
@@ -75,7 +75,7 @@ if was_running:
 
 ---
 
-## watch(command, callback=None, force=False)
+### watch(command, callback=None, force=False)
 
 *Note: The async loop must be stopped or paused before this function can be called*
 
@@ -83,7 +83,7 @@ Subscribes a command to be continuously updated. After calling `watch()`, the `q
 
 ---
 
-## unwatch(command, callback=None)
+### unwatch(command, callback=None)
 
 *Note: The async loop must be stopped or paused before this function can be called*
 
@@ -91,7 +91,7 @@ Unsubscribes a command from being updated. If no callback is specified, all call
 
 ---
 
-## unwatch_all()
+### unwatch_all()
 
 *Note: The async loop must be stopped or paused before this function can be called*
 
