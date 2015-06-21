@@ -138,12 +138,19 @@ class ELM327:
 
 
     def load_protocol(self):
+        """
+            Attempts communication with the car.
+
+            Upon success, the appropriate protocol parser is loaded,
+            and this function returns True
+        """
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        # TODO: rewrite this using a "wait for prompt character"
-        # rather than a fixed wait period
         r0100 = self.__send("0100")
 
+        if self.__has_message(r0100, "UNABLE TO CONNECT"):
+            debug("The ELM could not establish a connection with the car", True)
+            return False
 
         # ------------------- ATDPN (list protocol number) -------------------
         r = self.__send("ATDPN")
@@ -174,6 +181,13 @@ class ELM327:
             return len(lines) == 2 and lines[1] == 'OK'
         else:
             return len(lines) == 1 and lines[0] == 'OK'
+
+
+    def __has_message(self, lines, message):
+        for line in lines:
+            if message in line:
+                return True
+        return False
 
 
     def __error(self, msg=None):
