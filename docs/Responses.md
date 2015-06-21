@@ -8,11 +8,26 @@ The `query()` function returns `OBDResponse` objects. These objects have the fol
 | message  | The internal `Message` object containing the raw response from the car |
 | time     | Timestamp of response (as given by [`time.time()`](https://docs.python.org/2/library/time.html#time.time)) |
 
-The `value` property typically contains numeric values, but can also hold complex structures (depending upon the command being decoded).
+The `value` property typically contains numeric values, but can also hold complex structures (depending upon the command that was sent).
 
-If python-OBD is unable to retrieve a response from the car, an empty `OBDResponse` object will be returned. Use `is_null()` to check for empty responses.
 
-## Units
+---
+
+### is_null()
+
+Use this function to check if a response is empty. Python-OBD will emit empty responses when it is unable to retrieve data from the car.
+
+```python
+r = connection.query(obd.commands.RPM)
+
+if not r.is_null():
+	print(r.value)
+```
+
+---
+
+
+# Units
 
 Unit values can be found in the `Unit` class (enum).
 

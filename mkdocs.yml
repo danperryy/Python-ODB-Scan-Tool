@@ -5,10 +5,9 @@ pages:
 - Getting Started: 'Getting Started.md'
 - OBD Connections: 'Connections.md'
 - Commands: 'Commands.md'
-- Command Tables: 'Command Tables.md'
-- Custom Commands: 'Custom Commands.md'
 - Responses: 'Responses.md'
 - Async Connections: 'Async Connections.md'
+- Custom Commands: 'Custom Commands.md'
 - Debug: 'Debug.md'
 - Troubleshooting: 'Troubleshooting.md'
 
