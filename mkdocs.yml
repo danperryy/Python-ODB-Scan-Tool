@@ -9,6 +9,7 @@ pages:
 - Async Connections: 'Async Connections.md'
 - Custom Commands: 'Custom Commands.md'
 - Debug: 'Debug.md'
+- Examples: 'Examples.md'
 - Troubleshooting: 'Troubleshooting.md'
 
 theme: readthedocs
