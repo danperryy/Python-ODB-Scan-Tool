@@ -107,6 +107,10 @@ class ELM327:
 
         # -------------------------- ATE0 (echo OFF) --------------------------
         r = self.__send("ATE0")
+        if len(r) == 0:
+            self.__error("Could not recieve data from the ELM")
+            return
+
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
@@ -127,10 +131,10 @@ class ELM327:
 
 
         # ---------------------- ATSPA8 (protocol AUTO) -----------------------
-        r = self.__send("ATSPA8")
-        if not self.__isok(r):
-            self.__error("ATSPA8 did not return 'OK'")
-            return
+        # r = self.__send("ATSPA8")
+        # if not self.__isok(r):
+        #     self.__error("ATSPA8 did not return 'OK'")
+        #     return
 
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
@@ -140,23 +144,24 @@ class ELM327:
 
 
         # ------------------- ATDPN (list protocol number) -------------------
+        self.__send("ATDP")
         r = self.__send("ATDPN")
 
-        if not r:
-            self.__error("Describe protocol command didn't return ")
-            return
+        # if not r:
+        #     self.__error("Describe protocol command didn't return ")
+        #     return
 
-        p = r[0]
+        # p = r[0]
 
-        # suppress any "automatic" prefix
-        p = p[1:] if (len(p) > 1 and p.startswith("A")) else p[:-1]
+        # # suppress any "automatic" prefix
+        # p = p[1:] if (len(p) > 1 and p.startswith("A")) else p[:-1]
 
-        if p not in self._SUPPORTED_PROTOCOLS:
-            self.__error("ELM responded with unknown protocol")
-            return
+        # if p not in self._SUPPORTED_PROTOCOLS:
+        #     self.__error("ELM responded with unknown protocol")
+        #     return
 
         # instantiate the correct protocol handler
-        self.__protocol = self._SUPPORTED_PROTOCOLS[p]()
+        self.__protocol = self._SUPPORTED_PROTOCOLS['6']()
 
         # Now that a protocol has been selected, we can figure out
         # which ECU is the primary.
