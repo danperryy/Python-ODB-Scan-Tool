@@ -52,7 +52,7 @@ class Async(OBD):
 
     @property
     def running(self):
-        return self.__running    
+        return self.__running
 
 
     def start(self):
