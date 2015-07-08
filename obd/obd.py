@@ -76,10 +76,10 @@ class OBD(object):
             debug("Explicit port defined")
             self.port = ELM327(portstr, baudrate)
 
-        # if a connection was made, query for commands
+        # if the connection failed, close it
         if self.port.status == SerialStatus.NOT_CONNECTED:
             debug("Failed to connect")
-            self.port = None
+            self.close()
 
 
     def __load_commands(self):
@@ -100,7 +100,9 @@ class OBD(object):
             if not self.supports(get):
                 continue
 
-            response = self.query(get, force=True) # ask nicely
+            # when querying, only use the blocking OBD.query()
+            # prevents problems when query is redefined in a subclass
+            response = OBD.query(self, get, force=True) # ask nicely
 
             if response.is_null():
                 continue
