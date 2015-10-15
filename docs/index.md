@@ -12,7 +12,7 @@ Install the latest release from pypi:
 $ pip install obd
 ```
 
-If you are using a bluetooth adapter, you will need to install the following packages:
+If you are using a bluetooth adapter on Debian-based linux, you will need to install the following packages:
 
 ```shell
 $ sudo apt-get install bluetooth bluez-utils blueman
