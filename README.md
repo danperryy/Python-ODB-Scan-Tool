@@ -31,7 +31,7 @@ print(response.unit)
 Documentation
 -------------
 
-[Visit the GitHub Wiki!](http://github.com/brendanwhitfield/python-OBD/wiki)
+Available at [python-obd.readthedocs.org](http://python-obd.readthedocs.org/en/latest/)
 
 Commands
 --------
