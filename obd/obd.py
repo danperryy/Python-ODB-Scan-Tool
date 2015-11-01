@@ -78,7 +78,7 @@ class OBD(object):
 
         # if the connection failed, close it
         if self.port.status == SerialStatus.NOT_CONNECTED:
-            debug("Failed to connect")
+            # the ELM327 class will report its own errors
             self.close()
 
 

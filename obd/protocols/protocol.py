@@ -236,7 +236,9 @@ class Protocol(object):
         """
             Given a list of messages from different ECUS,
             (in response to the 0100 PID listing command)
-            associate each tx_id to an ECU ID constant
+            associate each tx_id to an ECU ID constant.
+
+            Right now, this just picks the which ECU is the engine.
         """
 
         if len(messages) == 0:

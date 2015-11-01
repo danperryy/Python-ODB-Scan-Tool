@@ -72,11 +72,11 @@ class ELM327:
 
     # used as a fallback, when ATSP0 doesn't cut it
     _TRY_PROTOCOL_ORDER = [
-        "6", # ISO_15765_4_11bit_500k
-        "7", # ISO_15765_4_29bit_500k
-        "1", # SAE_J1850_PWM
         "8", # ISO_15765_4_11bit_250k
+        "6", # ISO_15765_4_11bit_500k
+        "1", # SAE_J1850_PWM
         "9", # ISO_15765_4_29bit_250k
+        "7", # ISO_15765_4_29bit_500k
         "2", # SAE_J1850_VPW
         "3", # ISO_9141_2
         "4", # ISO_14230_4_5baud
@@ -171,9 +171,9 @@ class ELM327:
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
         r0100 = self.__send("0100")
-        if self.__has_message(r0100, "UNABLE TO CONNECT"):
-            debug("The ELM could not establish a connection with the car", True)
-            return False
+        # if self.__has_message(r0100, "UNABLE TO CONNECT"):
+            # debug("The ELM could not establish a connection with the car", True)
+            # return False
 
         # ------------------- ATDPN (list protocol number) -------------------
         r = self.__send("ATDPN")
