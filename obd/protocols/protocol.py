@@ -174,13 +174,17 @@ class Protocol(object):
 
             # subclass function to assemble frames into Messages
             if self.parse_message(message):
+                message.ecu = self.lookup_ecu(ecu) # mark with the appropriate ECU ID
                 messages.append(message)
-                if ecu in self.ecu_map:
-                    message.ecu = self.ecu_map[ecu] # mark with the appropriate ECU ID
-                else:
-                    message.ecu = ECU.UNKNOWN
 
         return messages
+
+
+    def lookup_ecu(self, tx_id):
+        if tx_id in self.ecu_map:
+            return self.ecu_map[tx_id]
+        else:
+            return ECU.UNKNOWN
 
 
     def populate_ecu_map(self, messages):

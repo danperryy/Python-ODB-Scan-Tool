@@ -44,6 +44,8 @@ Define command tables
 # NOTE: the NAME field will be used as the dict key for that sensor
 # NOTE: commands MUST be in PID order, one command per PID (for fast lookup using __mode1__[pid])
 
+# see OBDCommand.py for descriptions & purposes for each of these fields
+
 __mode1__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("PIDS_A"                     , "Supported PIDs [01-20]"                  , "0100", 4, pid,                   ECU.ENGINE, True, True), # the first PID getter is assumed to be supported
