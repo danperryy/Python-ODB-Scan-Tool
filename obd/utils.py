@@ -46,11 +46,6 @@ class SerialStatus:
 
 
 
-def ascii_to_bytes(a):
-    b = []
-    for i in range(0, len(a), 2):
-        b.append(int(a[i:i+2], 16))
-    return b
 
 def numBitsSet(n):
     # TODO: there must be a better way to do this...
@@ -67,6 +62,10 @@ def unhex(_hex):
 
 def unbin(_bin):
     return int(_bin, 2)
+
+def ascii_to_bytes(a):
+    """ converts a string of hex to an array of integer byte values """
+    return [ unhex(a[i:i+2]) for i in range(0, len(a), 2) ]
 
 def bitstring(_hex, bits=None):
     b = bin(unhex(_hex))[2:]
