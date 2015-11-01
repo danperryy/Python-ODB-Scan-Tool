@@ -50,8 +50,10 @@ class ELM327:
             close()
 
         Properties:
-            port_name
             status
+            port_name
+            protocol_name
+            ecus
     """
 
     _SUPPORTED_PROTOCOLS = {
@@ -149,8 +151,6 @@ class ELM327:
             debug("Connected to the adapter, but failed to connect to the vehicle", True)
 
 
-        # ------------------------------- done -------------------------------
-
 
     def load_protocol(self):
         """
@@ -164,16 +164,9 @@ class ELM327:
 
         # -------------- try the ELM's auto protocol mode --------------
         r = self.__send("ATSP0")
-        # continue, even if this fails
-        # if not self.__isok(r):
-            # self.__error("Failed to set protocol to 'Auto'")
-            # return False
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
         r0100 = self.__send("0100")
-        # if self.__has_message(r0100, "UNABLE TO CONNECT"):
-            # debug("The ELM could not establish a connection with the car", True)
-            # return False
 
         # ------------------- ATDPN (list protocol number) -------------------
         r = self.__send("ATDPN")
@@ -205,8 +198,8 @@ class ELM327:
                     self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
                     return True
 
-            # if we've come this far, then we have failed...
-            return False
+        # if we've come this far, then we have failed...
+        return False
 
 
 
@@ -243,10 +236,17 @@ class ELM327:
         else:
             return "No Port"
 
-
     @property
     def status(self):
         return self.__status
+
+    @property
+    def ecus(self):
+        return self.__protocol.ecu_map.values()
+
+    @property
+    def protocol_name(self):
+        return self.__protocol.__class__.__name__
 
 
     def close(self):
