@@ -148,25 +148,35 @@ class LegacyProtocol(Protocol):
 
 
 class SAE_J1850_PWM(LegacyProtocol):
+    ELM_NAME = "SAE J1850 PWM"
+    ELM_ID = "1"
     def __init__(self, lines_0100):
         LegacyProtocol.__init__(self, lines_0100)
 
 
 class SAE_J1850_VPW(LegacyProtocol):
+    ELM_NAME = "SAE J1850 VPW"
+    ELM_ID = "2"
     def __init__(self, lines_0100):
         LegacyProtocol.__init__(self, lines_0100)
 
 
 class ISO_9141_2(LegacyProtocol):
+    ELM_NAME = "ISO 9141-2"
+    ELM_ID = "3"
     def __init__(self, lines_0100):
         LegacyProtocol.__init__(self, lines_0100)
 
 
 class ISO_14230_4_5baud(LegacyProtocol):
+    ELM_NAME = "ISO 14230-4 (KWP 5BAUD)"
+    ELM_ID = "4"
     def __init__(self, lines_0100):
         LegacyProtocol.__init__(self, lines_0100)
 
 
 class ISO_14230_4_fast(LegacyProtocol):
+    ELM_NAME = "ISO 14230-4 (KWP FAST)"
+    ELM_ID = "5"
     def __init__(self, lines_0100):
         LegacyProtocol.__init__(self, lines_0100)

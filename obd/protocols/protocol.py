@@ -101,6 +101,10 @@ list of Messages.
 class Protocol(object):
 
     # override in subclass for each protocol
+
+    ELM_NAME = ""
+    ELM_ID = ""
+
     TX_ID_ENGINE = None
 
 

@@ -215,25 +215,35 @@ class CANProtocol(Protocol):
 
 
 class ISO_15765_4_11bit_500k(CANProtocol):
+    ELM_NAME = "ISO 15765-4 (CAN 11/500)"
+    ELM_ID = "6"
     def __init__(self, lines_0100):
         CANProtocol.__init__(self, lines_0100, id_bits=11)
 
 
 class ISO_15765_4_29bit_500k(CANProtocol):
+    ELM_NAME = "ISO 15765-4 (CAN 29/500)"
+    ELM_ID = "7"
     def __init__(self, lines_0100):
         CANProtocol.__init__(self, lines_0100, id_bits=29)
 
 
 class ISO_15765_4_11bit_250k(CANProtocol):
+    ELM_NAME = "ISO 15765-4 (CAN 11/250)"
+    ELM_ID = "8"
     def __init__(self, lines_0100):
         CANProtocol.__init__(self, lines_0100, id_bits=11)
 
 
 class ISO_15765_4_29bit_250k(CANProtocol):
+    ELM_NAME = "ISO 15765-4 (CAN 29/250)"
+    ELM_ID = "9"
     def __init__(self, lines_0100):
         CANProtocol.__init__(self, lines_0100, id_bits=29)
 
 
 class SAE_J1939(CANProtocol):
+    ELM_NAME = "SAE J1939 (CAN 29/250)"
+    ELM_ID = "A"
     def __init__(self, lines_0100):
         CANProtocol.__init__(self, lines_0100, id_bits=29)

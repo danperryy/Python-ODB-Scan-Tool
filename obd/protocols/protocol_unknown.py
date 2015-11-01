@@ -34,6 +34,7 @@ from .protocol import *
 
 
 class UnknownProtocol(Protocol):
+
     """
         Class representing an unknown protocol.
 

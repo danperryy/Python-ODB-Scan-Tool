@@ -43,17 +43,14 @@ class ELM327:
         Handles communication with the ELM327 adapter.
 
         After instantiation with a portname (/dev/ttyUSB0, etc...),
-        the following names become available:
+        the following functions become available:
 
-        Functions:
             send_and_parse()
             close()
-
-        Properties:
-            status
-            port_name
-            protocol_name
-            ecus
+            status()
+            port_name()
+            protocol_name()
+            ecus()
     """
 
     _SUPPORTED_PROTOCOLS = {
@@ -104,7 +101,7 @@ class ELM327:
                                       stopbits = 1, \
                                       bytesize = 8, \
                                       timeout  = 3) # seconds
-            debug("Serial port successfully opened on " + self.port_name)
+            debug("Serial port successfully opened on " + self.port_name())
 
         except serial.SerialException as e:
             self.__error(e)
@@ -229,24 +226,23 @@ class ELM327:
             debug('    ' + str(msg), True)
 
 
-    @property
     def port_name(self):
         if self.__port is not None:
             return self.__port.portstr
         else:
             return "No Port"
 
-    @property
+
     def status(self):
         return self.__status
 
-    @property
+
     def ecus(self):
         return self.__protocol.ecu_map.values()
 
-    @property
+
     def protocol_name(self):
-        return self.__protocol.__class__.__name__
+        return self.__protocol.ELM_NAME
 
 
     def close(self):

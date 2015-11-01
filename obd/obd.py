@@ -92,7 +92,7 @@ class OBD(object):
             and compiles a list of command objects.
         """
 
-        if self.status != SerialStatus.CAR_CONNECTED:
+        if self.status() != SerialStatus.CAR_CONNECTED:
             debug("Cannot load commands: No connection to car", True)
             return
 
@@ -144,12 +144,40 @@ class OBD(object):
             self.port = None
 
 
-    @property
     def status(self):
         if self.port is None:
             return SerialStatus.NOT_CONNECTED
         else:
-            return self.port.status
+            return self.port.status()
+
+
+    def ecus(self):
+        """ returns a list of ECUs in the vehicle """
+        if self.port is None:
+            return []
+        else:
+            return self.port.ecus()
+
+
+    def protocol_name(self):
+        """ returns the name of the protocol being used by the ELM327 """
+        if self.port is None:
+            return ""
+        else:
+            return self.port.protocol_name()
+
+
+    def get_port_name(self):
+        print("OBD.get_port_name() is deprecated, use OBD.port_name() instead")
+        return self.port_name()
+
+
+    def port_name(self):
+        """ Returns the name of the currently connected port """
+        if self.port is not None:
+            return self.port.port_name()
+        else:
+            return "Not connected to any port"
 
 
     def is_connected(self):
@@ -159,15 +187,7 @@ class OBD(object):
             Note: this function returns False when:
             obd.status = SerialStatus.ELM_CONNECTED
         """
-        return self.status == SerialStatus.CAR_CONNECTED
-
-
-    def get_port_name(self):
-        """ Returns the name of the currently connected port """
-        if self.port is not None:
-            return self.port.port_name
-        else:
-            return "Not connected to any port"
+        return self.status() == SerialStatus.CAR_CONNECTED
 
 
     def print_commands(self):
