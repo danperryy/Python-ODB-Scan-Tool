@@ -140,7 +140,7 @@ class Async(OBD):
             # new command being watched, store the command
             if c not in self.__commands:
                 debug("Watching command: %s" % str(c))
-                self.__commands[c] = Response() # give it an initial value
+                self.__commands[c] = OBDResponse() # give it an initial value
                 self.__callbacks[c] = [] # create an empty list
 
             # if a callback was given, push it
