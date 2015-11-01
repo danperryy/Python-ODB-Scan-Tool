@@ -162,18 +162,23 @@ for c in __mode1__:
 
 
 __mode3__ = [
-    #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL,    False, True),
+    #                      name                             description                    cmd  bytes       decoder           ECU        fast
+    OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL,     False, True),
 ]
 
 __mode4__ = [
-    #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, noop,                  ECU.ALL,    False, True),
+    #                      name                             description                    cmd  bytes       decoder           ECU        fast
+    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, noop,                  ECU.ALL,     False, True),
 ]
 
 __mode7__ = [
-    #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,    False, True),
+    #                      name                             description                    cmd  bytes       decoder           ECU        fast
+    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,     False, True),
+]
+
+__special__ = [
+    #                      name                             description                    cmd  bytes       decoder           ECU        fast
+    OBDCommand("VOLTAGE"                    , "Vehicle bettery voltage"                 , "ATRV", 0, noop,                  ECU.UNKNOWN, False, True),
 ]
 
 
@@ -201,6 +206,9 @@ class Commands():
         for m in self.modes:
             for c in m:
                 self.__dict__[c.name] = c
+
+        for c in __special__:
+            self.__dict__[c.name] = c
 
 
     def __getitem__(self, key):

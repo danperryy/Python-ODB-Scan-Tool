@@ -53,6 +53,7 @@ class ECU:
 
 
 class Frame(object):
+    """ represents a single line of OBD output """
     def __init__(self, raw):
         self.raw       = raw
         self.data      = []
@@ -66,6 +67,7 @@ class Frame(object):
 
 
 class Message(object):
+    """ represents a fully parsed OBD message of one or more Frames (lines) """
     def __init__(self, raw, frames):
         self.raw    = raw
         self.frames = frames
@@ -93,8 +95,11 @@ class Message(object):
 
 """
 
-Protocol objects are stateless factories for Frames and Messages.
-They are __called__ with a list of string responses, and return a
+Protocol objects are factories for Frame and Message objects. They are
+largely stateless, with the exception of an ECU tagging system, which
+are initialized by passing the response to an "0100" command.
+
+Protocols are __called__ with a list of string responses, and return a
 list of Messages.
 
 """
@@ -117,7 +122,7 @@ class Protocol(object):
             car to determine the ECU layout.
         """
 
-        # create the default map
+        # create the default, empty map
         # for example: self.TX_ID_ENGINE : ECU.ENGINE
         self.ecu_map = {}
 
@@ -137,15 +142,28 @@ class Protocol(object):
             accepts a list of raw strings from the car, split by lines
         """
 
-        # ditch spaces
-        filtered_lines = [line.replace(' ', '') for line in lines]
+        # ---------------------------- preprocess ----------------------------
 
-        # ditch frames without valid hex (trashes "NO DATA", etc...)
-        filtered_lines = filter(isHex, filtered_lines)
+        # Non-hex (non-OBD) lines shouldn't go through the big parsers,
+        # since they are typically messages such as: "NO DATA", "CAN ERROR",
+        # "UNABLE TO CONNECT", etc, so sort them into these two lists:
+        obd_lines = []
+        non_obd_lines = []
+
+        for line in lines:
+
+            line_no_spaces = line.replace(' ', '')
+
+            if isHex(line_no_spaces):
+                obd_lines.append(line_no_spaces)
+            else:
+                non_obd_lines.append(line) # pass the original, un-scrubbed line
+
+        # ---------------------- handle valid OBD lines ----------------------
 
         # parse each frame (each line)
         frames = []
-        for line in filtered_lines:
+        for line in obd_lines:
 
             frame = Frame(line)
 
@@ -156,26 +174,34 @@ class Protocol(object):
 
 
         # group frames by transmitting ECU
-        # ecus[tx_id] = [Frame, Frame]
-        ecus = {}
+        # frames_by_ECU[tx_id] = [Frame, Frame]
+        frames_by_ECU = {}
         for frame in frames:
-            if frame.tx_id not in ecus:
-                ecus[frame.tx_id] = [frame]
+            if frame.tx_id not in frames_by_ECU:
+                frames_by_ECU[frame.tx_id] = [frame]
             else:
-                ecus[frame.tx_id].append(frame)
+                frames_by_ECU[frame.tx_id].append(frame)
 
         # parse frames into whole messages
         messages = []
-        for ecu in ecus:
+        for ecu in frames_by_ECU:
 
             # new message object with a copy of the raw data
             # and frames addressed for this ecu
-            message = Message(list(lines), ecus[ecu])
+            message = Message(list(lines), frames_by_ECU[ecu])
 
             # subclass function to assemble frames into Messages
             if self.parse_message(message):
-                message.ecu = self.lookup_ecu(ecu) # mark with the appropriate ECU ID
+                # mark with the appropriate ECU ID
+                message.ecu = self.lookup_ecu(ecu)
                 messages.append(message)
+
+        # ----------- handle invalid lines (probably from the ELM) -----------
+
+        for line in non_obd_lines:
+            # give each line its own message object
+            # messages are ECU.UNKNOWN by default
+            messages.append( Message(list(lines), [ Frame(line) ]) )
 
         return messages
 
