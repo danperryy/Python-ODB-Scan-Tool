@@ -66,6 +66,10 @@ class OBD(object):
             portnames = scanSerial()
             debug("Available ports: " + str(portnames))
 
+            if not portnames:
+                debug("No OBD-II adapters found", True)
+                return
+
             for port in portnames:
                 debug("Attempting to use port: " + str(port))
                 self.port = ELM327(port, baudrate)

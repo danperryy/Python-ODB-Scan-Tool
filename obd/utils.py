@@ -83,7 +83,7 @@ def twos_comp(val, num_bits):
     return val
 
 def isHex(_hex):
-    return all(c in string.hexdigits for c in _hex)
+    return all([c in string.hexdigits for c in _hex])
 
 def constrainHex(_hex, b):
     """pads or chops hex to the requested number of bytes"""
