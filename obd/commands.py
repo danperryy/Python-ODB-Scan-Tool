@@ -161,17 +161,17 @@ for c in __mode1__:
 
 __mode3__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL,    True, True),
+    OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL,    False, True),
 ]
 
 __mode4__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, noop,                  ECU.ALL,    True, True),
+    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, noop,                  ECU.ALL,    False, True),
 ]
 
 __mode7__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,    True, True),
+    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,    False, True),
 ]
 
 
