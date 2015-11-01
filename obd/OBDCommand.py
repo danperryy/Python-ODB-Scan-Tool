@@ -80,23 +80,28 @@ class OBDCommand():
 
     def __call__(self, messages):
 
+        # filter for applicable messages (from the right ECU(s))
+        for_us = lambda m: self.ecu & m.ecu > 0
+        messages = list(filter(for_us, messages))
+
+
         # create the response object with the raw data recieved
         # and reference to original command
         r = OBDResponse(self, messages)
-        
+
+
+
+
         # combine the bytes back into a hex string
         # TODO: rewrite decoders to handle raw byte arrays
         _data = ""
 
         # filter for applicable messages
         for message in messages:
-
-            # if this command accepts messages from this ECU
-            if self.ecu & message.ecu > 0:
-                for b in message.data:
-                    h = hex(b)[2:].upper()
-                    h = "0" + h if len(h) < 2 else h
-                    _data += h
+            for b in message.data:
+                h = hex(b)[2:].upper()
+                h = "0" + h if len(h) < 2 else h
+                _data += h
 
         # constrain number of bytes in response
         if (self.bytes > 0): # zero bytes means flexible response
@@ -108,6 +113,10 @@ class OBDCommand():
         r.unit  = d[1]
 
         return r
+
+    def __constrain_message_data(self, message):
+        """ pads or chops the data field to the size specified by this command """
+        pass
 
     def __str__(self):
         return "%s: %s" % (self.command, self.desc)

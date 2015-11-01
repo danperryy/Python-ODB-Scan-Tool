@@ -215,7 +215,7 @@ class OBD(object):
             protects against sending unsupported commands.
         """
 
-        if self.status == OBDStatus.NOT_CONNECTED:
+        if self.status() == OBDStatus.NOT_CONNECTED:
             debug("Query failed, no connection available", True)
             return OBDResponse()
 

@@ -98,8 +98,8 @@ def constrainHex(_hex, b):
 
     return _hex
 
-# checks that a list of integers are consequtive
 def contiguous(l, start, end):
+    """ checks that a list of integers are consequtive """
     if not l:
         return False
     if l[0] != start:

@@ -176,9 +176,9 @@ __mode7__ = [
     OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,     False, True),
 ]
 
-__special__ = [
+__misc__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("VOLTAGE"                    , "Vehicle bettery voltage"                 , "ATRV", 0, noop,                  ECU.UNKNOWN, False, True),
+    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, noop,                  ECU.UNKNOWN, False, True),
 ]
 
 
@@ -207,7 +207,7 @@ class Commands():
             for c in m:
                 self.__dict__[c.name] = c
 
-        for c in __special__:
+        for c in __misc__:
             self.__dict__[c.name] = c
 
 
