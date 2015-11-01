@@ -135,7 +135,7 @@ class OBD(object):
 
     def close(self):
         """
-            Closes the connection, and clear supported_commands
+            Closes the connection, and clears supported_commands
         """
 
         self.supported_commands = []
@@ -147,6 +147,7 @@ class OBD(object):
 
 
     def status(self):
+        """ returns the OBD connection status """
         if self.port is None:
             return OBDStatus.NOT_CONNECTED
         else:
@@ -170,6 +171,7 @@ class OBD(object):
 
 
     def get_port_name(self):
+        # TODO: deprecated, remove later
         print("OBD.get_port_name() is deprecated, use OBD.port_name() instead")
         return self.port_name()
 
