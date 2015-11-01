@@ -37,7 +37,7 @@ def test_clone():
 
 
 def test_call():
-	p = SAE_J1850_PWM([])
+	p = SAE_J1850_PWM(["48 6B 10 41 00 FF FF FF FF AA"]) # train the ecu_map to identify the engine
 	messages = p(["48 6B 10 41 00 BE 1F B8 11 AA"]) # parse valid data into response object 
 
 	# valid response size
