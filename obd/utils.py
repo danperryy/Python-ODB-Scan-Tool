@@ -37,12 +37,12 @@ import sys
 from .debug import debug
 
 
-class SerialStatus:
+class OBDStatus:
     """ Values for the connection status flags """
 
-    NOT_CONNECTED = 0
-    ELM_CONNECTED = 1
-    CAR_CONNECTED = 2
+    NOT_CONNECTED = "Not Connected"
+    ELM_CONNECTED = "ELM Connected"
+    CAR_CONNECTED = "Car Connected"
 
 
 

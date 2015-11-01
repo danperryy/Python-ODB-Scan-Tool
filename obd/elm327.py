@@ -33,7 +33,7 @@ import re
 import serial
 import time
 from .protocols import *
-from .utils import SerialStatus, numBitsSet
+from .utils import OBDStatus, numBitsSet
 from .debug import debug
 
 
@@ -87,7 +87,7 @@ class ELM327:
     def __init__(self, portname, baudrate):
         """Initializes port by resetting device and gettings supported PIDs. """
 
-        self.__status      = SerialStatus.NOT_CONNECTED
+        self.__status      = OBDStatus.NOT_CONNECTED
         self.__port        = None
         self.__protocol    = UnknownProtocol([])
 
@@ -138,11 +138,11 @@ class ELM327:
             return
 
         # by now, we've successfuly communicated with the ELM, but not the car
-        self.__status = SerialStatus.ELM_CONNECTED
+        self.__status = OBDStatus.ELM_CONNECTED
 
         # try to communicate with the car, and load the correct protocol parser
         if self.load_protocol():
-            self.__status = SerialStatus.CAR_CONNECTED
+            self.__status = OBDStatus.CAR_CONNECTED
             debug("Connection successful")
         else:
             debug("Connected to the adapter, but failed to connect to the vehicle", True)
@@ -251,7 +251,7 @@ class ELM327:
             attributes to unconnected states.
         """
 
-        self.__status   = SerialStatus.NOT_CONNECTED
+        self.__status   = OBDStatus.NOT_CONNECTED
         self.__protocol = None
 
         if self.__port is not None:
@@ -270,7 +270,7 @@ class ELM327:
             Returns a list of Message objects
         """
 
-        if self.__status == SerialStatus.NOT_CONNECTED:
+        if self.__status == OBDStatus.NOT_CONNECTED:
             debug("cannot send_and_parse() when unconnected", True)
             return None
 

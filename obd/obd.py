@@ -35,7 +35,7 @@ from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
 from .OBDResponse import OBDResponse
-from .utils import scanSerial, SerialStatus
+from .utils import scanSerial, OBDStatus
 from .debug import debug
 
 
@@ -74,14 +74,14 @@ class OBD(object):
                 debug("Attempting to use port: " + str(port))
                 self.port = ELM327(port, baudrate)
 
-                if self.port.status >= SerialStatus.ELM_CONNECTED:
+                if self.port.status >= OBDStatus.ELM_CONNECTED:
                     break # success! stop searching for serial
         else:
             debug("Explicit port defined")
             self.port = ELM327(portstr, baudrate)
 
         # if the connection failed, close it
-        if self.port.status == SerialStatus.NOT_CONNECTED:
+        if self.port.status == OBDStatus.NOT_CONNECTED:
             # the ELM327 class will report its own errors
             self.close()
 
@@ -92,7 +92,7 @@ class OBD(object):
             and compiles a list of command objects.
         """
 
-        if self.status() != SerialStatus.CAR_CONNECTED:
+        if self.status() != OBDStatus.CAR_CONNECTED:
             debug("Cannot load commands: No connection to car", True)
             return
 
@@ -146,7 +146,7 @@ class OBD(object):
 
     def status(self):
         if self.port is None:
-            return SerialStatus.NOT_CONNECTED
+            return OBDStatus.NOT_CONNECTED
         else:
             return self.port.status()
 
@@ -185,9 +185,9 @@ class OBD(object):
             Returns a boolean for whether a connection with the car was made.
 
             Note: this function returns False when:
-            obd.status = SerialStatus.ELM_CONNECTED
+            obd.status = OBDStatus.ELM_CONNECTED
         """
-        return self.status() == SerialStatus.CAR_CONNECTED
+        return self.status() == OBDStatus.CAR_CONNECTED
 
 
     def print_commands(self):
@@ -213,7 +213,7 @@ class OBD(object):
             protects against sending unsupported commands.
         """
 
-        if self.status == SerialStatus.NOT_CONNECTED:
+        if self.status == OBDStatus.NOT_CONNECTED:
             debug("Query failed, no connection available", True)
             return OBDResponse()
 

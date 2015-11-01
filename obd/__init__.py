@@ -43,5 +43,5 @@ from .commands import commands
 from .OBDCommand import OBDCommand
 from .OBDResponse import OBDResponse, Unit
 from .protocols import ECU
-from .utils import scanSerial, SerialStatus
+from .utils import scanSerial, OBDStatus
 from .debug import debug

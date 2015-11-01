@@ -36,21 +36,85 @@ r = connection.query(obd.commands.RPM) # returns the response from the car
 
 ---
 
+### status()
+
+Returns a string value reflecting the status of the connection. These values should be compared against the `OBDStatus` class. The fact that they are strings is for human readability only. There are currently 3 possible states:
+
+```python
+from obd import OBDStatus
+
+# no connection is made
+OBDStatus.NOT_CONNECTED # "Not Connected"
+
+# successful communication with the ELM327 adapter
+OBDStatus.ELM_CONNECTED # "ELM Connected"
+
+# successful communication with the vehicle
+OBDStatus.CAR_CONNECTED # "Car Connected"
+```
+
+The middle state, `ELM_CONNECTED` is mostly for diagnosing errors. When a proper connection is established, you will never encounter this value.
+
+---
+
 ### is_connected()
 
-Returns a boolean for whether a connection was established.
+Returns a boolean for whether a connection was established with the vehicle. It is identical to writing:
+
+```python
+connection.status() == OBDStatus.CAR_CONNECTED
+```
+
+---
+
+### port_name()
+
+Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns `"Not connected to any port"`.
 
 ---
 
 ### get_port_name()
 
-Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns `"Not connected to any port"`.
+**Deprecated:** use `port_name()` instead
 
 ---
 
 ### supports(command)
 
 Returns a boolean for whether a command is supported by both the car and python-OBD
+
+---
+
+### protocol_name()
+
+Returns the string name of the protocol being used by the adapter. This function does not make any serial requests. The possible values are:
+
+- `""` when no connection has been made
+- `"SAE J1850 PWM"`
+- `"SAE J1850 VPW"`
+- `"AUTO, ISO 9141-2"`
+- `"ISO 14230-4 (KWP 5BAUD)"`
+- `"ISO 14230-4 (KWP FAST)"`
+- `"ISO 15765-4 (CAN 11/500)"`
+- `"ISO 15765-4 (CAN 29/500)"`
+- `"ISO 15765-4 (CAN 11/250)"`
+- `"ISO 15765-4 (CAN 29/250)"`
+- `"SAE J1939 (CAN 29/250)"`
+
+---
+
+### ecus()
+
+Returns a list of identified "Engine Control Units" visible to the adapter. Each value in the list is a constant representing that ECU's function. These constants are found in the `ECU` class:
+
+```python
+from obd import ECU
+
+ECU.UNKNOWN
+ECU.ENGINE
+```
+
+Python-OBD can currently only detect the engine computer, but future versions may extend this capability.
 
 ---
 
