@@ -53,7 +53,7 @@ class ECU:
 
 
 class Frame(object):
-    """ represents a single line of OBD output """
+    """ represents a single parsed line of OBD output """
     def __init__(self, raw):
         self.raw       = raw
         self.data      = []
@@ -68,8 +68,7 @@ class Frame(object):
 
 class Message(object):
     """ represents a fully parsed OBD message of one or more Frames (lines) """
-    def __init__(self, raw, frames):
-        self.raw    = raw
+    def __init__(self, frames):
         self.frames = frames
         self.ecu    = ECU.UNKNOWN
         self.data   = []
@@ -83,7 +82,7 @@ class Message(object):
 
     def __eq__(self, other):
         if isinstance(other, Message):
-            for attr in ["raw", "frames", "ecu", "data"]:
+            for attr in ["frames", "ecu", "data"]:
                 if getattr(self, attr) != getattr(other, attr):
                     return False
             return True
@@ -188,7 +187,7 @@ class Protocol(object):
 
             # new message object with a copy of the raw data
             # and frames addressed for this ecu
-            message = Message(list(lines), frames_by_ECU[ecu])
+            message = Message(frames_by_ECU[ecu])
 
             # subclass function to assemble frames into Messages
             if self.parse_message(message):
@@ -201,7 +200,7 @@ class Protocol(object):
         for line in non_obd_lines:
             # give each line its own message object
             # messages are ECU.UNKNOWN by default
-            messages.append( Message(list(lines), [ Frame(line) ]) )
+            messages.append( Message([ Frame(line) ]) )
 
         return messages
 

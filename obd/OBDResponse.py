@@ -64,15 +64,15 @@ class Unit:
 class OBDResponse():
     """ Standard response object for any OBDCommand """
 
-    def __init__(self, command=None, message=None):
+    def __init__(self, command=None, messages=None):
         self.command  = command
-        self.message  = message
+        self.messages = messages if messages else []
         self.value    = None
         self.unit     = Unit.NONE
         self.time     = time.time()
 
     def is_null(self):
-        return (self.message == None) or (self.value == None)
+        return (not self.messages) or (self.value == None)
 
     def __str__(self):
         if self.unit != Unit.NONE:
