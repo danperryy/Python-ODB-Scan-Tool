@@ -63,6 +63,22 @@ def unhex(_hex):
 def unbin(_bin):
     return int(_bin, 2)
 
+def bytes_to_int(bs):
+    """ converts a big-endian byte array into a single integer """
+    v = 0
+    p = 0
+    for b in reversed(bs):
+        v += b * (2**p)
+        p += 8
+    return v
+
+def bytes_to_bits(bs):
+    bits = ""
+    for b in bs:
+        v = bin(b)[2:]
+        bits += ("0" * (8 - len(v))) + v # pad it with zeros
+    return bits
+
 def ascii_to_bytes(a):
     """ converts a string of hex to an array of integer byte values """
     return [ unhex(a[i:i+2]) for i in range(0, len(a), 2) ]
@@ -84,19 +100,6 @@ def twos_comp(val, num_bits):
 
 def isHex(_hex):
     return all([c in string.hexdigits for c in _hex])
-
-def constrainHex(_hex, b):
-    """pads or chops hex to the requested number of bytes"""
-    diff = (b * 2) - len(_hex) # length discrepency in number of hex digits
-
-    if diff > 0:
-        debug("Receieved less data than expected, trying to parse anyways...")
-        _hex += ('0' * diff) # pad the right side with zeros
-    elif diff < 0:
-        debug("Receieved more data than expected, trying to parse anyways...")
-        _hex = _hex[:diff] # chop off the right side to fit
-
-    return _hex
 
 def contiguous(l, start, end):
     """ checks that a list of integers are consequtive """

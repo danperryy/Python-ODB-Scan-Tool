@@ -54,8 +54,9 @@ def noop(_hex):
     return (_hex, Unit.NONE)
 
 # hex in, bitstring out
-def pid(_hex):
-    v = bitstring(_hex, len(_hex) * 4)
+def pid(messages):
+    d = messages[0].data
+    v = bytes_to_bits(d)
     return (v, Unit.NONE)
 
 '''
@@ -153,9 +154,9 @@ def evap_pressure_alt(_hex):
     return (v, Unit.PA)
 
 # 0 to 16,383.75 RPM
-def rpm(_hex):
-    v = unhex(_hex)
-    v = v / 4.0
+def rpm(messages):
+    d = messages[0].data
+    v = bytes_to_int(d) / 4.0
     return (v, Unit.RPM)
 
 # 0 to 255 KPH
@@ -217,7 +218,8 @@ Return objects, lists, etc
 
 
 def status(_hex):
-    bits = bitstring(_hex, 32)
+    d = messages[0].data
+    bits = bytes_to_bits(d)
 
     output = Status()
     output.MIL           = bitToBool(bits[0])
