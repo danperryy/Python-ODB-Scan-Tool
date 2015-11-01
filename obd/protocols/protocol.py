@@ -51,62 +51,6 @@ class ECU:
     TRANSMISSION = 0b00000100
 
 
-class ECU_Map:
-    """ correlation of tx_id to ECU constants above """
-
-    def __init__(self, init_map):
-        self.forward_map = init_map # tx_id  ---> ECU ID
-        self.backward_map = {}      # ECU ID ---> tx_id
-
-        # the backwards map is simply used to check for ECU ID collisions
-        # since, for example, it shouldn't be possible to have two
-        # tx_id's represent the engine.
-
-        # construct the backwards map
-        for key in self.forward_map:
-            value = self.forward_map[key]
-            self.backward_map[value] = key
-
-    def set(self, tx_id, ecu_id):
-        """
-            maps a tx_id to an ECU ID, and removes
-            any old mappings to that ECU ID
-        """
-
-        # never store ECU.UNKNOWNs
-        # this is the only case where multiple tx_ids resolve to the same ECU ID
-        assert ecu_id != ECU.UNKNOWN
-
-        # check the backwards map to see if this ECU ID was already registered
-        if ecu_id in self.backward_map:
-            # if so, unregister the old mapping
-            old_tx_id = self.backward_map[ecu_id]
-            del self.forward_map[old_tx_id]
-            del self.backward_map[ecu_id]
-
-        # record the new mapping
-        self.forward_map[tx_id] = ecu_id
-        self.backward_map[ecu_id] = tx_id
-
-    def resolve(self, tx_id):
-        """ converts a tx_id into an ECU ID constant """
-        if tx_id in self.forward_map:
-            return self.forward_map[tx_id]
-        else:
-            return ECU.UNKNOWN
-
-    def lookup(self, ecu_id):
-        """
-            converts an ECU ID constant into a tx_id
-            (mostly for testing)
-        """
-        if ecu_id in self.backward_map:
-            return self.backward_map[ecu_id]
-        else:
-            return None
-
-
-
 class Frame(object):
     def __init__(self, raw):
         self.raw       = raw
@@ -169,12 +113,11 @@ class Protocol(object):
         """
 
         # create the default map
-        self.ecu_map = ECU_Map({
-            self.TX_ID_ENGINE : ECU.ENGINE
-        })
+        # for example: self.TX_ID_ENGINE : ECU.ENGINE
+        self.ecu_map = {}
 
         # parse the 0100 data into messages
-        # NOTE: at this point, their "ecu" property will be UKNOWN
+        # NOTE: at this point, their "ecu" property will be UNKNOWN
         messages = self(lines_0100)
 
         # read the messages and assemble the map
@@ -227,7 +170,10 @@ class Protocol(object):
             # subclass function to assemble frames into Messages
             if self.parse_message(message):
                 messages.append(message)
-                message.ecu = self.ecu_map.resolve(ecu) # mark with the appropriate ECU ID
+                if ecu in self.ecu_map:
+                    message.ecu = self.ecu_map[ecu] # mark with the appropriate ECU ID
+                else:
+                    message.ecu = ECU.UNKNOWN
 
         return messages
 
@@ -238,21 +184,32 @@ class Protocol(object):
             (in response to the 0100 PID listing command)
             associate each tx_id to an ECU ID constant.
 
-            Right now, this just picks the which ECU is the engine.
+            This is mostly concerned with finding the engine.
         """
 
         if len(messages) == 0:
             pass
         elif len(messages) == 1:
             # if there's only one response, mark it as the engine regardless
-            self.ecu_map.set(messages[0].tx_id, ECU.ENGINE)
+            self.ecu_map[messages[0].tx_id] = ECU.ENGINE
         else:
 
-            # if none of the messages correspond to the engine,
-            test = lambda m: m.tx_id == self.TX_ID_ENGINE
-            if not bool([m for m in messages if test(m)]):
-                # last resort solution, choose ECU
-                # with the most bits set (most PIDs supported)
+            # the engine is important
+            # if we can't find it, we'll use a fallback
+            found_engine = False
+
+            # if any tx_ids are exact matches to the expected values, record them
+            for m in messages:
+                if m.tx_id == self.TX_ID_ENGINE:
+                    self.ecu_map[m.tx_id] = ECU.ENGINE
+                    found_engine = True
+                # TODO: program more of these when we figure out their constants
+                # elif m.tx_id == self.TX_ID_TRANSMISSION:
+                    # self.ecu_map[m.tx_id] = ECU.TRANSMISSION
+
+            if not found_engine:
+                # last resort solution, choose ECU with the most bits set
+                # (most PIDs supported) to be the engine
                 best = 0
                 tx_id = None
 
@@ -263,7 +220,12 @@ class Protocol(object):
                         best = bits
                         tx_id = message.tx_id
 
-                self.ecu_map.set(tx_id, ECU.ENGINE)
+                self.ecu_map[tx_id] = ECU.ENGINE
+
+            # any remaining tx_ids are unknown
+            for m in messages:
+                if m.tx_id not in self.ecu_map:
+                    self.ecu_map[m.tx_id] = ECU.UNKNOWN
 
 
     def parse_frame(self, frame):
