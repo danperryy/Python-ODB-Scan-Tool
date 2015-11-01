@@ -72,11 +72,11 @@ class ELM327:
 
     # used as a fallback, when ATSP0 doesn't cut it
     _TRY_PROTOCOL_ORDER = [
-        "8", # ISO_15765_4_11bit_250k
         "6", # ISO_15765_4_11bit_500k
+        "8", # ISO_15765_4_11bit_250k
         "1", # SAE_J1850_PWM
-        "9", # ISO_15765_4_29bit_250k
         "7", # ISO_15765_4_29bit_500k
+        "9", # ISO_15765_4_29bit_250k
         "2", # SAE_J1850_VPW
         "3", # ISO_9141_2
         "4", # ISO_14230_4_5baud
@@ -198,7 +198,7 @@ class ELM327:
             debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send("ATTP")
+                r = self.__send("ATTP%s" % p)
                 r0100 = self.__send("0100")
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
