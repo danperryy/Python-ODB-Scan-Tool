@@ -46,17 +46,19 @@ class OBD(object):
         with it's assorted commands/sensors.
     """
 
-    def __init__(self, portstr=None, baudrate=38400):
+    def __init__(self, portstr=None, baudrate=38400, protocol=None, fast=True):
         self.port = None
         self.supported_commands = []
+        self.fast = fast
+        self.__last_command = "" # used for 
 
         debug("========================== python-OBD (v%s) ==========================" % __version__)
-        self.__connect(portstr, baudrate) # initialize by connecting and loading sensors
+        self.__connect(portstr, baudrate, protocol) # initialize by connecting and loading sensors
         self.__load_commands()            # try to load the car's supported commands
         debug("=========================================================================")
 
 
-    def __connect(self, portstr, baudrate):
+    def __connect(self, portstr, baudrate, protocol):
         """
             Attempts to instantiate an ELM327 connection object.
         """
@@ -72,13 +74,13 @@ class OBD(object):
 
             for port in portnames:
                 debug("Attempting to use port: " + str(port))
-                self.port = ELM327(port, baudrate)
+                self.port = ELM327(port, baudrate, protocol)
 
                 if self.port.status >= OBDStatus.ELM_CONNECTED:
                     break # success! stop searching for serial
         else:
             debug("Explicit port defined")
-            self.port = ELM327(portstr, baudrate)
+            self.port = ELM327(portstr, baudrate, protocol)
 
         # if the connection failed, close it
         if self.port.status == OBDStatus.NOT_CONNECTED:
@@ -105,7 +107,7 @@ class OBD(object):
                 continue
 
             # when querying, only use the blocking OBD.query()
-            # prevents problems when query is redefined in a subclass
+            # prevents problems when query is redefined in a subclass (like Async)
             response = OBD.query(self, get, force=True) # ask nicely
 
             if response.is_null():
@@ -221,12 +223,32 @@ class OBD(object):
             debug("'%s' is not supported" % str(cmd), True)
             return OBDResponse()
 
+
         # send command and retrieve message
         debug("Sending command: %s" % str(cmd))
-        messages = self.port.send_and_parse(cmd.command)
+        cmd_string = self.__build_command_string(cmd)
+        messages = self.port.send_and_parse(cmd_string)
+
+        # if we're sending a new command, note it
+        if cmd_string:
+            self.__last_command = cmd_string
 
         if not messages:
             debug("No valid OBD Messages returned", True)
             return OBDResponse()
 
         return cmd(messages) # compute a response object
+
+
+    def __build_command_string(self, cmd):
+        """ assembles the appropriate command string """
+        cmd_string = cmd.command
+
+        if self.fast and cmd.fast:
+            cmd_string += str(len(self.ecus()))
+
+        # if we sent this last time, just send 
+        if self.fast and (cmd_string == self.__last_command):
+            cmd_string = ""
+
+        return cmd_string

@@ -31,17 +31,27 @@
 
 from .utils import *
 from .debug import debug
+from .protocols import ECU
 from .OBDResponse import OBDResponse
 
 
 class OBDCommand():
-    def __init__(self, name, desc, command, returnBytes, decoder, ecu, supported=False):
+    def __init__(self,
+                 name,
+                 desc,
+                 command,
+                 returnBytes,
+                 decoder,
+                 ecu=ECU.ALL,
+                 fast=False,
+                 supported=False):
         self.name      = name        # human readable name (also used as key in commands dict)
         self.desc      = desc        # human readable description
         self.command   = command     # command string
         self.bytes     = returnBytes # number of bytes expected in return
         self.decode    = decoder     # decoding function
         self.ecu       = ecu         # ECU ID from which this command expects messages from
+        self.fast      = fast        # can an extra digit be added to the end of the command? (to make the ELM return early)
         self.supported = supported   # bool for support
 
     def clone(self):
@@ -50,7 +60,9 @@ class OBDCommand():
                           self.command,
                           self.bytes,
                           self.decode,
-                          self.ecu)
+                          self.ecu,
+                          self.fast,
+                          self.supported)
 
     @property
     def mode_int(self):

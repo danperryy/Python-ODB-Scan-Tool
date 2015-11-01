@@ -84,7 +84,7 @@ class ELM327:
     ]
 
 
-    def __init__(self, portname, baudrate):
+    def __init__(self, portname, baudrate, protocol):
         """Initializes port by resetting device and gettings supported PIDs. """
 
         self.__status      = OBDStatus.NOT_CONNECTED
@@ -266,6 +266,8 @@ class ELM327:
 
             Sends the given command string, and parses the
             response lines with the protocol object.
+
+            An empty command string will re-trigger the previous command
 
             Returns a list of Message objects
         """
