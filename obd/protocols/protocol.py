@@ -73,7 +73,7 @@ class ECU_Map:
             any old mappings to that ECU ID
         """
 
-        # nevery store ECU.UNKNOWNs
+        # never store ECU.UNKNOWNs
         # this is the only case where multiple tx_ids resolve to the same ECU ID
         assert ecu_id != ECU.UNKNOWN
 
@@ -149,7 +149,7 @@ class Message(object):
 """
 
 Protocol objects are stateless factories for Frames and Messages.
-They are __called__ with the raw string response, and return a
+They are __called__ with a list of string responses, and return a
 list of Messages.
 
 """
@@ -272,7 +272,7 @@ class Protocol(object):
             with the raw string line from the car.
 
             Function should return a boolean. If fatal errors were
-            found, this function should return False (the Frame is dropped).
+            found, this function should return False, and the Frame will be dropped.
         """
         raise NotImplementedError()
 
@@ -285,6 +285,6 @@ class Protocol(object):
             preloaded with a list of Frame objects.
 
             Function should return a boolean. If fatal errors were
-            found, this function should return False (the Message is dropped).
+            found, this function should return False, and the Message will be dropped.
         """
         raise NotImplementedError()

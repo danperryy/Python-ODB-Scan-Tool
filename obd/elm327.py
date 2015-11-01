@@ -40,14 +40,18 @@ from .debug import debug
 
 class ELM327:
     """
-        Provides interface for the vehicles primary ECU.
-        After instantiation with a portname (/dev/ttyUSB0, etc...),
-        the following functions become available:
+        Handles communication with the ELM327 adapter.
 
+        After instantiation with a portname (/dev/ttyUSB0, etc...),
+        the following names become available:
+
+        Functions:
             send_and_parse()
-            port_name()
-            status()
             close()
+
+        Properties:
+            port_name
+            status
     """
 
     _SUPPORTED_PROTOCOLS = {
@@ -65,6 +69,21 @@ class ELM327:
         #"B" : None, # user defined 1
         #"C" : None, # user defined 2
     }
+
+    # used as a fallback, when ATSP0 doesn't cut it
+    _TRY_PROTOCOL_ORDER = [
+        "6", # ISO_15765_4_11bit_500k
+        "7", # ISO_15765_4_29bit_500k
+        "1", # SAE_J1850_PWM
+        "8", # ISO_15765_4_11bit_250k
+        "9", # ISO_15765_4_29bit_250k
+        "2", # SAE_J1850_VPW
+        "3", # ISO_9141_2
+        "4", # ISO_14230_4_5baud
+        "5", # ISO_14230_4_fast
+        "A", # SAE_J1939
+    ]
+
 
     def __init__(self, portname, baudrate):
         """Initializes port by resetting device and gettings supported PIDs. """
@@ -119,59 +138,76 @@ class ELM327:
             self.__error("ATL0 did not return 'OK'")
             return
 
-        # ---------------------- ATSPA8 (protocol AUTO) -----------------------
-        r = self.__send("ATSPA8")
-        if not self.__isok(r):
-            self.__error("ATSPA8 did not return 'OK'")
-            return
-
+        # by now, we've successfuly communicated with the ELM, but not the car
+        self.__status = SerialStatus.ELM_CONNECTED
 
         # try to communicate with the car, and load the correct protocol parser
         if self.load_protocol():
             self.__status = SerialStatus.CAR_CONNECTED
+            debug("Connection successful")
         else:
-            self.__status = SerialStatus.ELM_CONNECTED
+            debug("Connected to the adapter, but failed to connect to the vehicle", True)
 
 
         # ------------------------------- done -------------------------------
-        debug("Connection successful")
 
 
     def load_protocol(self):
         """
             Attempts communication with the car.
 
+            If no protocol is specified, then protocols at tried with `ATTP`
+
             Upon success, the appropriate protocol parser is loaded,
             and this function returns True
         """
 
+        # -------------- try the ELM's auto protocol mode --------------
+        r = self.__send("ATSP0")
+        # continue, even if this fails
+        # if not self.__isok(r):
+            # self.__error("Failed to set protocol to 'Auto'")
+            # return False
+
         # -------------- 0100 (first command, SEARCH protocols) --------------
         r0100 = self.__send("0100")
-
         if self.__has_message(r0100, "UNABLE TO CONNECT"):
             debug("The ELM could not establish a connection with the car", True)
             return False
 
         # ------------------- ATDPN (list protocol number) -------------------
         r = self.__send("ATDPN")
-
-        if not r:
-            debug("Describe protocol command didn't return", True)
+        if len(r) != 1:
+            debug("Failed to retrieve current protocol", True)
             return False
 
-        p = r[0]
 
+        p = r[0] # grab the first (and only) line returned
         # suppress any "automatic" prefix
-        p = p[1:] if (len(p) > 1 and p.startswith("A")) else p[:-1]
+        p = p[1:] if (len(p) > 1 and p.startswith("A")) else p
 
-        if p not in self._SUPPORTED_PROTOCOLS:
-            debug("ELM responded with unknown protocol", True)
+        # check if the protocol is something we know
+        if p in self._SUPPORTED_PROTOCOLS:
+            # jackpot, instantiate the corresponding protocol handler
+            self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
+            return True
+        else:
+            # an unknown protocol
+            # this is likely because not all adapter/car combinations work
+            # in "auto" mode. Some respond to ATDPN responded with "0"
+            debug("ELM responded with unknown protocol. Trying them one-by-one")
+
+            for p in self._TRY_PROTOCOL_ORDER:
+                r = self.__send("ATTP")
+                r0100 = self.__send("0100")
+                if not self.__has_message(r0100, "UNABLE TO CONNECT"):
+                    # success, found the protocol
+                    self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
+                    return True
+
+            # if we've come this far, then we have failed...
             return False
 
-        # instantiate the correct protocol handler
-        self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
-
-        return True
 
 
     def __isok(self, lines, expectEcho=False):
@@ -299,10 +335,10 @@ class ELM327:
                 if not c:
 
                     if attempts <= 0:
-                        debug("__read() never recieved prompt character")
+                        debug("Failed to read port, giving up")
                         break
 
-                    debug("__read() found nothing")
+                    debug("Failed to read port, trying again...")
                     attempts -= 1
                     continue
 
