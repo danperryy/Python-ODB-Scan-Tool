@@ -236,7 +236,7 @@ Return objects, lists, etc
 
 
 
-def status(_hex):
+def status(messages):
     d = messages[0].data
     bits = bytes_to_bits(d)
 
@@ -283,8 +283,9 @@ def status(_hex):
 
 
 
-def fuel_status(_hex):
-    v = unhex(_hex[0:2]) # todo, support second fuel system
+def fuel_status(messages):
+    d = messages[0].data
+    v = d[0] # todo, support second fuel system
 
     if v <= 0:
         debug("Invalid fuel status response (v <= 0)", True)
@@ -305,8 +306,9 @@ def fuel_status(_hex):
     return (FUEL_STATUS[i], Unit.NONE)
 
 
-def air_status(_hex):
-    v = unhex(_hex)
+def air_status(messages):
+    d = messages[0].data
+    v = d[0]
 
     if v <= 0:
         debug("Invalid air status response (v <= 0)", True)
@@ -328,7 +330,8 @@ def air_status(_hex):
 
 
 def obd_compliance(_hex):
-    i = unhex(_hex)
+    d = messages[0].data
+    i = d[0]
 
     v = "Error: Unknown OBD compliance response"
 
@@ -339,7 +342,8 @@ def obd_compliance(_hex):
 
 
 def fuel_type(_hex):
-    i = unhex(_hex)
+    d = messages[0].data
+    i = d[0] # todo, support second fuel system
 
     v = "Error: Unknown fuel type response"
 
