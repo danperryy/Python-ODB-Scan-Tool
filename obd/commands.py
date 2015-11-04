@@ -178,7 +178,7 @@ __mode7__ = [
 
 __misc__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, noop,                  ECU.UNKNOWN, False, True),
+    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, elm_voltage,           ECU.UNKNOWN, False, True),
 ]
 
 

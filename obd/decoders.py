@@ -46,8 +46,8 @@ def <name>(_hex):
 
 
 # hex in, hex out
-def noop(_hex):
-    return (_hex, Unit.NONE)
+def noop(messages):
+    return (None, Unit.NONE)
 
 # hex in, bitstring out
 def pid(messages):
@@ -227,6 +227,14 @@ def fuel_rate(messages):
     v = bytes_to_int(d)
     v = v * 0.05
     return (v, Unit.LPH)
+
+
+def elm_voltage(messages):
+    # doesn't register as a normal OBD response,
+    # so access the raw frame data
+    v = messages[0].frames[0].raw
+    v = float(v)
+    return (v, Unit.VOLT)
 
 
 '''
