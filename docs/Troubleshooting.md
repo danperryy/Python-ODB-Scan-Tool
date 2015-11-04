@@ -1,7 +1,7 @@
 
 # Debug Output
 
-If python-OBD is not working properly, the first thing you should do is enable debug output. The following line enables console printing:
+If python-OBD is not working properly, the first thing you should do is enable debug output. Add the following line before your connection code to print all of the debug information to your console:
 
 ```python
 obd.debug.console = True
