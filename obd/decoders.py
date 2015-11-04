@@ -45,10 +45,6 @@ def <name>(_hex):
 '''
 
 
-# todo
-def todo(_hex):
-    return (_hex, Unit.NONE)
-
 # hex in, hex out
 def noop(_hex):
     return (_hex, Unit.NONE)
