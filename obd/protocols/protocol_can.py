@@ -216,11 +216,14 @@ class CANProtocol(Protocol):
 
 
             # on the first frame, skip PCI byte AND length code
-            message.data += ff[0].data[2:]
+            message.data = ff[0].data[2:]
 
             # now that they're in order, load/accumulate the data from each CF frame
             for f in cf:
                 message.data += f.data[1:] # chop off the PCI byte
+
+            # chop to the correct size (as specified in the first frame)
+            message.data = message.data[:ff[0].data_len]
 
 
         # chop off the Mode/PID bytes based on the mode number
