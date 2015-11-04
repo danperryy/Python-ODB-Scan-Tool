@@ -55,6 +55,11 @@ class CANProtocol(Protocol):
 
         # pad 11-bit CAN headers out to 32 bits for consistency,
         # since ELM already does this for 29-bit CAN headers
+
+        #        7 E8 06 41 00 BE 7F B8 13
+        # to:
+        # 00 00 07 E8 06 41 00 BE 7F B8 13
+
         if self.id_bits == 11:
             raw = "00000" + raw
 
@@ -87,14 +92,15 @@ class CANProtocol(Protocol):
             frame.rx_id     = raw_bytes[2]  # 0x33 = broadcast (functional)
             frame.tx_id     = raw_bytes[3]  # 0xF1 = tester ID
 
-        # Ex.
+        # extract the frame data
         #             [      Frame       ]
         # 00 00 07 E8 06 41 00 BE 7F B8 13
-
         frame.data = raw_bytes[4:]
 
 
         # read PCI byte (always first byte in the data section)
+        #             v
+        # 00 00 07 E8 06 41 00 BE 7F B8 13
         frame.type = frame.data[0] & 0xF0
         if frame.type not in [self.FRAME_TYPE_SF,
                               self.FRAME_TYPE_FF,
@@ -102,11 +108,16 @@ class CANProtocol(Protocol):
             debug("Dropping frame carrying unknown PCI frame type")
             return False
 
+
         if frame.type == self.FRAME_TYPE_SF:
             # single frames have 4 bit length codes
+            #              v
+            # 00 00 07 E8 06 41 00 BE 7F B8 13
             frame.data_len = frame.data[0] & 0x0F
         elif frame.type == self.FRAME_TYPE_FF:
             # First frames have 12 bit length codes
+            #              v
+            # 00 00 07 E8 06 41 00 BE 7F B8 13
             frame.data_len = (frame.data[0] & 0x0F) << 8
             frame.data_len += frame.data[1]
         elif frame.type == self.FRAME_TYPE_CF:
@@ -128,6 +139,9 @@ class CANProtocol(Protocol):
                 return False
 
             # extract data, ignore PCI byte and anything after the marked length
+            #             [      Frame       ]
+            #                [     Data      ]
+            # 00 00 07 E8 06 41 00 BE 7F B8 13 xx xx xx xx, anything else is ignored
             message.data = frame.data[1:1+frame.data_len]
 
         else:
@@ -174,11 +188,31 @@ class CANProtocol(Protocol):
             # sort the sequence indices
             cf = sorted(cf, key=lambda f: f.seq_index)
 
-            # check contiguity
+            # check contiguity, and that we aren't missing any frames
             indices = [f.seq_index for f in cf]
             if not contiguous(indices, 1, len(cf)):
                 debug("Recieved multiline response with missing frames")
                 return False
+
+
+            # first frame:
+            #             [       Frame         ]
+            #             [PCI]                   <-- first frame has a 2 byte PCI
+            #              [L ] [     Data      ] L = length of message in bytes
+            # 00 00 07 E8 10 13 49 04 01 35 36 30
+
+
+            # consecutive frame:
+            #             [       Frame         ]
+            #             []                       <-- consecutive frames have a 1 byte PCI
+            #              N [       Data       ]  N = current frame number (rolls over to 0 after F)
+            # 00 00 07 E8 21 32 38 39 34 39 41 43
+            # 00 00 07 E8 22 00 00 00 00 00 00 31
+
+
+            # original data:
+            # [     specified message length (from first-frame)      ]
+            # 49 04 01 35 36 30 32 38 39 34 39 41 43 00 00 00 00 00 00 31
 
 
             # on the first frame, skip PCI byte AND length code
@@ -193,6 +227,8 @@ class CANProtocol(Protocol):
         mode = message.data[0]
         if mode == 0x43:
 
+            # TODO: confirm this logic. I don't have any raw test data for it yet
+
             # fetch the DTC count, and use it as a length code
             num_dtc_bytes = message.data[1] * 2
 
@@ -201,6 +237,14 @@ class CANProtocol(Protocol):
 
         else:
             # handles cases when there is both a Mode and PID byte
+            #
+            # single line response:
+            #                      [  Data   ]
+            # 00 00 07 E8 06 41 00 BE 7F B8 13
+            #
+            # OR, the data from a multiline response:
+            #       [                     Data                       ]
+            # 49 04 01 35 36 30 32 38 39 34 39 41 43 00 00 00 00 00 00
             message.data = message.data[2:]
 
         return True
