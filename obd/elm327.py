@@ -87,20 +87,20 @@ class ELM327:
     def __init__(self, portname, baudrate, protocol):
         """Initializes port by resetting device and gettings supported PIDs. """
 
-        self.__status      = OBDStatus.NOT_CONNECTED
-        self.__port        = None
-        self.__protocol    = UnknownProtocol([])
+        self.__status   = OBDStatus.NOT_CONNECTED
+        self.__port     = None
+        self.__protocol = UnknownProtocol([])
 
 
         # ------------- open port -------------
         try:
             debug("Opening serial port '%s'" % portname)
             self.__port = serial.Serial(portname, \
-                                      baudrate = baudrate, \
-                                      parity   = serial.PARITY_NONE, \
-                                      stopbits = 1, \
-                                      bytesize = 8, \
-                                      timeout  = 3) # seconds
+                                        baudrate = baudrate, \
+                                        parity   = serial.PARITY_NONE, \
+                                        stopbits = 1, \
+                                        bytesize = 8, \
+                                        timeout  = 3) # seconds
             debug("Serial port successfully opened on " + self.port_name())
 
         except serial.SerialException as e:
@@ -211,9 +211,9 @@ class ELM327:
             return len(lines) == 1 and lines[0] == 'OK'
 
 
-    def __has_message(self, lines, message):
+    def __has_message(self, lines, text):
         for line in lines:
-            if message in line:
+            if text in line:
                 return True
         return False
 
