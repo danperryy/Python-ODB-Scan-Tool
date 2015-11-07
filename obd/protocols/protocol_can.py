@@ -239,7 +239,7 @@ class CANProtocol(Protocol):
             message.data = message.data[2:][:num_dtc_bytes]
 
         else:
-            # handles cases when there is both a Mode and PID byte
+            # skip the Mode and PID bytes
             #
             # single line response:
             #                      [  Data   ]

@@ -227,7 +227,7 @@ class Protocol(object):
 
         # filter out messages that don't contain any data
         # this will prevent ELM responses from being mapped to ECUs
-        messages = filter(lambda m: m.parsed(), messages)
+        messages = [ m for m in messages if m.parsed() ]
 
         # populate the map
         if len(messages) == 0:
