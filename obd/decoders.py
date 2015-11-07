@@ -45,13 +45,9 @@ def <name>(_hex):
 '''
 
 
-# todo
-def todo(_hex):
-    return (_hex, Unit.NONE)
-
 # hex in, hex out
-def noop(_hex):
-    return (_hex, Unit.NONE)
+def noop(messages):
+    return (None, Unit.NONE)
 
 # hex in, bitstring out
 def pid(messages):
@@ -64,31 +60,36 @@ Sensor decoders
 Return Value object with value and units
 '''
 
-def count(_hex):
-    v = unhex(_hex)
+def count(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     return (v, Unit.COUNT)
 
 # 0 to 100 %
-def percent(_hex):
-    v = unhex(_hex[0:2])
+def percent(messages):
+    d = messages[0].data
+    v = d[0]
     v = v * 100.0 / 255.0
     return (v, Unit.PERCENT)
 
 # -100 to 100 %
-def percent_centered(_hex):
-    v = unhex(_hex[0:2])
+def percent_centered(messages):
+    d = messages[0].data
+    v = d[0]
     v = (v - 128) * 100.0 / 128.0
     return (v, Unit.PERCENT)
 
 # -40 to 215 C
-def temp(_hex):
-    v = unhex(_hex)
+def temp(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v - 40
     return (v, Unit.C)
 
 # -40 to 6513.5 C
-def catalyst_temp(_hex):
-    v = unhex(_hex)
+def catalyst_temp(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = (v / 10.0) - 40
     return (v, Unit.C)
 
@@ -99,57 +100,66 @@ def current_centered(_hex):
     return (v, Unit.MA)
 
 # 0 to 1.275 volts
-def sensor_voltage(_hex):
-    v = unhex(_hex[0:2])
+def sensor_voltage(messages):
+    d = messages[0].data
+    v = d[0]
     v = v / 200.0
     return (v, Unit.VOLT)
 
 # 0 to 8 volts
-def sensor_voltage_big(_hex):
-    v = unhex(_hex[4:8])
+def sensor_voltage_big(messages):
+    d = messages[0].data
+    v = bytes_to_int(d[2:4])
     v = (v * 8.0) / 65535
     return (v, Unit.VOLT)
 
 # 0 to 765 kPa
-def fuel_pressure(_hex):
-    v = unhex(_hex)
+def fuel_pressure(messages):
+    d = messages[0].data
+    v = d[0]
     v = v * 3
     return (v, Unit.KPA)
 
 # 0 to 255 kPa
-def pressure(_hex):
-    v = unhex(_hex)
+def pressure(messages):
+    d = messages[0].data
+    v = d[0]
     return (v, Unit.KPA)
 
 # 0 to 5177 kPa
-def fuel_pres_vac(_hex):
-    v = unhex(_hex)
+def fuel_pres_vac(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v * 0.079
     return (v, Unit.KPA)
 
 # 0 to 655,350 kPa
-def fuel_pres_direct(_hex):
-    v = unhex(_hex)
+def fuel_pres_direct(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v * 10
     return (v, Unit.KPA)
 
 # -8192 to 8192 Pa
-def evap_pressure(_hex):
+def evap_pressure(messages):
     # decode the twos complement
-    a = twos_comp(unhex(_hex[0:2]), 8)
-    b = twos_comp(unhex(_hex[2:4]), 8)
+    d = messages[0].data
+    a = twos_comp(unhex(d[0]), 8)
+    b = twos_comp(unhex(d[1]), 8)
     v = ((a * 256.0) + b) / 4.0
     return (v, Unit.PA)
 
 # 0 to 327.675 kPa
-def abs_evap_pressure(_hex):
-    v = unhex(_hex)
+def abs_evap_pressure(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v / 200.0
     return (v, Unit.KPA)
 
 # -32767 to 32768 Pa
-def evap_pressure_alt(_hex):
-    v = unhex(_hex)
+def evap_pressure_alt(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v - 32767
     return (v, Unit.PA)
 
@@ -160,54 +170,71 @@ def rpm(messages):
     return (v, Unit.RPM)
 
 # 0 to 255 KPH
-def speed(_hex):
-    v = unhex(_hex)
+def speed(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     return (v, Unit.KPH)
 
 # -64 to 63.5 degrees
-def timing_advance(_hex):
-    v = unhex(_hex)
+def timing_advance(messages):
+    d = messages[0].data
+    v = d[0]
     v = (v - 128) / 2.0
     return (v, Unit.DEGREES)
 
 # -210 to 301 degrees
-def inject_timing(_hex):
-    v = unhex(_hex)
+def inject_timing(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = (v - 26880) / 128.0
     return (v, Unit.DEGREES)
 
 # 0 to 655.35 grams/sec
-def maf(_hex):
-    v = unhex(_hex)
+def maf(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v / 100.0
     return (v, Unit.GPS)
 
 # 0 to 2550 grams/sec
-def max_maf(_hex):
-    v = unhex(_hex[0:2])
+def max_maf(messages):
+    d = messages[0].data
+    v = d[0]
     v = v * 10
     return (v, Unit.GPS)
 
 # 0 to 65535 seconds
-def seconds(_hex):
-    v = unhex(_hex)
+def seconds(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     return (v, Unit.SEC)
 
 # 0 to 65535 minutes
-def minutes(_hex):
-    v = unhex(_hex)
+def minutes(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     return (v, Unit.MIN)
 
 # 0 to 65535 km
-def distance(_hex):
-    v = unhex(_hex)
+def distance(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     return (v, Unit.KM)
 
 # 0 to 3212 Liters/hour
-def fuel_rate(_hex):
-    v = unhex(_hex)
+def fuel_rate(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
     v = v * 0.05
     return (v, Unit.LPH)
+
+
+def elm_voltage(messages):
+    # doesn't register as a normal OBD response,
+    # so access the raw frame data
+    v = messages[0].frames[0].raw
+    v = float(v)
+    return (v, Unit.VOLT)
 
 
 '''
@@ -217,7 +244,7 @@ Return objects, lists, etc
 
 
 
-def status(_hex):
+def status(messages):
     d = messages[0].data
     bits = bytes_to_bits(d)
 
@@ -264,8 +291,9 @@ def status(_hex):
 
 
 
-def fuel_status(_hex):
-    v = unhex(_hex[0:2]) # todo, support second fuel system
+def fuel_status(messages):
+    d = messages[0].data
+    v = d[0] # todo, support second fuel system
 
     if v <= 0:
         debug("Invalid fuel status response (v <= 0)", True)
@@ -286,8 +314,9 @@ def fuel_status(_hex):
     return (FUEL_STATUS[i], Unit.NONE)
 
 
-def air_status(_hex):
-    v = unhex(_hex)
+def air_status(messages):
+    d = messages[0].data
+    v = d[0]
 
     if v <= 0:
         debug("Invalid air status response (v <= 0)", True)
@@ -309,7 +338,8 @@ def air_status(_hex):
 
 
 def obd_compliance(_hex):
-    i = unhex(_hex)
+    d = messages[0].data
+    i = d[0]
 
     v = "Error: Unknown OBD compliance response"
 
@@ -320,7 +350,8 @@ def obd_compliance(_hex):
 
 
 def fuel_type(_hex):
-    i = unhex(_hex)
+    d = messages[0].data
+    i = d[0] # todo, support second fuel system
 
     v = "Error: Unknown fuel type response"
 

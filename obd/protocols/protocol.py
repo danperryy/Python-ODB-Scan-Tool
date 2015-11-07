@@ -80,6 +80,10 @@ class Message(object):
         else:
             return self.frames[0].tx_id
 
+    def parsed(self):
+        """ boolean for whether this message was successfully parsed """
+        return bool(self.data)
+
     def __eq__(self, other):
         if isinstance(other, Message):
             for attr in ["frames", "ecu", "data"]:
@@ -221,6 +225,11 @@ class Protocol(object):
             This is mostly concerned with finding the engine.
         """
 
+        # filter out messages that don't contain any data
+        # this will prevent ELM responses from being mapped to ECUs
+        messages = filter(lambda m: m.parsed(), messages)
+
+        # populate the map
         if len(messages) == 0:
             pass
         elif len(messages) == 1:

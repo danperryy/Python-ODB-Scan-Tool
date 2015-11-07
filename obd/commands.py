@@ -117,10 +117,10 @@ __mode1__ = [
 
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("PIDS_C"                     , "Supported PIDs [41-60]"                  , "0140", 4, pid,                   ECU.ENGINE, True),
-    OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , "0141", 4, todo,                  ECU.ENGINE, True),
-    OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , "0142", 2, todo,                  ECU.ENGINE, True),
-    OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , "0143", 2, todo,                  ECU.ENGINE, True),
-    OBDCommand("COMMAND_EQUIV_RATIO"        , "Command equivalence ratio"               , "0144", 2, todo,                  ECU.ENGINE, True),
+    OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , "0141", 4, noop,                  ECU.ENGINE, True),
+    OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , "0142", 2, noop,                  ECU.ENGINE, True),
+    OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , "0143", 2, noop,                  ECU.ENGINE, True),
+    OBDCommand("COMMAND_EQUIV_RATIO"        , "Command equivalence ratio"               , "0144", 2, noop,                  ECU.ENGINE, True),
     OBDCommand("RELATIVE_THROTTLE_POS"      , "Relative throttle position"              , "0145", 1, percent,               ECU.ENGINE, True),
     OBDCommand("AMBIANT_AIR_TEMP"           , "Ambient air temperature"                 , "0146", 1, temp,                  ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS_B"             , "Absolute throttle position B"            , "0147", 1, percent,               ECU.ENGINE, True),
@@ -178,7 +178,7 @@ __mode7__ = [
 
 __misc__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, noop,                  ECU.UNKNOWN, False, True),
+    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, elm_voltage,           ECU.UNKNOWN, False, True),
 ]
 
 
