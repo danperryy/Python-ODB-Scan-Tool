@@ -79,6 +79,13 @@ def bytes_to_bits(bs):
         bits += ("0" * (8 - len(v))) + v # pad it with zeros
     return bits
 
+def bytes_to_hex(bs):
+    h = ""
+    for b in bs:
+        bh = hex(b)[2:]
+        h += ("0" * (2 - len(bh))) + bh
+    return h
+
 def ascii_to_bytes(a):
     """ converts a string of hex to an array of integer byte values """
     return [ unhex(a[i:i+2]) for i in range(0, len(a), 2) ]

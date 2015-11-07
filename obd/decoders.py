@@ -330,38 +330,47 @@ def fuel_type(_hex):
     return (v, Unit.NONE)
 
 
-# converts 2 bytes of hex into a DTC code
-def single_dtc(_hex):
+def single_dtc(_bytes):
+    """ converts 2 bytes into a DTC code """
 
-    if len(_hex) != 4:
+    # check validity (also ignores padding that the ELM returns)
+    if (len(_bytes) != 2) or (_bytes == (0,0)):
         return None
 
-    if _hex == "0000":
-        return None
+    # BYTES: (16,      35      )
+    # HEX:    4   1    2   3
+    # BIN:    01000001 00100011
+    #         [][][  in hex   ]
+    #         | / /
+    # DTC:    C0123
 
-    bits = bitstring(_hex[0], 4)
-
-    dtc = ""
-    dtc += ['P', 'C', 'B', 'U'][unbin(bits[0:2])]
-    dtc += str(unbin(bits[2:4]))
-    dtc += _hex[1:4]
+    dtc  = ['P', 'C', 'B', 'U'][ _bytes[0] >> 6 ] # the last 2 bits of the first byte
+    dtc += str( (_bytes[0] >> 4) & 0b0011 ) # the next pair of 2 bits. Mask off the bits we read above
+    dtc += bytes_to_hex(_bytes)[1:4]
 
     return dtc
 
-# converts a frame of 2-byte DTCs into a list of DTCs
-# example input = "010480034123"
-#                  [  ][  ][  ]
-def dtc(_hex):
+def dtc(messages):
+    """ converts a frame of 2-byte DTCs into a list of DTCs """
     codes = []
-    for n in range(0, len(_hex), 4):
-        dtc = single_dtc(_hex[n:n+4])
+    d = []
+    for message in messages:
+        d += message.data
+
+    print(bytes_to_hex(d))
+
+    # look at data in pairs of bytes
+    for n in range(0, len(d), 2):
+
+        # parse the code
+        dtc = single_dtc( (d[n], d[n+1]) )
 
         if dtc is not None:
-
             # pull a description if we have one
-            desc = "Unknown error code"
             if dtc in DTC:
                 desc = DTC[dtc]
+            else:
+                desc = "Unknown error code"
 
             codes.append( (dtc, desc) )
 
