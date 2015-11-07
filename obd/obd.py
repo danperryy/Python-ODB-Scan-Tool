@@ -170,6 +170,14 @@ class OBD(object):
             return self.port.protocol_name()
 
 
+    def protocol_id(self):
+        """ returns the ID of the protocol being used by the ELM327 """
+        if self.port is None:
+            return ""
+        else:
+            return self.port.protocol_id()
+
+
     def get_port_name(self):
         # TODO: deprecated, remove later
         print("OBD.get_port_name() is deprecated, use OBD.port_name() instead")

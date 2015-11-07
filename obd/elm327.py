@@ -247,6 +247,10 @@ class ELM327:
         return self.__protocol.ELM_NAME
 
 
+    def protocol_id(self):
+        return self.__protocol.ELM_ID
+
+
     def close(self):
         """
             Resets the device, and sets all

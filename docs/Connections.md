@@ -85,21 +85,23 @@ Returns a boolean for whether a command is supported by both the car and python-
 
 ---
 
+### protocol_id()
 ### protocol_name()
 
-Returns the string name of the protocol being used by the adapter. This function does not make any serial requests. The possible values are:
+Both functions return string names for the protocol currently being used by the adapter. Protocol *ID's* are the short names used by your adapter, whereas protocol *names* are the human-readable versions. The `protocol_id()` function is a good way to lookup which value to pass in the `protocol` field of the OBD constructor (though, this is mainly for advanced usage). These function do not make any serial requests. When no connection has been made, these functions will return empty strings. The possible values are:
 
-- `""` when no connection has been made
-- `"SAE J1850 PWM"`
-- `"SAE J1850 VPW"`
-- `"AUTO, ISO 9141-2"`
-- `"ISO 14230-4 (KWP 5BAUD)"`
-- `"ISO 14230-4 (KWP FAST)"`
-- `"ISO 15765-4 (CAN 11/500)"`
-- `"ISO 15765-4 (CAN 29/500)"`
-- `"ISO 15765-4 (CAN 11/250)"`
-- `"ISO 15765-4 (CAN 29/250)"`
-- `"SAE J1939 (CAN 29/250)"`
+|ID | Name                     |
+|---|--------------------------|
+| 1 | SAE J1850 PWM            |
+| 2 | SAE J1850 VPW            |
+| 3 | AUTO, ISO 9141-2         |
+| 4 | ISO 14230-4 (KWP 5BAUD)  |
+| 5 | ISO 14230-4 (KWP FAST)   |
+| 6 | ISO 15765-4 (CAN 11/500) |
+| 7 | ISO 15765-4 (CAN 29/500) |
+| 8 | ISO 15765-4 (CAN 11/250) |
+| 9 | ISO 15765-4 (CAN 29/250) |
+| A | SAE J1939 (CAN 29/250)   |
 
 ---
 
