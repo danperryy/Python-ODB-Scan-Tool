@@ -204,7 +204,9 @@ class ELM327:
         if not lines:
             return False
         if expectEcho:
-            return len(lines) == 2 and lines[1] == 'OK'
+            # don't test for the echo itself
+            # allow the adapter to already have echo disabled
+            return self.__has_message(lines, 'OK')
         else:
             return len(lines) == 1 and lines[0] == 'OK'
 
