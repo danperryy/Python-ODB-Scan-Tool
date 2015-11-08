@@ -105,6 +105,8 @@ Both functions return string names for the protocol currently being used by the 
 
 ---
 
+<!--
+
 ### ecus()
 
 Returns a list of identified "Engine Control Units" visible to the adapter. Each value in the list is a constant representing that ECU's function. These constants are found in the `ECU` class:
@@ -118,7 +120,7 @@ ECU.ENGINE
 
 Python-OBD can currently only detect the engine computer, but future versions may extend this capability.
 
----
+-->
 
 ### close()
 

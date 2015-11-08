@@ -154,12 +154,14 @@ class OBD(object):
             return self.port.status()
 
 
-    def ecus(self):
-        """ returns a list of ECUs in the vehicle """
-        if self.port is None:
-            return []
-        else:
-            return self.port.ecus()
+    # not sure how useful this would be
+
+    # def ecus(self):
+    #     """ returns a list of ECUs in the vehicle """
+    #     if self.port is None:
+    #         return []
+    #     else:
+    #         return self.port.ecus()
 
 
     def protocol_name(self):
@@ -255,7 +257,7 @@ class OBD(object):
         cmd_string = cmd.command
 
         if self.fast and cmd.fast:
-            cmd_string += str(len(self.ecus()))
+            cmd_string += str(len(self.port.ecus()))
 
         # if we sent this last time, just send 
         if self.fast and (cmd_string == self.__last_command):
