@@ -65,6 +65,19 @@ class CANProtocol(Protocol):
 
         raw_bytes = ascii_to_bytes(raw)
 
+        # check for valid size
+
+        # TODO: lookup this limit
+        # if len(raw_bytes) < 9:
+        #     debug("Dropped frame for being too short")
+        #     return False
+
+        # TODO: lookup this limit
+        # if len(raw_bytes) > 16:
+        #     debug("Dropped frame for being too long")
+        #     return False
+
+
         # read header information
         if self.id_bits == 11:
             # Ex.

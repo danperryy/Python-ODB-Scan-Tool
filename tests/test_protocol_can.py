@@ -37,6 +37,12 @@ def test_single_frame():
         check_message(r[0], 1, 0x0, list(range(4)))
 
 
+        r = p(["7E8 08 41 00 00 01 02 03 04 05"])
+        assert len(r) == 1
+        check_message(r[0], 1, 0x0, list(range(6)))
+
+        # TODO: check for invalid length filterring
+
 
 def test_hex_straining():
     """
@@ -108,7 +114,6 @@ def test_multi_line():
 
     for protocol in CAN_11_PROTOCOLS:
         p = protocol([])
-
 
         test_case = [
             "7E8 10 20 49 04 00 01 02 03",
