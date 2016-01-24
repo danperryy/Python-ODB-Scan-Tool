@@ -38,7 +38,7 @@ from .OBDResponse import Unit, Status, Test
 '''
 All decoders take the form:
 
-def <name>(_hex):
+def <name>(<list_of_messages>):
     ...
     return (<value>, <unit>)
 
@@ -94,8 +94,9 @@ def catalyst_temp(messages):
     return (v, Unit.C)
 
 # -128 to 128 mA
-def current_centered(_hex):
-    v = unhex(_hex[4:8])
+def current_centered(messages):
+    d = messages[0].data
+    v = bytes_to_int(d[2:4])
     v = (v / 256.0) - 128
     return (v, Unit.MA)
 
@@ -391,10 +392,11 @@ def dtc(messages):
     print(bytes_to_hex(d))
 
     # look at data in pairs of bytes
-    for n in range(0, len(d), 2):
+    # looping through ENDING indices to avoid odd (invalid) code lengths
+    for n in range(1, len(d), 2):
 
         # parse the code
-        dtc = single_dtc( (d[n], d[n+1]) )
+        dtc = single_dtc( (d[n-1], d[n]) )
 
         if dtc is not None:
             # pull a description if we have one
