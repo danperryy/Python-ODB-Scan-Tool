@@ -174,3 +174,9 @@ def test_dtc():
     assert d.dtc(m("000001040000")) == ([
         ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
     ], Unit.NONE)
+
+    # test multiple messages
+    assert d.dtc(m("0104") + m("8003") + m("0000")) == ([
+        ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
+        ("B0003", "Unknown error code"),
+    ], Unit.NONE)

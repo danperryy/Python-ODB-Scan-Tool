@@ -382,6 +382,7 @@ def single_dtc(_bytes):
 
     return dtc
 
+
 def dtc(messages):
     """ converts a frame of 2-byte DTCs into a list of DTCs """
     codes = []
