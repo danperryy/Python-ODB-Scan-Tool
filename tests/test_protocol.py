@@ -20,30 +20,34 @@ def test_ECU():
 
 def test_frame():
     # constructor
-    f = Frame("asdf")
-    assert f.raw == "asdf", "Frame failed to accept raw data as __init__ argument"
-    assert f.priority  == None
-    assert f.addr_mode == None
-    assert f.rx_id     == None
-    assert f.tx_id     == None
-    assert f.type      == None
-    assert f.seq_index == 0
-    assert f.data_len  == None
+    frame = Frame("asdf")
+    assert frame.raw == "asdf", "Frame failed to accept raw data as __init__ argument"
+    assert frame.priority  == None
+    assert frame.addr_mode == None
+    assert frame.rx_id     == None
+    assert frame.tx_id     == None
+    assert frame.type      == None
+    assert frame.seq_index == 0
+    assert frame.data_len  == None
 
 
 def test_message():
 
     # constructor
-    f = Frame("")
-    f.tx_id = 42
-    R = ["asdf"]
-    F = [f]
-    m = Message(R, F)
+    frame = Frame("raw input from OBD tool")
+    frame.tx_id = 42
 
-    assert m.raw == R
-    assert m.frames == F
-    assert m.tx_id == 42
-    assert m.ecu == ECU.UNKNOWN
+    frames = [frame]
+
+    # a message is simply a special container for a bunch of frames
+    message = Message(frames)
+
+    assert message.frames == frames
+    assert message.ecu == ECU.UNKNOWN
+    assert message.tx_id == 42 # this is dynamically read from the first frame
+
+    assert Message([]).tx_id == None # if no frames are given, then we can't report a tx_id
+
 
 
 def test_populate_ecu_map():
@@ -64,30 +68,3 @@ def test_populate_ecu_map():
     # if no messages were received, then the map is empty
     p = SAE_J1850_PWM([])
     assert len(p.ecu_map) == 0
-
-
-def test_call_filtering():
-
-    # test the basic frame construction
-    p = UnknownProtocol([])
-
-    f1 = "48 6B 12 41 00 BE 1F B8 11 AA"
-    f2 = "48 6B 14 41 00 00 00 B8 11 AA"
-    raw = [f1, f2]
-    m = p(raw)
-    assert len(m) == 1
-    assert len(m[0].frames) == 2
-    assert m[0].raw == raw
-    assert m[0].frames[0].raw == f1.replace(' ', '')
-    assert m[0].frames[1].raw == f2.replace(' ', '')
-
-
-    # test invalid hex dropping
-    p = UnknownProtocol([])
-
-    raw = ["not hex", f2]
-    m = p(raw)
-    assert len(m) == 1
-    assert len(m[0].frames) == 1
-    assert m[0].raw == raw
-    assert m[0].frames[0].raw == f2.replace(' ', '')
