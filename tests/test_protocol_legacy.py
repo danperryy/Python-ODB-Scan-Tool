@@ -68,7 +68,7 @@ def test_hex_straining():
         for m in r:
             assert m.ecu == ECU.UNKNOWN
             assert len(m.frames) == 1
-            
+
         # mixed hex and non-hex
         r = p(["NO DATA", "48 6B 10 41 00 00 01 02 03 FF"])
         assert len(r) == 2

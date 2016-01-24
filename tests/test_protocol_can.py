@@ -27,8 +27,6 @@ def check_message(m, num_frames, tx_id, data):
 
 
 
-
-
 def test_single_frame():
     for protocol in CAN_11_PROTOCOLS:
         p = protocol([])
@@ -41,22 +39,40 @@ def test_single_frame():
 
 
 def test_hex_straining():
+    """
+        If non-hex values are sent, they should be marked as ECU.UNKNOWN
+    """
+
     for protocol in CAN_11_PROTOCOLS:
         p = protocol([])
 
-
-        r = p(["NO DATA"])
-        assert len(r) == 0
-
-        r = p(["TOTALLY NOT HEX"])
-        assert len(r) == 0
-
-        r = p(["NO DATA", "7E8 06 41 00 00 01 02 03"])
+        # single non-hex message
+        r = p(["12.8 Volts"])
         assert len(r) == 1
+        assert r[0].ecu == ECU.UNKNOWN
+        assert len(r[0].frames) == 1
+
+
+        # multiple non-hex message
+        r = p(["12.8 Volts", "NO DATA"])
+        assert len(r) == 2
+
+        for m in r:
+            assert m.ecu == ECU.UNKNOWN
+            assert len(m.frames) == 1
+
+        # mixed hex and non-hex
+        r = p(["NO DATA", "7E8 06 41 00 00 01 02 03"])
+        assert len(r) == 2
+
+        # first message should be the valid, parsable hex message
+        # NOTE: the parser happens to process the valid one's first
         check_message(r[0], 1, 0x0, list(range(4)))
 
-        r = p(["NO DATA", "NO DATA"])
-        assert len(r) == 0
+        # second message: invalid, non-parsable non-hex
+        assert r[1].ecu == ECU.UNKNOWN
+        assert len(r[1].frames) == 1
+        assert len(r[1].data) == 0 # no data
 
 
 
@@ -84,8 +100,12 @@ def test_multi_ecu():
 
 
 
-
 def test_multi_line():
+    """
+        Tests that valid multiline messages are recombined into single
+        messages.
+    """
+
     for protocol in CAN_11_PROTOCOLS:
         p = protocol([])
 
@@ -112,8 +132,15 @@ def test_multi_line():
             check_message(r[0], len(test_case), 0x0, correct_data)
 
 
-        # missing frames in a multi-frame message should drop the message
-        # (tests the contiguity check, and data length byte)
+
+def test_multi_line_missing_frames():
+    """
+        Missing frames in a multi-frame message should drop the message.
+        Tests the contiguity check, and data length byte
+    """
+
+    for protocol in CAN_11_PROTOCOLS:
+        p = protocol([])
 
         test_case = [
             "7E8 10 20 49 04 00 01 02 03",
@@ -130,7 +157,16 @@ def test_multi_line():
             assert len(r) == 0
 
 
-        # MODE 03 COMMANDS (GET_DTC) RETURN NO PID BYTE
+
+def test_multi_line_mode_03():
+    """
+        Tests the special handling of mode 3 commands.
+        Namely, Mode 03 commands (GET_DTC) return no PID byte.
+        When frames are combined, the parser should account for this.
+    """
+
+    for protocol in CAN_11_PROTOCOLS:
+        p = protocol([])
 
         test_case = [
             "7E8 10 20 43 04 00 01 02 03",
