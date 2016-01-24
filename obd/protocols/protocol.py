@@ -100,7 +100,7 @@ class Message(object):
 
 Protocol objects are factories for Frame and Message objects. They are
 largely stateless, with the exception of an ECU tagging system, which
-are initialized by passing the response to an "0100" command.
+is initialized by passing the response to an "0100" command.
 
 Protocols are __called__ with a list of string responses, and return a
 list of Messages.
@@ -196,7 +196,7 @@ class Protocol(object):
             # subclass function to assemble frames into Messages
             if self.parse_message(message):
                 # mark with the appropriate ECU ID
-                message.ecu = self.lookup_ecu(ecu)
+                message.ecu = self.ecu_map.get(ecu, ECU.UNKNOWN)
                 messages.append(message)
 
         # ----------- handle invalid lines (probably from the ELM) -----------
@@ -207,13 +207,6 @@ class Protocol(object):
             messages.append( Message([ Frame(line) ]) )
 
         return messages
-
-
-    def lookup_ecu(self, tx_id):
-        if tx_id in self.ecu_map:
-            return self.ecu_map[tx_id]
-        else:
-            return ECU.UNKNOWN
 
 
     def populate_ecu_map(self, messages):
