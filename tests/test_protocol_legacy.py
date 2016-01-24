@@ -47,22 +47,40 @@ def test_single_frame():
 
 
 def test_hex_straining():
+	"""
+		If non-hex values are sent, they should be marked as ECU.UNKNOWN
+	"""
+
 	for protocol in LEGACY_PROTOCOLS:
 		p = protocol([])
 
-
-		r = p(["NO DATA"])
-		assert len(r) == 0
-
-		r = p(["TOTALLY NOT HEX"])
-		assert len(r) == 0
-
-		r = p(["NO DATA", "NO DATA"])
-		assert len(r) == 0
-
-		r = p(["NO DATA", "48 6B 10 41 00 00 01 02 03 FF"])
+		# single non-hex message
+		r = p(["12.8 Volts"])
 		assert len(r) == 1
+		assert r[0].ecu == ECU.UNKNOWN
+		assert len(r[0].frames) == 1
+
+
+		# multiple non-hex message
+		r = p(["12.8 Volts", "NO DATA"])
+		assert len(r) == 2
+
+		for m in r:
+			assert m.ecu == ECU.UNKNOWN
+			assert len(m.frames) == 1
+			
+		# mixed hex and non-hex
+		r = p(["NO DATA", "48 6B 10 41 00 00 01 02 03 FF"])
+		assert len(r) == 2
+
+		# first message should be the valid, parsable hex message
+		# NOTE: the parser happens to process the valid one's first
 		check_message(r[0], 1, 0x10, list(range(4)))
+
+		# second message: invalid, non-parsable non-hex
+		assert r[1].ecu == ECU.UNKNOWN
+		assert len(r[1].frames) == 1
+		assert len(r[1].data) == 0 # no data
 
 
 
