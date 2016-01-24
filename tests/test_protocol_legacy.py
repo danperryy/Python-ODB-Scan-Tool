@@ -16,9 +16,9 @@ LEGACY_PROTOCOLS = [
 ]
 
 
-def check_message(m, num_frames, tx_id, data):
+def check_message(m, n_frames, tx_id, data):
 		""" generic test for correct message values """
-		assert len(m.frames) == num_frames
+		assert len(m.frames) == n_frames
 		assert m.tx_id       == tx_id
 		assert m.data        == data
 
@@ -109,9 +109,13 @@ def test_multi_ecu():
 
 
 def test_multi_line():
+	"""
+		Tests that valid multiline messages are recombined into single
+		messages.
+	"""
+
 	for protocol in LEGACY_PROTOCOLS:
 		p = protocol([])
-
 
 		test_case = [
 			"48 6B 10 49 02 01 00 01 02 03 FF",
@@ -134,8 +138,16 @@ def test_multi_line():
 			check_message(r[0], len(test_case), 0x10, correct_data)
 
 
-		# missing frames in a multi-frame message should drop the message
-		# (tests the contiguity check, and data length byte)
+
+def test_multi_line_missing_frames():
+	"""
+		Missing frames in a multi-frame message should drop the message.
+		Tests the contiguity check, and data length byte
+	"""
+
+	for protocol in LEGACY_PROTOCOLS:
+		p = protocol([])
+
 
 		test_case = [
 			"48 6B 10 49 02 01 00 01 02 03 FF",
@@ -151,7 +163,16 @@ def test_multi_line():
 			assert len(r) == 0
 
 
-		# MODE 03 COMMANDS (GET_DTC) RETURN NO PID BYTE
+def test_multi_line_mode_03():
+	"""
+		Tests the special handling of mode 3 commands.
+		Namely, Mode 03 commands (GET_DTC) return no PID byte.
+		When frames are combined, the parser should account for this.
+	"""
+
+	for protocol in LEGACY_PROTOCOLS:
+		p = protocol([])
+
 
 		test_case = [
 			"48 6B 10 43 00 01 02 03 04 05 FF",
