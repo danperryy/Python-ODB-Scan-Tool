@@ -1,6 +1,16 @@
 
 from obd.OBDResponse import Unit
+from obd.protocols.protocol import Message
 import obd.decoders as d
+
+
+# returns a list with a single valid message,
+# containing the requested data
+def m(data, frames=[]):
+    # most decoders don't look at the underlying frame objects
+    message = Message(frames)
+    message.data = data
+    return [message]
 
 
 def float_equals(d1, d2):
@@ -13,12 +23,12 @@ def float_equals(d1, d2):
 
 
 def test_noop():
-    assert d.noop("No Operation") == ("No Operation", Unit.NONE)
+    assert d.noop(m("any odd input")) == (None, Unit.NONE)
 
 def test_pid():
-    assert d.pid("00000000") == ("00000000000000000000000000000000", Unit.NONE)
-    assert d.pid("F00AA00F") == ("11110000000010101010000000001111", Unit.NONE)
-    assert d.pid("11")       == ("00010001", Unit.NONE)
+    assert d.pid(m([0x00, 0x00, 0x00, 0x00])) == ("00000000000000000000000000000000", Unit.NONE)
+    assert d.pid(m([0xF0, 0x0A, 0xA0, 0x0F])) == ("11110000000010101010000000001111", Unit.NONE)
+    assert d.pid(m([0x11])) == ("00010001", Unit.NONE)
 
 def test_count():
     assert d.count("0")   == (0,    Unit.COUNT)
