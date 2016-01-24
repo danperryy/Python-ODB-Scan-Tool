@@ -1,11 +1,21 @@
 
-from obd.commands import OBDCommand
+from obd.OBDCommand import OBDCommand
+from obd.OBDResponse import Unit
 from obd.decoders import noop
 from obd.protocols import *
 
 
+
+def decode_raw(messages):
+    """ a passiver decoder """
+    return (messages[0].data, Unit.NONE)
+
+
+
 def test_constructor():
-    #                 name       description        mode  cmd bytes decoder
+
+    # default constructor
+    #                 name       description        cmd  bytes decoder ECU
     cmd = OBDCommand("Test", "example OBD command", "0123", 2, noop, ECU.ENGINE)
     assert cmd.name      == "Test"
     assert cmd.desc      == "example OBD command"
@@ -13,13 +23,18 @@ def test_constructor():
     assert cmd.bytes     == 2
     assert cmd.decode    == noop
     assert cmd.ecu       == ECU.ENGINE
+    assert cmd.fast      == False
     assert cmd.supported == False
 
-    assert cmd.mode_int      == 1
-    assert cmd.pid_int       == 35
+    assert cmd.mode_int == 1
+    assert cmd.pid_int  == 35
 
-    cmd = OBDCommand("Test", "example OBD command", "0123", 2, noop, ECU.ENGINE, True)
+    # a case where "fast", and "supported" were set explicitly
+    #                 name       description        cmd  bytes decoder ECU         fast  supported
+    cmd = OBDCommand("Test 2", "example OBD command", "0123", 2, noop, ECU.ENGINE, True, True)
+    assert cmd.fast      == True
     assert cmd.supported == True
+
 
 
 def test_clone():
@@ -33,27 +48,32 @@ def test_clone():
     assert cmd.bytes     == other.bytes
     assert cmd.decode    == other.decode
     assert cmd.ecu       == other.ecu
+    assert cmd.fast      == cmd.fast
     assert cmd.supported == cmd.supported
+
 
 
 def test_call():
     p = SAE_J1850_PWM(["48 6B 10 41 00 FF FF FF FF AA"]) # train the ecu_map to identify the engine
     messages = p(["48 6B 10 41 00 BE 1F B8 11 AA"]) # parse valid data into response object 
 
+    print(messages[0].data)
+
     # valid response size
-    cmd = OBDCommand("", "", "0123", 4, noop, ECU.ENGINE)
+    cmd = OBDCommand("", "", "0123", 4, decode_raw, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == "BE1FB811"
+    assert r.value == [0xBE, 0x1F, 0xB8, 0x11]
 
     # response too short (pad)
-    cmd = OBDCommand("", "", "0123", 5, noop, ECU.ENGINE)
+    cmd = OBDCommand("", "", "0123", 5, decode_raw, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == "BE1FB81100"
+    assert r.value == [0xBE, 0x1F, 0xB8, 0x11, 0x00]
 
     # response too long (clip)
-    cmd = OBDCommand("", "", "0123", 3, noop, ECU.ENGINE)
+    cmd = OBDCommand("", "", "0123", 3, decode_raw, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == "BE1FB8"
+    assert r.value == [0xBE, 0x1F, 0xB8]
+
 
 
 def test_get_mode_int():
@@ -62,6 +82,7 @@ def test_get_mode_int():
 
     cmd = OBDCommand("", "", "", "23", 4, noop, ECU.ENGINE)
     assert cmd.mode_int == 0
+
 
 
 def test_pid_int():
