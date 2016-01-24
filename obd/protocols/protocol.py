@@ -29,6 +29,7 @@
 #                                                                      #
 ########################################################################
 
+from binascii import hexlify
 from obd.utils import isHex, numBitsSet
 from obd.debug import debug
 
@@ -79,6 +80,9 @@ class Message(object):
             return None
         else:
             return self.frames[0].tx_id
+
+    def hex(self):
+        return hexlify(self.data)
 
     def parsed(self):
         """ boolean for whether this message was successfully parsed """
