@@ -20,7 +20,7 @@ def check_message(m, n_frames, tx_id, data):
         """ generic test for correct message values """
         assert len(m.frames) == n_frames
         assert m.tx_id       == tx_id
-        assert m.data        == data
+        assert m.data        == bytes(data)
 
 
 def test_single_frame():

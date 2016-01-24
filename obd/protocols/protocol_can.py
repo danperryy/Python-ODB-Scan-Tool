@@ -29,6 +29,7 @@
 #                                                                      #
 ########################################################################
 
+from binascii import unhexlify
 from obd.utils import contiguous
 from .protocol import *
 
@@ -63,7 +64,7 @@ class CANProtocol(Protocol):
         if self.id_bits == 11:
             raw = "00000" + raw
 
-        raw_bytes = ascii_to_bytes(raw)
+        raw_bytes = unhexlify(raw)
 
         # check for valid size
 

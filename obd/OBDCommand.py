@@ -105,7 +105,7 @@ class OBDCommand():
                 message.data = message.data[:self.bytes]
             else:
                 # pad the right with zeros
-                message.data += ([0] * (self.bytes - len(message.data)))
+                message.data += (b'\x00' * (self.bytes - len(message.data)))
 
 
     def __str__(self):

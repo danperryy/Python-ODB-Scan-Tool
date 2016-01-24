@@ -29,7 +29,7 @@
 #                                                                      #
 ########################################################################
 
-from obd.utils import ascii_to_bytes, isHex, numBitsSet
+from obd.utils import isHex, numBitsSet
 from obd.debug import debug
 
 
@@ -56,7 +56,7 @@ class Frame(object):
     """ represents a single parsed line of OBD output """
     def __init__(self, raw):
         self.raw       = raw
-        self.data      = []
+        self.data      = b''
         self.priority  = None
         self.addr_mode = None
         self.rx_id     = None
@@ -71,7 +71,7 @@ class Message(object):
     def __init__(self, frames):
         self.frames = frames
         self.ecu    = ECU.UNKNOWN
-        self.data   = []
+        self.data   = b''
 
     @property
     def tx_id(self):

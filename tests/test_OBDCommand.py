@@ -62,17 +62,17 @@ def test_call():
     # valid response size
     cmd = OBDCommand("", "", "0123", 4, decode_raw, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == [0xBE, 0x1F, 0xB8, 0x11]
+    assert r.value == b'\xBE\x1F\xB8\x11'
 
     # response too short (pad)
     cmd = OBDCommand("", "", "0123", 5, decode_raw, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == [0xBE, 0x1F, 0xB8, 0x11, 0x00]
+    assert r.value == b'\xBE\x1F\xB8\x11\x00'
 
     # response too long (clip)
     cmd = OBDCommand("", "", "0123", 3, decode_raw, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == [0xBE, 0x1F, 0xB8]
+    assert r.value == b'\xBE\x1F\xB8'
 
 
 

@@ -29,6 +29,7 @@
 #                                                                      #
 ########################################################################
 
+from binascii import unhexlify
 from obd.utils import contiguous
 from .protocol import *
 
@@ -46,7 +47,7 @@ class LegacyProtocol(Protocol):
 
         raw = frame.raw
 
-        raw_bytes = ascii_to_bytes(raw)
+        raw_bytes = unhexlify(raw)
 
         if len(raw_bytes) < 6:
             debug("Dropped frame for being too short")
