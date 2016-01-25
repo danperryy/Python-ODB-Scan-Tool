@@ -50,7 +50,7 @@ class OBD(object):
         self.port = None
         self.supported_commands = []
         self.fast = fast
-        self.__last_command = "" # used for 
+        self.__last_command = "" # used for running the previous command with a CR
 
         debug("========================== python-OBD (v%s) ==========================" % __version__)
         self.__connect(portstr, baudrate, protocol) # initialize by connecting and loading sensors
@@ -256,6 +256,7 @@ class OBD(object):
         """ assembles the appropriate command string """
         cmd_string = cmd.command
 
+        # only wait for as many ECUs as we've seen
         if self.fast and cmd.fast:
             cmd_string += str(len(self.port.ecus()))
 
