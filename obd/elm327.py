@@ -33,7 +33,7 @@ import re
 import serial
 import time
 from .protocols import *
-from .utils import OBDStatus, numBitsSet
+from .utils import OBDStatus
 from .debug import debug
 
 

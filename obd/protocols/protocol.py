@@ -30,7 +30,7 @@
 ########################################################################
 
 from binascii import hexlify
-from obd.utils import isHex, numBitsSet
+from obd.utils import isHex, num_bits_set
 from obd.debug import debug
 
 
@@ -255,7 +255,7 @@ class Protocol(object):
                 tx_id = None
 
                 for message in messages:
-                    bits = sum([numBitsSet(b) for b in message.data])
+                    bits = sum([num_bits_set(b) for b in message.data])
 
                     if bits > best:
                         best = bits

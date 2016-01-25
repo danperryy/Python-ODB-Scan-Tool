@@ -47,14 +47,8 @@ class OBDStatus:
 
 
 
-def numBitsSet(n):
-    # TODO: there must be a better way to do this...
-    total = 0
-    ref = 1
-    for b in range(8):
-        total += int(bool(n & ref))
-        ref = ref << 1
-    return total
+def num_bits_set(n):
+    return bin(n).count("1")
 
 def unhex(_hex):
     _hex = "0" if _hex == "" else _hex
