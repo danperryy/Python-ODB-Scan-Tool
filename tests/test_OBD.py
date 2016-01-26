@@ -19,14 +19,14 @@ class FakeELM:
     """
 
     def __init__(self, portname, baudrate, protocol):
-        self.portname = portname
-        self.baudrate = baudrate
-        self.protocol = protocol
+        self._portname = portname
+        self._baudrate = baudrate
+        self._protocol = protocol
         self._status = OBDStatus.CAR_CONNECTED
-        self.last_command = None
+        self._last_command = None
 
     def port_name(self):
-        return self.portname
+        return self._portname
 
     def status(self):
         return self._status
@@ -46,7 +46,7 @@ class FakeELM:
     def send_and_parse(self, cmd):
         # stow this, so we can check that the API made the right request
         print(cmd)
-        self.last_command = cmd
+        self._last_command = cmd
 
         # all commands succeed
         message = Message([])
@@ -55,9 +55,8 @@ class FakeELM:
         return [ message ]
 
     def _test_last_command(self, expected):
-        r = self.last_command == expected
-        print(self.last_command)
-        self.last_command = None
+        r = self._last_command == expected
+        self._last_command = None
         return r
 
 
@@ -86,7 +85,7 @@ def test_is_connected():
 
 def test_status():
     """
-        Make sure that the API's status() functions reports the
+        Make sure that the API's status() function reports the
         same values as the underlying ELM327 class.
     """
     o = obd.OBD("/dev/null")
@@ -114,6 +113,19 @@ def test_supports():
 
     # commands that aren't in python-OBD's tables are unsupported by default
     assert not o.supports(command)
+
+
+def test_port_name():
+    """
+        Make sure that the API's port_name() function reports the
+        same values as the underlying ELM327 class.
+    """
+    o = obd.OBD("/dev/null")
+    o.port = FakeELM("/dev/null", 34800, None)
+    assert o.port_name() == o.port._portname
+
+    o.port = FakeELM("A different port name", 34800, None)
+    assert o.port_name() == o.port._portname
 
 
 def test_force():
