@@ -1,17 +1,138 @@
 
+"""
+    Tests for the API layer
+"""
+
 import obd
+from obd import Unit
+from obd import ECU
+from obd.protocols.protocol import Message
 from obd.utils import OBDStatus
-from obd.OBDResponse import OBDResponse
 from obd.OBDCommand import OBDCommand
 from obd.decoders import noop
-from obd.protocols import SAE_J1850_PWM
+
+
+
+class FakeELM:
+    """
+        Fake ELM327 driver class for intercepting the commands from the API
+    """
+
+    def __init__(self, portname, baudrate, protocol):
+        self.portname = portname
+        self.baudrate = baudrate
+        self.protocol = protocol
+        self.last_command = None
+
+    def port_name(self):
+        return self.portname
+
+    def status(self):
+        return OBDStatus.CAR_CONNECTED
+
+    def ecus(self):
+        return [ ECU.ENGINE, ECU.UNKNOWN ]
+
+    def protocol_name(self):
+        return "ISO 15765-4 (CAN 11/500)"
+
+    def protocol_id(self):
+        return "6"
+
+    def close(self):
+        pass
+
+    def send_and_parse(self, cmd):
+        # stow this, so we can check that the API made the right request
+        print(cmd)
+        self.last_command = cmd
+
+        # all commands succeed
+        message = Message([])
+        message.data = b'response data'
+        message.ecu = ECU.ENGINE # picked engine so that simple commands like RPM will work
+        return [ message ]
+
+    def _test_last_command(self, expected):
+        r = self.last_command == expected
+        print(self.last_command)
+        self.last_command = None
+        return r
+
+
+# a toy command to test with
+
+def decoder(messages):
+    return (messages[0].data, Unit.NONE)
+
+command = OBDCommand("Test_Command", "A test command", "0123456789ABCDEF", 0, decoder, ECU.ALL, True, True)
+
+
+
 
 
 def test_is_connected():
     o = obd.OBD("/dev/null")
     assert not o.is_connected()
+    assert not o.supports(obd.commands.RPM)
 
-    # todo
+    # our fake ELM class always returns success for connections
+    o.port = FakeELM("/dev/null", 34800, None)
+    assert o.is_connected()
+
+
+def test_supports():
+    o = obd.OBD("/dev/null")
+
+    # since we haven't actually connected,
+    # no commands should be marked as supported
+    assert not o.supports(obd.commands.RPM)
+    obd.commands.RPM.supported = True
+    assert o.supports(obd.commands.RPM)
+
+    # commands that aren't in python-OBD's tables are unsupported by default
+    assert not o.supports(command)
+
+
+def test_force():
+    o = obd.OBD("/dev/null", fast=False) # disable the trailing response count byte
+    o.port = FakeELM("/dev/null", 34800, None)
+
+    # a command marked as unsupported
+    obd.commands.RPM.supported = False
+
+    r = o.query(obd.commands.RPM)
+    assert r.is_null()
+    assert o.port._test_last_command(None)
+
+    r = o.query(obd.commands.RPM, force=True)
+    assert not r.is_null()
+    assert o.port._test_last_command(obd.commands.RPM.command)
+
+    # a command that isn't in python-OBD's tables
+    r = o.query(command)
+    assert r.is_null()
+    assert o.port._test_last_command(None)
+
+    r = o.query(command, force=True)
+    assert o.port._test_last_command(command.command)
+
+
+
+def test_fast():
+    o = obd.OBD("/dev/null", fast=False)
+    o.port = FakeELM("/dev/null", 34800, None)
+    
+
+    assert command.fast
+    o.query(command, force=True) # force since this command isn't in the tables
+    # assert o.port._test_last_command(command.command)
+
+
+
+
+
+
 
 """
 # TODO: rewrite for new protocol architecture
@@ -98,6 +219,3 @@ def test_query():
     assert r.is_null()
     '''
 """
-
-def test_load_commands():
-    pass
