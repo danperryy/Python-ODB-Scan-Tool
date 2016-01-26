@@ -25,7 +25,10 @@ def float_equals(d1, d2):
 
 
 def test_noop():
-    assert d.noop(m("deadbeef")) == (None, Unit.NONE)
+    assert d.noop(m("00010203")) == ([0, 1, 2, 3], Unit.NONE)
+
+def test_drop():
+    assert d.drop(m("deadbeef")) == (None, Unit.NONE)
 
 def test_pid():
     assert d.pid(m("00000000")) == ("00000000000000000000000000000000", Unit.NONE)

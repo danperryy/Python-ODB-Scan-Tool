@@ -45,9 +45,15 @@ def <name>(<list_of_messages>):
 '''
 
 
-# hex in, hex out
-def noop(messages):
+# drop all messages, return None
+def drop(messages):
     return (None, Unit.NONE)
+
+
+# data in, data out
+def noop(messages):
+    return (messages[0].data, Unit.NONE)
+
 
 # hex in, bitstring out
 def pid(messages):

@@ -50,7 +50,7 @@ __mode1__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("PIDS_A"                     , "Supported PIDs [01-20]"                  , "0100", 4, pid,                   ECU.ENGINE, True, True), # the first PID getter is assumed to be supported
     OBDCommand("STATUS"                     , "Status since DTCs cleared"               , "0101", 4, status,                ECU.ENGINE, True),
-    OBDCommand("FREEZE_DTC"                 , "Freeze DTC"                              , "0102", 2, noop,                  ECU.ENGINE, True),
+    OBDCommand("FREEZE_DTC"                 , "Freeze DTC"                              , "0102", 2, drop,                  ECU.ENGINE, True),
     OBDCommand("FUEL_STATUS"                , "Fuel System Status"                      , "0103", 2, fuel_status,           ECU.ENGINE, True),
     OBDCommand("ENGINE_LOAD"                , "Calculated Engine Load"                  , "0104", 1, percent,               ECU.ENGINE, True),
     OBDCommand("COOLANT_TEMP"               , "Engine Coolant Temperature"              , "0105", 1, temp,                  ECU.ENGINE, True),
@@ -67,7 +67,7 @@ __mode1__ = [
     OBDCommand("MAF"                        , "Air Flow Rate (MAF)"                     , "0110", 2, maf,                   ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS"               , "Throttle Position"                       , "0111", 1, percent,               ECU.ENGINE, True),
     OBDCommand("AIR_STATUS"                 , "Secondary Air Status"                    , "0112", 1, air_status,            ECU.ENGINE, True),
-    OBDCommand("O2_SENSORS"                 , "O2 Sensors Present"                      , "0113", 1, noop,                  ECU.ENGINE, True),
+    OBDCommand("O2_SENSORS"                 , "O2 Sensors Present"                      , "0113", 1, drop,                  ECU.ENGINE, True),
     OBDCommand("O2_B1S1"                    , "O2: Bank 1 - Sensor 1 Voltage"           , "0114", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("O2_B1S2"                    , "O2: Bank 1 - Sensor 2 Voltage"           , "0115", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("O2_B1S3"                    , "O2: Bank 1 - Sensor 3 Voltage"           , "0116", 2, sensor_voltage,        ECU.ENGINE, True),
@@ -77,8 +77,8 @@ __mode1__ = [
     OBDCommand("O2_B2S3"                    , "O2: Bank 2 - Sensor 3 Voltage"           , "011A", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("O2_B2S4"                    , "O2: Bank 2 - Sensor 4 Voltage"           , "011B", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("OBD_COMPLIANCE"             , "OBD Standards Compliance"                , "011C", 1, obd_compliance,        ECU.ENGINE, True),
-    OBDCommand("O2_SENSORS_ALT"             , "O2 Sensors Present (alternate)"          , "011D", 1, noop,                  ECU.ENGINE, True),
-    OBDCommand("AUX_INPUT_STATUS"           , "Auxiliary input status"                  , "011E", 1, noop,                  ECU.ENGINE, True),
+    OBDCommand("O2_SENSORS_ALT"             , "O2 Sensors Present (alternate)"          , "011D", 1, drop,                  ECU.ENGINE, True),
+    OBDCommand("AUX_INPUT_STATUS"           , "Auxiliary input status"                  , "011E", 1, drop,                  ECU.ENGINE, True),
     OBDCommand("RUN_TIME"                   , "Engine Run Time"                         , "011F", 2, seconds,               ECU.ENGINE, True),
 
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
@@ -117,10 +117,10 @@ __mode1__ = [
 
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("PIDS_C"                     , "Supported PIDs [41-60]"                  , "0140", 4, pid,                   ECU.ENGINE, True),
-    OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , "0141", 4, noop,                  ECU.ENGINE, True),
-    OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , "0142", 2, noop,                  ECU.ENGINE, True),
-    OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , "0143", 2, noop,                  ECU.ENGINE, True),
-    OBDCommand("COMMAND_EQUIV_RATIO"        , "Command equivalence ratio"               , "0144", 2, noop,                  ECU.ENGINE, True),
+    OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , "0141", 4, drop,                  ECU.ENGINE, True),
+    OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , "0142", 2, drop,                  ECU.ENGINE, True),
+    OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , "0143", 2, drop,                  ECU.ENGINE, True),
+    OBDCommand("COMMAND_EQUIV_RATIO"        , "Command equivalence ratio"               , "0144", 2, drop,                  ECU.ENGINE, True),
     OBDCommand("RELATIVE_THROTTLE_POS"      , "Relative throttle position"              , "0145", 1, percent,               ECU.ENGINE, True),
     OBDCommand("AMBIANT_AIR_TEMP"           , "Ambient air temperature"                 , "0146", 1, temp,                  ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS_B"             , "Absolute throttle position B"            , "0147", 1, percent,               ECU.ENGINE, True),
@@ -131,7 +131,7 @@ __mode1__ = [
     OBDCommand("THROTTLE_ACTUATOR"          , "Commanded throttle actuator"             , "014C", 1, percent,               ECU.ENGINE, True),
     OBDCommand("RUN_TIME_MIL"               , "Time run with MIL on"                    , "014D", 2, minutes,               ECU.ENGINE, True),
     OBDCommand("TIME_SINCE_DTC_CLEARED"     , "Time since trouble codes cleared"        , "014E", 2, minutes,               ECU.ENGINE, True),
-    OBDCommand("MAX_VALUES"                 , "Various Max values"                      , "014F", 4, noop,                  ECU.ENGINE, True), # todo: decode this
+    OBDCommand("MAX_VALUES"                 , "Various Max values"                      , "014F", 4, drop,                  ECU.ENGINE, True), # todo: decode this
     OBDCommand("MAX_MAF"                    , "Maximum value for mass air flow sensor"  , "0150", 4, max_maf,               ECU.ENGINE, True),
     OBDCommand("FUEL_TYPE"                  , "Fuel Type"                               , "0151", 1, fuel_type,             ECU.ENGINE, True),
     OBDCommand("ETHANOL_PERCENT"            , "Ethanol Fuel Percent"                    , "0152", 1, percent,               ECU.ENGINE, True),
@@ -147,7 +147,7 @@ __mode1__ = [
     OBDCommand("OIL_TEMP"                   , "Engine oil temperature"                  , "015C", 1, temp,                  ECU.ENGINE, True),
     OBDCommand("FUEL_INJECT_TIMING"         , "Fuel injection timing"                   , "015D", 2, inject_timing,         ECU.ENGINE, True),
     OBDCommand("FUEL_RATE"                  , "Engine fuel rate"                        , "015E", 2, fuel_rate,             ECU.ENGINE, True),
-    OBDCommand("EMISSION_REQ"               , "Designed emission requirements"          , "015F", 1, noop,                  ECU.ENGINE, True),
+    OBDCommand("EMISSION_REQ"               , "Designed emission requirements"          , "015F", 1, drop,                  ECU.ENGINE, True),
 ]
 
 
@@ -168,7 +168,7 @@ __mode3__ = [
 
 __mode4__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, noop,                  ECU.ALL,     False, True),
+    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, drop,                  ECU.ALL,     False, True),
 ]
 
 __mode7__ = [

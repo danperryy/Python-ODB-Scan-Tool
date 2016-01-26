@@ -6,12 +6,6 @@ from obd.protocols import *
 
 
 
-def decode_raw(messages):
-    """ a passiver decoder """
-    return (messages[0].data, Unit.NONE)
-
-
-
 def test_constructor():
 
     # default constructor
@@ -60,17 +54,17 @@ def test_call():
     print(messages[0].data)
 
     # valid response size
-    cmd = OBDCommand("", "", "0123", 4, decode_raw, ECU.ENGINE)
+    cmd = OBDCommand("", "", "0123", 4, noop, ECU.ENGINE)
     r = cmd(messages)
     assert r.value == b'\xBE\x1F\xB8\x11'
 
     # response too short (pad)
-    cmd = OBDCommand("", "", "0123", 5, decode_raw, ECU.ENGINE)
+    cmd = OBDCommand("", "", "0123", 5, noop, ECU.ENGINE)
     r = cmd(messages)
     assert r.value == b'\xBE\x1F\xB8\x11\x00'
 
     # response too long (clip)
-    cmd = OBDCommand("", "", "0123", 3, decode_raw, ECU.ENGINE)
+    cmd = OBDCommand("", "", "0123", 3, noop, ECU.ENGINE)
     r = cmd(messages)
     assert r.value == b'\xBE\x1F\xB8'
 

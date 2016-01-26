@@ -61,11 +61,14 @@ class FakeELM:
 
 
 # a toy command to test with
-
-def decoder(messages):
-    return (messages[0].data, Unit.NONE)
-
-command = OBDCommand("Test_Command", "A test command", "0123456789ABCDEF", 0, decoder, ECU.ALL, True, True)
+command = OBDCommand("Test_Command", \
+                     "A test command", \
+                     "0123456789ABCDEF", \
+                     0, \
+                     noop, \
+                     ECU.ALL, \
+                     True, \
+                     True)
 
 
 
