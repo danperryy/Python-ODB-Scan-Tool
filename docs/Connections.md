@@ -17,13 +17,31 @@ print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
 connection = obd.OBD(ports[0]) # connect to the first port in the list
 ```
 
+
+<br>
+
+### OBD(portstr=None, baudrate=38400, protocol=None, fast=True):
+
+`portstr`: The UNIX device file or Windows COM Port for your adapter. The default value (`None`) will auto select a port.
+
+`baudrate`: The baudrate at which to set the serial connection. This can vary from adapter to adapter. Typical values are: 9600, 38400, 19200, 57600, 115200
+
+`protocol`: Forces python-OBD to use the given protocol when communicating with the adapter. See `protocol_id()` for possible values. The default value (`None`) will auto select a protocol.
+
+`fast`: Allows commands to be optimized before being sent to the car. Python-OBD currently makes two such optimizations:
+
+- Sends carriage returns to repeat the previous command.
+- Appends a response limit to the end of the command, telling the adapter to return after it receives *N* responses (rather than waiting and eventually timing out). This feature can be enabled and disabled for individual commands.
+
+Disabling fast mode will guarantee that python-OBD outputs the unaltered command for every request.
+
 <br>
 
 ---
 
 ### query(command, force=False)
 
-Sends an `OBDCommand` to the car, and returns a `OBDResponse` object. This function will block until a response is recieved from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
+Sends an `OBDCommand` to the car, and returns a `OBDResponse` object. This function will block until a response is received from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
 
 *For non-blocking querying, see [Async Querying](Async Connections.md)*
 
@@ -49,7 +67,7 @@ OBDStatus.NOT_CONNECTED # "Not Connected"
 # successful communication with the ELM327 adapter
 OBDStatus.ELM_CONNECTED # "ELM Connected"
 
-# successful communication with the vehicle
+# successful communication with the ELM327 and the vehicle
 OBDStatus.CAR_CONNECTED # "Car Connected"
 ```
 
@@ -88,7 +106,7 @@ Returns a boolean for whether a command is supported by both the car and python-
 ### protocol_id()
 ### protocol_name()
 
-Both functions return string names for the protocol currently being used by the adapter. Protocol *ID's* are the short names used by your adapter, whereas protocol *names* are the human-readable versions. The `protocol_id()` function is a good way to lookup which value to pass in the `protocol` field of the OBD constructor (though, this is mainly for advanced usage). These function do not make any serial requests. When no connection has been made, these functions will return empty strings. The possible values are:
+Both functions return string names for the protocol currently being used by the adapter. Protocol *ID's* are the short values used by your adapter, whereas protocol *names* are the human-readable versions. The `protocol_id()` function is a good way to lookup which value to pass in the `protocol` field of the OBD constructor (though, this is mainly for advanced usage). These functions do not make any serial requests. When no connection has been made, these functions will return empty strings. The possible values are:
 
 |ID | Name                     |
 |---|--------------------------|
