@@ -22,13 +22,14 @@ class FakeELM:
         self.portname = portname
         self.baudrate = baudrate
         self.protocol = protocol
+        self._status = OBDStatus.CAR_CONNECTED
         self.last_command = None
 
     def port_name(self):
         return self.portname
 
     def status(self):
-        return OBDStatus.CAR_CONNECTED
+        return self._status
 
     def ecus(self):
         return [ ECU.ENGINE, ECU.UNKNOWN ]
@@ -77,11 +78,29 @@ command = OBDCommand("Test_Command", \
 def test_is_connected():
     o = obd.OBD("/dev/null")
     assert not o.is_connected()
-    assert not o.supports(obd.commands.RPM)
 
     # our fake ELM class always returns success for connections
     o.port = FakeELM("/dev/null", 34800, None)
     assert o.is_connected()
+
+
+def test_status():
+    """
+        Make sure that the API's status() functions reports the
+        same values as the underlying ELM327 class.
+    """
+    o = obd.OBD("/dev/null")
+    assert o.status() == OBDStatus.NOT_CONNECTED
+
+    # we can manually set our fake ELM class to test
+    # the other values
+    o.port = FakeELM("/dev/null", 34800, None)
+
+    o.port._status = OBDStatus.ELM_CONNECTED
+    assert o.status() == OBDStatus.ELM_CONNECTED
+
+    o.port._status = OBDStatus.CAR_CONNECTED
+    assert o.status() == OBDStatus.CAR_CONNECTED
 
 
 def test_supports():
