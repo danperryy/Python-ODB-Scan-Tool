@@ -18,10 +18,8 @@ class FakeELM:
         Fake ELM327 driver class for intercepting the commands from the API
     """
 
-    def __init__(self, portname, baudrate, protocol):
+    def __init__(self, portname, UNUSED_baudrate=None, UNUSED_protocol=None):
         self._portname = portname
-        self._baudrate = baudrate
-        self._protocol = protocol
         self._status = OBDStatus.CAR_CONNECTED
         self._last_command = None
 
@@ -79,7 +77,7 @@ def test_is_connected():
     assert not o.is_connected()
 
     # our fake ELM class always returns success for connections
-    o.port = FakeELM("/dev/null", 34800, None)
+    o.port = FakeELM("/dev/null")
     assert o.is_connected()
 
 
@@ -91,9 +89,12 @@ def test_status():
     o = obd.OBD("/dev/null")
     assert o.status() == OBDStatus.NOT_CONNECTED
 
+    o.port = None
+    assert o.status() == OBDStatus.NOT_CONNECTED
+
     # we can manually set our fake ELM class to test
     # the other values
-    o.port = FakeELM("/dev/null", 34800, None)
+    o.port = FakeELM("/dev/null")
 
     o.port._status = OBDStatus.ELM_CONNECTED
     assert o.status() == OBDStatus.ELM_CONNECTED
@@ -121,16 +122,44 @@ def test_port_name():
         same values as the underlying ELM327 class.
     """
     o = obd.OBD("/dev/null")
-    o.port = FakeELM("/dev/null", 34800, None)
+    o.port = FakeELM("/dev/null")
     assert o.port_name() == o.port._portname
 
-    o.port = FakeELM("A different port name", 34800, None)
+    o.port = FakeELM("A different port name")
     assert o.port_name() == o.port._portname
 
+
+def test_protocol_name():
+    o = obd.OBD("/dev/null")
+
+    o.port = None
+    assert o.protocol_name() == ""    
+
+    o.port = FakeELM("/dev/null")
+    assert o.protocol_name() == o.port.protocol_name()
+
+
+def test_protocol_id():
+    o = obd.OBD("/dev/null")
+
+    o.port = None
+    assert o.protocol_id() == ""    
+
+    o.port = FakeELM("/dev/null")
+    assert o.protocol_id() == o.port.protocol_id()
+
+
+
+
+
+
+"""
+    The following tests are for the query() function
+"""
 
 def test_force():
     o = obd.OBD("/dev/null", fast=False) # disable the trailing response count byte
-    o.port = FakeELM("/dev/null", 34800, None)
+    o.port = FakeELM("/dev/null")
 
     # a command marked as unsupported
     obd.commands.RPM.supported = False
@@ -155,7 +184,7 @@ def test_force():
 
 def test_fast():
     o = obd.OBD("/dev/null", fast=False)
-    o.port = FakeELM("/dev/null", 34800, None)
+    o.port = FakeELM("/dev/null")
     
 
     assert command.fast
