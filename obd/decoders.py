@@ -396,8 +396,6 @@ def dtc(messages):
     for message in messages:
         d += message.data
 
-    print(bytes_to_hex(d))
-
     # look at data in pairs of bytes
     # looping through ENDING indices to avoid odd (invalid) code lengths
     for n in range(1, len(d), 2):

@@ -57,7 +57,7 @@ class Frame(object):
     """ represents a single parsed line of OBD output """
     def __init__(self, raw):
         self.raw       = raw
-        self.data      = b''
+        self.data      = bytearray()
         self.priority  = None
         self.addr_mode = None
         self.rx_id     = None
@@ -72,7 +72,7 @@ class Message(object):
     def __init__(self, frames):
         self.frames = frames
         self.ecu    = ECU.UNKNOWN
-        self.data   = b''
+        self.data   = bytearray()
 
     @property
     def tx_id(self):

@@ -47,7 +47,7 @@ class LegacyProtocol(Protocol):
 
         raw = frame.raw
 
-        raw_bytes = unhexlify(raw)
+        raw_bytes = bytearray(unhexlify(raw))
 
         if len(raw_bytes) < 6:
             debug("Dropped frame for being too short")

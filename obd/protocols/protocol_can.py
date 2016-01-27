@@ -64,7 +64,7 @@ class CANProtocol(Protocol):
         if self.id_bits == 11:
             raw = "00000" + raw
 
-        raw_bytes = unhexlify(raw)
+        raw_bytes = bytearray(unhexlify(raw))
 
         # check for valid size
 

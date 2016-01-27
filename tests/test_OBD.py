@@ -48,7 +48,7 @@ class FakeELM:
 
         # all commands succeed
         message = Message([])
-        message.data = b'response data'
+        message.data = bytearray(b'response data')
         message.ecu = ECU.ENGINE # picked engine so that simple commands like RPM will work
         return [ message ]
 

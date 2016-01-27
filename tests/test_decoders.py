@@ -11,7 +11,7 @@ import obd.decoders as d
 def m(hex_data, frames=[]):
     # most decoders don't look at the underlying frame objects
     message = Message(frames)
-    message.data = list(unhexlify(hex_data)) # TODO: use raw byte arrays
+    message.data = bytearray(unhexlify(hex_data)) # TODO: use raw byte arrays
     return [message]
 
 
@@ -25,7 +25,7 @@ def float_equals(d1, d2):
 
 
 def test_noop():
-    assert d.noop(m("00010203")) == ([0, 1, 2, 3], Unit.NONE)
+    assert d.noop(m("00010203")) == (bytearray([0, 1, 2, 3]), Unit.NONE)
 
 def test_drop():
     assert d.drop(m("deadbeef")) == (None, Unit.NONE)
