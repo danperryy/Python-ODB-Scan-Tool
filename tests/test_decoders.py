@@ -2,7 +2,7 @@
 from binascii import unhexlify
 
 from obd.OBDResponse import Unit
-from obd.protocols.protocol import Message
+from obd.protocols.protocol import Frame, Message
 import obd.decoders as d
 
 
@@ -11,7 +11,7 @@ import obd.decoders as d
 def m(hex_data, frames=[]):
     # most decoders don't look at the underlying frame objects
     message = Message(frames)
-    message.data = bytearray(unhexlify(hex_data)) # TODO: use raw byte arrays
+    message.data = bytearray(unhexlify(hex_data))
     return [message]
 
 
@@ -154,6 +154,12 @@ def test_air_status():
     assert d.air_status(m("01")) == ("Upstream",                          Unit.NONE)
     assert d.air_status(m("08")) == ("Pump commanded on for diagnostics", Unit.NONE)
     assert d.air_status(m("03")) == (None,                                Unit.NONE)
+
+def test_elm_voltage():
+    # these aren't parsed as standard hex messages, so manufacture our own
+    assert d.elm_voltage([ Message([ Frame("12.875") ]) ]) == (12.875, Unit.VOLT)
+    assert d.elm_voltage([ Message([ Frame("12") ]) ]) == (12, Unit.VOLT)
+    assert d.elm_voltage([ Message([ Frame("12ABCD") ]) ]) == (None, Unit.NONE)
 
 def test_dtc():
     assert d.dtc(m("0104")) == ([

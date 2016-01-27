@@ -240,8 +240,12 @@ def elm_voltage(messages):
     # doesn't register as a normal OBD response,
     # so access the raw frame data
     v = messages[0].frames[0].raw
-    v = float(v)
-    return (v, Unit.VOLT)
+
+    try:
+        return (float(v), Unit.VOLT)
+    except ValueError:
+        debug("Failed to parse ELM voltage", True)
+        return (None, Unit.NONE)
 
 
 '''
