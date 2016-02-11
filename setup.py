@@ -20,7 +20,7 @@ setup(
     keywords="obd obd-II obd-ii obd2 car serial vehicle diagnostic",
     author="Brendan Whitfield",
     author_email="brendanw@windworksdesign.com",
-    url="http://github.com/brendanwhitfield/python-OBD",
+    url="http://github.com/brendan-w/python-OBD",
     license="GNU GPLv2",
     packages=find_packages(),
     include_package_data=True,

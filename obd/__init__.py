@@ -3,7 +3,7 @@
 	A serial module for accessing data from a vehicles OBD-II port
 
 	For more documentation, visit:
-	https://github.com/brendanwhitfield/python-OBD/wiki
+	https://github.com/brendan-w/python-OBD/wiki
 """
 
 ########################################################################

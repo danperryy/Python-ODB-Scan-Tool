@@ -1,5 +1,5 @@
 site_name: python-OBD
-repo_url: https://github.com/brendanwhitfield/python-OBD
+repo_url: https://github.com/brendan-w/python-OBD
 repo_name: GitHub
 pages:
 - 'Getting Started': 'index.md'
