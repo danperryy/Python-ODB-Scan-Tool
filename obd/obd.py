@@ -29,7 +29,6 @@
 #                                                                      #
 ########################################################################
 
-import time
 
 from .__version__ import __version__
 from .elm327 import ELM327
