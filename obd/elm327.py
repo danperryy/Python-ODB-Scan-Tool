@@ -54,7 +54,9 @@ class ELM327:
     """
 
     _SUPPORTED_PROTOCOLS = {
-        #"0" : None, # automatic mode
+        #"0" : None, # Automatic Mode. This isn't an actual protocol. If the
+                     # ELM reports this, then we don't have enough
+                     # information. see auto_protocol()
         "1" : SAE_J1850_PWM,
         "2" : SAE_J1850_VPW,
         "3" : ISO_9141_2,
@@ -141,15 +143,39 @@ class ELM327:
         self.__status = OBDStatus.ELM_CONNECTED
 
         # try to communicate with the car, and load the correct protocol parser
-        if self.load_protocol():
+        if self.load_protocol(protocol):
             self.__status = OBDStatus.CAR_CONNECTED
             debug("Connection successful")
         else:
             debug("Connected to the adapter, but failed to connect to the vehicle", True)
 
 
+    def load_protocol(self, protocol):
+        if protocol is not None:
+            # an explicit protocol was specified
+            if protocol not in self._SUPPORTED_PROTOCOLS:
+                debug("%s is not a valid protocol. Please use \"1\" through \"A\"", True)
+                return False
+            return self.manual_protocol(protocol)
+        else:
+            # auto detect the protocol
+            return self.auto_protocol()
 
-    def load_protocol(self):
+
+    def manual_protocol(self, protocol):
+
+        r = self.__send("ATTP%s" % p)
+        r0100 = self.__send("0100")
+
+        if not self.__has_message(r0100, "UNABLE TO CONNECT"):
+            # success, found the protocol
+            self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
+            return True
+
+        return False
+
+
+    def auto_protocol(self):
         """
             Attempts communication with the car.
 
