@@ -10,7 +10,6 @@ If the command you need is not in python-OBDs tables, you can create a new `OBDC
 | decoder              | callable | Function used for decoding the hex response                                |
 | ecu (optional)       | ECU      | ID of the ECU this command should listen to (`ECU.ALL` by default)         |
 | fast (optional)      | bool     | Allows python-OBD to alter this command for efficieny (`False` by default) |
-| supported (optional) | bool     | Flag to prevent the sending of unsupported commands (`False` by default)   |
 
 
 Example
@@ -32,13 +31,29 @@ c = OBDCommand("RPM", \          # name
                2, \              # number of return bytes to expect
                rpm, \            # decoding function
                ECU.ENGINE, \     # (optional) ECU filter
-               True, \           # (optional) allow a "01" to be added for speed
-               True),            # (optional) supported by deafult
+               True)             # (optional) allow a "01" to be added for speed
 ```
 
-Here are some details on the less intuitive fields:
+By default, custom commands will be treated as "unsupported by the vehicle". There are two ways to handle this:
+
+```python
+# use the `force` parameter when querying
+o = obd.OBD()
+o.query(c, force=True)
+```
+
+or
+
+```python
+# add your command to the set of supported commands
+o = obd.OBD()
+o.supported_commands.add(c)
+o.query(c)
+```
 
 <br>
+
+Here are some details on the less intuitive fields of an OBDCommand:
 
 ---
 
