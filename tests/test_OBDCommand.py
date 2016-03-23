@@ -18,16 +18,14 @@ def test_constructor():
     assert cmd.decode    == noop
     assert cmd.ecu       == ECU.ENGINE
     assert cmd.fast      == False
-    assert cmd.supported == False
 
     assert cmd.mode_int == 1
     assert cmd.pid_int  == 35
 
     # a case where "fast", and "supported" were set explicitly
-    #                 name       description        cmd  bytes decoder ECU         fast  supported
-    cmd = OBDCommand("Test 2", "example OBD command", "0123", 2, noop, ECU.ENGINE, True, True)
+    #                 name       description        cmd  bytes decoder ECU         fast
+    cmd = OBDCommand("Test 2", "example OBD command", "0123", 2, noop, ECU.ENGINE, True)
     assert cmd.fast      == True
-    assert cmd.supported == True
 
 
 
@@ -43,7 +41,6 @@ def test_clone():
     assert cmd.decode    == other.decode
     assert cmd.ecu       == other.ecu
     assert cmd.fast      == cmd.fast
-    assert cmd.supported == cmd.supported
 
 
 

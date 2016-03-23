@@ -65,7 +65,6 @@ command = OBDCommand("Test_Command", \
                      0, \
                      noop, \
                      ECU.ALL, \
-                     True, \
                      True)
 
 
@@ -109,7 +108,7 @@ def test_supports():
     # since we haven't actually connected,
     # no commands should be marked as supported
     assert not o.supports(obd.commands.RPM)
-    obd.commands.RPM.supported = True
+    o.supported_commands.add(obd.commands.RPM)
     assert o.supports(obd.commands.RPM)
 
     # commands that aren't in python-OBD's tables are unsupported by default
