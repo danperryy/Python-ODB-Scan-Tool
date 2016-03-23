@@ -61,6 +61,15 @@ def pid(messages):
     v = bytes_to_bits(d)
     return (v, Unit.NONE)
 
+# returns the raw strings from the ELM
+def raw_string(messages):
+    strings = []
+
+    for m in messages:
+        strings += [f.raw for f in m.frames]
+
+    return ("\n".join(strings), Unit.NONE)
+
 '''
 Sensor decoders
 Return Value object with value and units

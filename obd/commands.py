@@ -178,7 +178,9 @@ __mode7__ = [
 
 __misc__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, elm_voltage,           ECU.UNKNOWN, False),]
+    OBDCommand("ELM_VERSION"                , "ELM327 version string"                   , "ATI",  0, raw_string,            ECU.UNKNOWN, False),
+    OBDCommand("ELM_VOLTAGE"                , "Voltage detected by OBD-II adapter"      , "ATRV", 0, elm_voltage,           ECU.UNKNOWN, False),
+]
 
 
 
@@ -250,7 +252,8 @@ class Commands():
             self.GET_DTC,
             self.CLEAR_DTC,
             self.GET_FREEZE_DTC,
-            self.VOLTAGE,
+            self.ELM_VERSION,
+            self.ELM_VOLTAGE,
         ]
 
 

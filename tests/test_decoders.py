@@ -30,6 +30,12 @@ def test_noop():
 def test_drop():
     assert d.drop(m("deadbeef")) == (None, Unit.NONE)
 
+def test_raw_string():
+    assert d.raw_string([ Message([]) ]) == ("", Unit.NONE)
+    assert d.raw_string([ Message([ Frame("NO DATA") ]) ]) == ("NO DATA", Unit.NONE)
+    assert d.raw_string([ Message([ Frame("A"), Frame("B") ]) ]) == ("A\nB", Unit.NONE)
+    assert d.raw_string([ Message([ Frame("A") ]), Message([ Frame("B") ]) ]) == ("A\nB", Unit.NONE)
+
 def test_pid():
     assert d.pid(m("00000000")) == ("00000000000000000000000000000000", Unit.NONE)
     assert d.pid(m("F00AA00F")) == ("11110000000010101010000000001111", Unit.NONE)
