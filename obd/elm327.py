@@ -164,12 +164,12 @@ class ELM327:
 
     def manual_protocol(self, protocol):
 
-        r = self.__send("ATTP%s" % p)
+        r = self.__send("ATTP%s" % protocol)
         r0100 = self.__send("0100")
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
-            self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
+            self.__protocol = self._SUPPORTED_PROTOCOLS[protocol](r0100)
             return True
 
         return False
