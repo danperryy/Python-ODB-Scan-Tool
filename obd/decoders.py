@@ -63,7 +63,7 @@ def pid(messages):
 
 # returns the raw strings from the ELM
 def raw_string(messages):
-    return ("\n".join([str(m) for m in messages]), Unit.NONE)
+    return ("\n".join([m.raw() for m in messages]), Unit.NONE)
 
 '''
 Sensor decoders
