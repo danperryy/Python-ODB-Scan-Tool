@@ -48,7 +48,7 @@ Define command tables
 
 __mode1__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
-    OBDCommand("PIDS_A"                     , "Supported PIDs [01-20]"                  , "0100", 4, pid,                   ECU.ENGINE, True, True), # the first PID getter is assumed to be supported
+    OBDCommand("PIDS_A"                     , "Supported PIDs [01-20]"                  , "0100", 4, pid,                   ECU.ENGINE, True),
     OBDCommand("STATUS"                     , "Status since DTCs cleared"               , "0101", 4, status,                ECU.ENGINE, True),
     OBDCommand("FREEZE_DTC"                 , "Freeze DTC"                              , "0102", 2, drop,                  ECU.ENGINE, True),
     OBDCommand("FUEL_STATUS"                , "Fuel System Status"                      , "0103", 2, fuel_status,           ECU.ENGINE, True),
@@ -163,23 +163,22 @@ for c in __mode1__:
 
 __mode3__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL,     False, True),
+    OBDCommand("GET_DTC"                    , "Get DTCs"                                , "03",   0, dtc,                   ECU.ALL,     False),
 ]
 
 __mode4__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, drop,                  ECU.ALL,     False, True),
+    OBDCommand("CLEAR_DTC"                  , "Clear DTCs and Freeze data"              , "04",   0, drop,                  ECU.ALL,     False),
 ]
 
 __mode7__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,     False, True),
+    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , "07",   0, dtc,                   ECU.ALL,     False),
 ]
 
 __misc__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, elm_voltage,           ECU.UNKNOWN, False, True),
-]
+    OBDCommand("VOLTAGE"                    , "Voltage detected by OBD-II adapter"      , "ATRV", 0, elm_voltage,           ECU.UNKNOWN, False),]
 
 
 
@@ -239,6 +238,20 @@ class Commands():
     def __contains__(self, s):
         """ calls has_name(s) """
         return self.has_name(s)
+
+
+    def base_commands(self):
+        """
+            returns the list of commands that should always be
+            supported by the ELM327
+        """
+        return [
+            self.PIDS_A,
+            self.GET_DTC,
+            self.CLEAR_DTC,
+            self.GET_FREEZE_DTC,
+            self.VOLTAGE,
+        ]
 
 
     def pid_getters(self):

@@ -133,7 +133,7 @@ class Async(OBD):
             debug("Can't watch() while running, please use stop()", True)
         else:
 
-            if not (self.supports(c) or force):
+            if not force and not self.supports(c):
                 debug("'%s' is not supported" % str(c), True)
                 return
 

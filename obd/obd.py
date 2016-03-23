@@ -47,7 +47,7 @@ class OBD(object):
 
     def __init__(self, portstr=None, baudrate=38400, protocol=None, fast=True):
         self.port = None
-        self.supported_commands = []
+        self.supported_commands = set(commands.base_commands())
         self.fast = fast
         self.__last_command = "" # used for running the previous command with a CR
 
@@ -122,13 +122,12 @@ class OBD(object):
                     pid  = get.pid_int + i + 1
 
                     if commands.has_pid(mode, pid):
-                        c = commands[mode][pid]
-                        c.supported = True
+                        self.supported_commands.add(commands[mode][pid])
 
-                        # don't add PID getters to the command list
-                        if c not in pid_getters:
-                            self.supported_commands.append(c)
-
+                    # set support for mode 2 commands
+                    if mode == 1 and commands.has_pid(2, pid):
+                        self.supported_commands.add(commands[2][pid])
+                        
         debug("finished querying with %d commands supported" % len(self.supported_commands))
 
 
@@ -215,9 +214,9 @@ class OBD(object):
     def supports(self, cmd):
         """
             Returns a boolean for whether the given command
-            is supported by the car AND this library
+            is supported by the car
         """
-        return commands.has_command(cmd) and cmd.supported
+        return cmd in self.supported_commands
 
 
     def query(self, cmd, force=False):
@@ -230,7 +229,7 @@ class OBD(object):
             debug("Query failed, no connection available", True)
             return OBDResponse()
 
-        if not self.supports(cmd) and not force:
+        if not force and not self.supports(cmd):
             debug("'%s' is not supported" % str(cmd), True)
             return OBDResponse()
 

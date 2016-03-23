@@ -43,8 +43,7 @@ class OBDCommand():
                  _bytes,
                  decoder,
                  ecu=ECU.ALL,
-                 fast=False,
-                 supported=False):
+                 fast=False):
         self.name      = name        # human readable name (also used as key in commands dict)
         self.desc      = desc        # human readable description
         self.command   = command     # command string
@@ -52,7 +51,6 @@ class OBDCommand():
         self.decode    = decoder     # decoding function
         self.ecu       = ecu         # ECU ID from which this command expects messages from
         self.fast      = fast        # can an extra digit be added to the end of the command? (to make the ELM return early)
-        self.supported = supported   # bool for support
 
     def clone(self):
         return OBDCommand(self.name,
@@ -61,8 +59,7 @@ class OBDCommand():
                           self.bytes,
                           self.decode,
                           self.ecu,
-                          self.fast,
-                          self.supported)
+                          self.fast)
 
     @property
     def mode_int(self):
