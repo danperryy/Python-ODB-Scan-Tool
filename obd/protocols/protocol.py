@@ -88,6 +88,10 @@ class Message(object):
         """ boolean for whether this message was successfully parsed """
         return bool(self.data)
 
+    def __str__(self):
+        """ returns the original raw input string from the adapter """
+        return "\n".join([f.raw for f in self.frames])
+
     def __eq__(self, other):
         if isinstance(other, Message):
             for attr in ["frames", "ecu", "data"]:
