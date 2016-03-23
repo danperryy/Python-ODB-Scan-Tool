@@ -78,6 +78,8 @@ def <name>(messages):
     return (<value>, <unit>)
 ```
 
+*You can also access the original string sent by the adapter using the `Message.raw()` function.*
+
 ---
 
 ### OBDCommand.ecu
