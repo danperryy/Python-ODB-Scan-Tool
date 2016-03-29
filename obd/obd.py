@@ -111,7 +111,7 @@ class OBD(object):
 
             if response.is_null():
                 continue
-            
+
             supported = response.value # string of binary 01010101010101
 
             # loop through PIDs binary
@@ -127,7 +127,7 @@ class OBD(object):
                     # set support for mode 2 commands
                     if mode == 1 and commands.has_pid(2, pid):
                         self.supported_commands.add(commands[2][pid])
-                        
+
         debug("finished querying with %d commands supported" % len(self.supported_commands))
 
 

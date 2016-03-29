@@ -75,6 +75,12 @@ class OBDCommand():
         else:
             return 0
 
+    # TODO: remove later
+    @property
+    def supported(self):
+        debug("OBDCommand.supported is deprecated. Use OBD.supports() instead", True)
+        return False
+
     def __call__(self, messages):
 
         # filter for applicable messages (from the right ECU(s))
