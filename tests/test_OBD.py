@@ -132,7 +132,7 @@ def test_protocol_name():
     o = obd.OBD("/dev/null")
 
     o.port = None
-    assert o.protocol_name() == ""    
+    assert o.protocol_name() == ""
 
     o.port = FakeELM("/dev/null")
     assert o.protocol_name() == o.port.protocol_name()
@@ -142,7 +142,7 @@ def test_protocol_id():
     o = obd.OBD("/dev/null")
 
     o.port = None
-    assert o.protocol_id() == ""    
+    assert o.protocol_id() == ""
 
     o.port = FakeELM("/dev/null")
     assert o.protocol_id() == o.port.protocol_id()
@@ -159,9 +159,6 @@ def test_protocol_id():
 def test_force():
     o = obd.OBD("/dev/null", fast=False) # disable the trailing response count byte
     o.port = FakeELM("/dev/null")
-
-    # a command marked as unsupported
-    obd.commands.RPM.supported = False
 
     r = o.query(obd.commands.RPM)
     assert r.is_null()
@@ -184,7 +181,6 @@ def test_force():
 def test_fast():
     o = obd.OBD("/dev/null", fast=False)
     o.port = FakeELM("/dev/null")
-    
 
     assert command.fast
     o.query(command, force=True) # force since this command isn't in the tables
