@@ -7,4 +7,4 @@ To run all tests, run the following command:
 
 	$ py.test tests/
 
-For more information on pytest with virtualenvs, [read more here](http://pytest.org/latest/goodpractises.html)
+For more information on pytest with virtualenvs, [read more here](https://pytest.org/dev/goodpractises.html)
