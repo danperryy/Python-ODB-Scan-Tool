@@ -1,5 +1,5 @@
 
-After installing the library, simply `import obd`, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the scanSerial helper retrieve a list of connected ports.
+After installing the library, simply `import obd`, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the `scan_serial` helper retrieve a list of connected ports.
 
 ```python
 import obd
@@ -12,7 +12,7 @@ connection = obd.OBD("/dev/ttyUSB0") # create connection with USB 0
 
 # OR
 
-ports = obd.scanSerial()       # return list of valid USB or RF ports
+ports = obd.scan_serial()       # return list of valid USB or RF ports
 print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
 connection = obd.OBD(ports[0]) # connect to the first port in the list
 ```

@@ -80,12 +80,12 @@ This is likely a problem with the serial connection between the OBD-II adapter a
 - you are connecting to the right port in `/dev` (or that there is any port at all)
 - you have the correct permissions to write to the port
 
-You can use the `scanSerial()` helper function to determine which ports are available for writing.
+You can use the `scan_serial()` helper function to determine which ports are available for writing.
 
 ```python
 import obd
 
-ports = obd.scanSerial()       # return list of valid USB or RF ports
+ports = obd.scan_serial()       # return list of valid USB or RF ports
 print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
 ```
 

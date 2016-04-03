@@ -34,7 +34,7 @@ from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
 from .OBDResponse import OBDResponse
-from .utils import scanSerial, OBDStatus
+from .utils import scan_serial, OBDStatus
 from .debug import debug
 
 
@@ -63,8 +63,8 @@ class OBD(object):
         """
 
         if portstr is None:
-            debug("Using scanSerial to select port")
-            portnames = scanSerial()
+            debug("Using scan_serial to select port")
+            portnames = scan_serial()
             debug("Available ports: " + str(portnames))
 
             if not portnames:
@@ -258,7 +258,7 @@ class OBD(object):
         if self.fast and cmd.fast:
             cmd_string += str(len(self.port.ecus()))
 
-        # if we sent this last time, just send 
+        # if we sent this last time, just send
         if self.fast and (cmd_string == self.__last_command):
             cmd_string = ""
 

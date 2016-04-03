@@ -131,7 +131,7 @@ def try_port(portStr):
     return False
 
 
-def scanSerial():
+def scan_serial():
     """scan for available ports. return a list of serial names"""
     available = []
 
@@ -156,5 +156,10 @@ def scanSerial():
     for port in possible_ports:
         if try_port(port):
             available.append(port)
-    
+
     return available
+
+# TODO: deprecated, remove later
+def scanSerial():
+    print("scanSerial() is deprecated, use scan_serial() instead")
+    return scan_serial()
