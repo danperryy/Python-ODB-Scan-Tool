@@ -3,9 +3,6 @@ import random
 from obd.protocols import *
 from obd.protocols.protocol import Message
 
-from obd import debug
-debug.console = True
-
 
 CAN_11_PROTOCOLS = [
     ISO_15765_4_11bit_500k,

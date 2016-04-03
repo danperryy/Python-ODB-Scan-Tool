@@ -3,9 +3,6 @@ import random
 from obd.protocols import *
 from obd.protocols.protocol import Message
 
-from obd import debug
-debug.console = True
-
 
 LEGACY_PROTOCOLS = [
     SAE_J1850_PWM,
