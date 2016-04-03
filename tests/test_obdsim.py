@@ -143,6 +143,7 @@ def test_async_unwatch_callback(async):
         async.unwatch(commands.RPM, callback=b_rs.append)
 
     time.sleep(STANDARD_WAIT_TIME)
+    async.stop()
     async.unwatch_all()
 
     assert(all([ good_rpm_response(r) for r in a_rs + b_rs ]))
