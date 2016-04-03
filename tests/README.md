@@ -5,6 +5,6 @@ To test python-OBD, you will need to `pip install pytest` and install the module
 
 To run all tests, run the following command:
 
-	$ py.test --obdsim=/dev/pts/<num>
+	$ py.test --port=/dev/pts/<num>
 
 For more information on pytest with virtualenvs, [read more here](https://pytest.org/dev/goodpractises.html)
