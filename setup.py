@@ -1,11 +1,11 @@
 #!/bin/env python
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
 
 setup(
     name="obd",
-    version="0.4.1",
+    version="0.5.0",
     description=("Serial module for handling live sensor data from a vehicle's OBD-II port"),
     classifiers=[
         "Operating System :: POSIX :: Linux",
