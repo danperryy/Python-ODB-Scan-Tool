@@ -1,11 +1,11 @@
 #!/bin/env python
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
 
 setup(
     name="obd",
-    version="0.4.1",
+    version="0.5.0",
     description=("Serial module for handling live sensor data from a vehicle's OBD-II port"),
     classifiers=[
         "Operating System :: POSIX :: Linux",
@@ -17,7 +17,7 @@ setup(
         "Topic :: System :: Logging",
         "Intended Audience :: Developers",
     ],
-    keywords="obd obd-II obd-ii obd2 car serial vehicle diagnostic",
+    keywords="obd obdii obd-ii obd2 car serial vehicle diagnostic",
     author="Brendan Whitfield",
     author_email="brendanw@windworksdesign.com",
     url="http://github.com/brendan-w/python-OBD",

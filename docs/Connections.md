@@ -1,5 +1,5 @@
 
-After installing the library, simply `import obd`, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the scanSerial helper retrieve a list of connected ports.
+After installing the library, simply `import obd`, and create a new OBD connection object. By default, python-OBD will scan for Bluetooth and USB serial ports (in that order), and will pick the first connection it finds. The port can also be specified manually by passing a connection string to the OBD constructor. You can also use the `scan_serial` helper retrieve a list of connected ports.
 
 ```python
 import obd
@@ -12,10 +12,28 @@ connection = obd.OBD("/dev/ttyUSB0") # create connection with USB 0
 
 # OR
 
-ports = obd.scanSerial()       # return list of valid USB or RF ports
+ports = obd.scan_serial()       # return list of valid USB or RF ports
 print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
 connection = obd.OBD(ports[0]) # connect to the first port in the list
 ```
+
+
+<br>
+
+### OBD(portstr=None, baudrate=38400, protocol=None, fast=True):
+
+`portstr`: The UNIX device file or Windows COM Port for your adapter. The default value (`None`) will auto select a port.
+
+`baudrate`: The baudrate at which to set the serial connection. This can vary from adapter to adapter. Typical values are: 9600, 38400, 19200, 57600, 115200
+
+`protocol`: Forces python-OBD to use the given protocol when communicating with the adapter. See `protocol_id()` for possible values. The default value (`None`) will auto select a protocol.
+
+`fast`: Allows commands to be optimized before being sent to the car. Python-OBD currently makes two such optimizations:
+
+- Sends carriage returns to repeat the previous command.
+- Appends a response limit to the end of the command, telling the adapter to return after it receives *N* responses (rather than waiting and eventually timing out). This feature can be enabled and disabled for individual commands.
+
+Disabling fast mode will guarantee that python-OBD outputs the unaltered command for every request.
 
 <br>
 
@@ -23,7 +41,7 @@ connection = obd.OBD(ports[0]) # connect to the first port in the list
 
 ### query(command, force=False)
 
-Sends an `OBDCommand` to the car, and returns a `OBDResponse` object. This function will block until a response is recieved from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
+Sends an `OBDCommand` to the car, and returns a `OBDResponse` object. This function will block until a response is received from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
 
 *For non-blocking querying, see [Async Querying](Async Connections.md)*
 
@@ -36,15 +54,46 @@ r = connection.query(obd.commands.RPM) # returns the response from the car
 
 ---
 
+### status()
+
+Returns a string value reflecting the status of the connection. These values should be compared against the `OBDStatus` class. The fact that they are strings is for human readability only. There are currently 3 possible states:
+
+```python
+from obd import OBDStatus
+
+# no connection is made
+OBDStatus.NOT_CONNECTED # "Not Connected"
+
+# successful communication with the ELM327 adapter
+OBDStatus.ELM_CONNECTED # "ELM Connected"
+
+# successful communication with the ELM327 and the vehicle
+OBDStatus.CAR_CONNECTED # "Car Connected"
+```
+
+The middle state, `ELM_CONNECTED` is mostly for diagnosing errors. When a proper connection is established, you will never encounter this value.
+
+---
+
 ### is_connected()
 
-Returns a boolean for whether a connection was established.
+Returns a boolean for whether a connection was established with the vehicle. It is identical to writing:
+
+```python
+connection.status() == OBDStatus.CAR_CONNECTED
+```
+
+---
+
+### port_name()
+
+Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns `"Not connected to any port"`.
 
 ---
 
 ### get_port_name()
 
-Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns `"Not connected to any port"`.
+**Deprecated:** use `port_name()` instead
 
 ---
 
@@ -53,6 +102,43 @@ Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If 
 Returns a boolean for whether a command is supported by both the car and python-OBD
 
 ---
+
+### protocol_id()
+### protocol_name()
+
+Both functions return string names for the protocol currently being used by the adapter. Protocol *ID's* are the short values used by your adapter, whereas protocol *names* are the human-readable versions. The `protocol_id()` function is a good way to lookup which value to pass in the `protocol` field of the OBD constructor (though, this is mainly for advanced usage). These functions do not make any serial requests. When no connection has been made, these functions will return empty strings. The possible values are:
+
+|ID | Name                     |
+|---|--------------------------|
+| 1 | SAE J1850 PWM            |
+| 2 | SAE J1850 VPW            |
+| 3 | AUTO, ISO 9141-2         |
+| 4 | ISO 14230-4 (KWP 5BAUD)  |
+| 5 | ISO 14230-4 (KWP FAST)   |
+| 6 | ISO 15765-4 (CAN 11/500) |
+| 7 | ISO 15765-4 (CAN 29/500) |
+| 8 | ISO 15765-4 (CAN 11/250) |
+| 9 | ISO 15765-4 (CAN 29/250) |
+| A | SAE J1939 (CAN 29/250)   |
+
+---
+
+<!--
+
+### ecus()
+
+Returns a list of identified "Engine Control Units" visible to the adapter. Each value in the list is a constant representing that ECU's function. These constants are found in the `ECU` class:
+
+```python
+from obd import ECU
+
+ECU.UNKNOWN
+ECU.ENGINE
+```
+
+Python-OBD can currently only detect the engine computer, but future versions may extend this capability.
+
+-->
 
 ### close()
 

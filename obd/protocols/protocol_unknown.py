@@ -6,11 +6,11 @@
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
 # Copyright 2009 Peter J. Creath                                       #
-# Copyright 2016 Brendan Whitfield (brendan-w.com)                     #
+# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
 #                                                                      #
 ########################################################################
 #                                                                      #
-# debug.py                                                             #
+# protocols/protocol_legacy.py                                         #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,22 +29,21 @@
 #                                                                      #
 ########################################################################
 
-class Debug():
-    def __init__(self):
-        self.console = False
-        self.handler = None
 
-    def __call__(self, msg, forcePrint=False):
-
-        if self.console or forcePrint:
-            print("[obd] " + str(msg))
-
-        if hasattr(self.handler, '__call__'):
-            self.handler(msg)
-
-debug = Debug()
+from .protocol import *
 
 
-class ProtocolError(Exception):
-    def __init__(self):
-        pass
+class UnknownProtocol(Protocol):
+
+    """
+        Class representing an unknown protocol.
+
+        Used for when a connection to the ELM has
+        been made, but the car hasn't responded.
+    """
+
+    def parse_frame(self, frame):
+        return True # pass everything
+
+    def parse_message(self, message):
+        return True # pass everything

@@ -61,6 +61,15 @@ obd.commands.has_pid(1, 12) # True
 
 <br>
 
+# OBD-II adapter (ELM327 commands)
+
+|PID  | Name        | Description                             |
+|-----|-------------|-----------------------------------------|
+| N/A | ELM_VERSION | OBD-II adapter version string           |
+| N/A | ELM_VOLTAGE | Voltage detected by OBD-II adapter      |
+
+<br>
+
 # Mode 01
 
 |PID | Name                      | Description                             |

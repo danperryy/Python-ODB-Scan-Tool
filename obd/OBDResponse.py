@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# debug.py                                                             #
+# OBDResponse.py                                                       #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,22 +29,80 @@
 #                                                                      #
 ########################################################################
 
-class Debug():
+
+
+import time
+
+
+
+class Unit:
+    """ All unit constants used in python-OBD """
+
+    NONE    = None
+    RATIO   = "Ratio"
+    COUNT   = "Count"
+    PERCENT = "%"
+    RPM     = "RPM"
+    VOLT    = "Volt"
+    F       = "F"
+    C       = "C"
+    SEC     = "Second"
+    MIN     = "Minute"
+    PA      = "Pa"
+    KPA     = "kPa"
+    PSI     = "psi"
+    KPH     = "kph"
+    MPH     = "mph"
+    DEGREES = "Degrees"
+    GPS     = "Grams per Second"
+    MA      = "mA"
+    KM      = "km"
+    LPH     = "Liters per Hour"
+
+
+
+class OBDResponse():
+    """ Standard response object for any OBDCommand """
+
+    def __init__(self, command=None, messages=None):
+        self.command  = command
+        self.messages = messages if messages else []
+        self.value    = None
+        self.unit     = Unit.NONE
+        self.time     = time.time()
+
+    def is_null(self):
+        return (not self.messages) or (self.value == None)
+
+    def __str__(self):
+        if self.unit != Unit.NONE:
+            return "%s %s" % (str(self.value), str(self.unit))
+        else:
+            return str(self.value)
+
+
+
+"""
+    Special value types used in OBDResponses
+    instantiated in decoders.py
+"""
+
+
+class Status():
     def __init__(self):
-        self.console = False
-        self.handler = None
-
-    def __call__(self, msg, forcePrint=False):
-
-        if self.console or forcePrint:
-            print("[obd] " + str(msg))
-
-        if hasattr(self.handler, '__call__'):
-            self.handler(msg)
-
-debug = Debug()
+        self.MIL           = False
+        self.DTC_count     = 0
+        self.ignition_type = ""
+        self.tests         = []
 
 
-class ProtocolError(Exception):
-    def __init__(self):
-        pass
+class Test():
+    def __init__(self, name, available, incomplete):
+        self.name       = name
+        self.available  = available
+        self.incomplete = incomplete
+
+    def __str__(self):
+        a = "Available" if self.available else "Unavailable"
+        c = "Incomplete" if self.incomplete else "Complete"
+        return "Test %s: %s, %s" % (self.name, a, c)

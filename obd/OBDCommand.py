@@ -6,7 +6,7 @@
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
 # Copyright 2009 Peter J. Creath                                       #
-# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2016 Brendan Whitfield (brendan-w.com)                     #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -29,73 +29,97 @@
 #                                                                      #
 ########################################################################
 
-import re
 from .utils import *
 from .debug import debug
+from .protocols import ECU
+from .OBDResponse import OBDResponse
 
 
 class OBDCommand():
-    def __init__(self, name, desc, mode, pid, returnBytes, decoder, supported=False):
-        self.name       = name
-        self.desc       = desc
-        self.mode       = mode
-        self.pid        = pid
-        self.bytes      = returnBytes # number of bytes expected in return
-        self.decode     = decoder
-        self.supported  = supported
+    def __init__(self,
+                 name,
+                 desc,
+                 command,
+                 _bytes,
+                 decoder,
+                 ecu=ECU.ALL,
+                 fast=False):
+        self.name      = name        # human readable name (also used as key in commands dict)
+        self.desc      = desc        # human readable description
+        self.command   = command     # command string
+        self.bytes     = _bytes      # number of bytes expected in return
+        self.decode    = decoder     # decoding function
+        self.ecu       = ecu         # ECU ID from which this command expects messages from
+        self.fast      = fast        # can an extra digit be added to the end of the command? (to make the ELM return early)
 
     def clone(self):
         return OBDCommand(self.name,
                           self.desc,
-                          self.mode,
-                          self.pid,
+                          self.command,
                           self.bytes,
-                          self.decode)
+                          self.decode,
+                          self.ecu,
+                          self.fast)
 
-    def get_command(self):
-        return self.mode + self.pid # the actual command transmitted to the port
+    @property
+    def mode_int(self):
+        if len(self.command) >= 2:
+            return unhex(self.command[:2])
+        else:
+            return 0
 
-    def get_mode_int(self):
-        return unhex(self.mode)
+    @property
+    def pid_int(self):
+        if len(self.command) > 2:
+            return unhex(self.command[2:])
+        else:
+            return 0
 
-    def get_pid_int(self):
-        return unhex(self.pid)
+    # TODO: remove later
+    @property
+    def supported(self):
+        debug("OBDCommand.supported is deprecated. Use OBD.supports() instead", True)
+        return False
 
-    def __call__(self, message):
+    def __call__(self, messages):
+
+        # filter for applicable messages (from the right ECU(s))
+        for_us = lambda m: self.ecu & m.ecu > 0
+        messages = list(filter(for_us, messages))
+
+        # guarantee data size for the decoder
+        for m in messages:
+            self.__constrain_message_data(m)
 
         # create the response object with the raw data recieved
         # and reference to original command
-        r = Response(self, message)
-        
-        # combine the bytes back into a hex string
-        # TODO: rewrite decoders to handle raw byte arrays
-        _data = ""
-
-        for b in message.data_bytes:
-            h = hex(b)[2:].upper()
-            h = "0" + h if len(h) < 2 else h
-            _data += h
-
-        # constrain number of bytes in response
-        if (self.bytes > 0): # zero bytes means flexible response
-            _data = constrainHex(_data, self.bytes)
-
-        # decoded value into the response object
-        d = self.decode(_data)
-        r.value = d[0]
-        r.unit  = d[1]
+        r = OBDResponse(self, messages)
+        if messages:
+            r.value, r.unit = self.decode(messages)
 
         return r
 
+
+    def __constrain_message_data(self, message):
+        """ pads or chops the data field to the size specified by this command """
+        if self.bytes > 0:
+            if len(message.data) > self.bytes:
+                # chop off the right side
+                message.data = message.data[:self.bytes]
+            else:
+                # pad the right with zeros
+                message.data += (b'\x00' * (self.bytes - len(message.data)))
+
+
     def __str__(self):
-        return "%s%s: %s" % (self.mode, self.pid, self.desc)
+        return "%s: %s" % (self.command, self.desc)
 
     def __hash__(self):
         # needed for using commands as keys in a dict (see async.py)
-        return hash((self.mode, self.pid))
+        return hash(self.command)
 
     def __eq__(self, other):
         if isinstance(other, OBDCommand):
-            return (self.mode, self.pid) == (other.mode, other.pid)
+            return (self.command == other.command)
         else:
             return False

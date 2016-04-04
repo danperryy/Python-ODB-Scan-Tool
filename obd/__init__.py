@@ -3,7 +3,7 @@
 	A serial module for accessing data from a vehicles OBD-II port
 
 	For more documentation, visit:
-	https://github.com/brendan-w/python-OBD/wiki
+	http://python-obd.readthedocs.org/en/latest/
 """
 
 ########################################################################
@@ -13,7 +13,7 @@
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
 # Copyright 2009 Peter J. Creath                                       #
-# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2016 Brendan Whitfield (brendan-w.com)                     #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -38,8 +38,10 @@
 
 from .__version__ import __version__
 from .obd import OBD
-from .OBDCommand import OBDCommand
-from .commands import commands
-from .utils import scanSerial, Unit
-from .debug import debug
 from .async import Async
+from .commands import commands
+from .OBDCommand import OBDCommand
+from .OBDResponse import OBDResponse, Unit
+from .protocols import ECU
+from .utils import scan_serial, scanSerial, OBDStatus # TODO: scanSerial() deprecated
+from .debug import debug

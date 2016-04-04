@@ -6,7 +6,7 @@
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)                 #
 # Copyright 2009 Secons Ltd. (www.obdtester.com)                       #
 # Copyright 2009 Peter J. Creath                                       #
-# Copyright 2015 Brendan Whitfield (bcw7044@rit.edu)                   #
+# Copyright 2016 Brendan Whitfield (brendan-w.com)                     #
 #                                                                      #
 ########################################################################
 #                                                                      #
@@ -31,7 +31,7 @@
 
 import time
 import threading
-from .utils import Response
+from .OBDResponse import OBDResponse
 from .debug import debug
 from . import OBD
 
@@ -41,8 +41,8 @@ class Async(OBD):
         Specialized for asynchronous value reporting.
     """
 
-    def __init__(self, portstr=None, baudrate=38400):
-        super(Async, self).__init__(portstr, baudrate)
+    def __init__(self, portstr=None, baudrate=38400, protocol=None, fast=True):
+        super(Async, self).__init__(portstr, baudrate, protocol, fast)
         self.__commands    = {} # key = OBDCommand, value = Response
         self.__callbacks   = {} # key = OBDCommand, value = list of Functions
         self.__thread      = None
@@ -133,14 +133,14 @@ class Async(OBD):
             debug("Can't watch() while running, please use stop()", True)
         else:
 
-            if not (self.supports(c) or force):
+            if not force and not self.supports(c):
                 debug("'%s' is not supported" % str(c), True)
                 return
 
             # new command being watched, store the command
             if c not in self.__commands:
                 debug("Watching command: %s" % str(c))
-                self.__commands[c] = Response() # give it an initial value
+                self.__commands[c] = OBDResponse() # give it an initial value
                 self.__callbacks[c] = [] # create an empty list
 
             # if a callback was given, push it
@@ -197,7 +197,7 @@ class Async(OBD):
         if c in self.__commands:
             return self.__commands[c]
         else:
-            return Response()
+            return OBDResponse()
 
 
     def run(self):
