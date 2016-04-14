@@ -75,7 +75,7 @@ class OBD(object):
                 debug("Attempting to use port: " + str(port))
                 self.port = ELM327(port, baudrate, protocol)
 
-                if self.port.status >= OBDStatus.ELM_CONNECTED:
+                if self.port.status() >= OBDStatus.ELM_CONNECTED:
                     break # success! stop searching for serial
         else:
             debug("Explicit port defined")
