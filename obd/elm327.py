@@ -338,10 +338,10 @@ class ELM327:
 
         if self.__port:
             cmd += "\r\n" # terminate
+            debug("write: " + repr(cmd))
             self.__port.flushInput() # dump everything in the input buffer
             self.__port.write(cmd.encode()) # turn the string into bytes and write
             self.__port.flush() # wait for the output buffer to finish transmitting
-            debug("write: " + repr(cmd))
         else:
             debug("cannot perform __write() when unconnected", True)
 
