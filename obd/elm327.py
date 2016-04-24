@@ -115,26 +115,26 @@ class ELM327:
 
         # ---------------------------- ATZ (reset) ----------------------------
         try:
-            self.__send("ATZ", delay=1) # wait 1 second for ELM to initialize
+            self.__send(b"ATZ", delay=1) # wait 1 second for ELM to initialize
             # return data can be junk, so don't bother checking
         except serial.SerialException as e:
             self.__error(e)
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send("ATE0")
+        r = self.__send(b"ATE0")
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send("ATH1")
+        r = self.__send(b"ATH1")
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
-        r = self.__send("ATL0")
+        r = self.__send(b"ATL0")
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
@@ -164,8 +164,8 @@ class ELM327:
 
     def manual_protocol(self, protocol):
 
-        r = self.__send("ATTP%s" % protocol)
-        r0100 = self.__send("0100")
+        r = self.__send(b"ATTP" + protocol.encode())
+        r0100 = self.__send(b"0100")
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
@@ -186,13 +186,13 @@ class ELM327:
         """
 
         # -------------- try the ELM's auto protocol mode --------------
-        r = self.__send("ATSP0")
+        r = self.__send(b"ATSP0")
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        r0100 = self.__send("0100")
+        r0100 = self.__send(b"0100")
 
         # ------------------- ATDPN (list protocol number) -------------------
-        r = self.__send("ATDPN")
+        r = self.__send(b"ATDPN")
         if len(r) != 1:
             debug("Failed to retrieve current protocol", True)
             return False
@@ -214,8 +214,8 @@ class ELM327:
             debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send("ATTP%s" % p)
-                r0100 = self.__send("0100")
+                r = self.__send(b"ATTP" + p.encode())
+                r0100 = self.__send(b"0100")
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
                     self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
@@ -287,7 +287,7 @@ class ELM327:
         self.__protocol = None
 
         if self.__port is not None:
-            self.__write("ATZ")
+            self.__write(b"ATZ")
             self.__port.close()
             self.__port = None
 
@@ -337,10 +337,10 @@ class ELM327:
         """
 
         if self.__port:
-            cmd += "\r\n" # terminate
+            cmd += b"\r\n" # terminate
             debug("write: " + repr(cmd))
             self.__port.flushInput() # dump everything in the input buffer
-            self.__port.write(cmd.encode()) # turn the string into bytes and write
+            self.__port.write(cmd) # turn the string into bytes and write
             self.__port.flush() # wait for the output buffer to finish transmitting
         else:
             debug("cannot perform __write() when unconnected", True)

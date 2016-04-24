@@ -256,10 +256,10 @@ class OBD(object):
 
         # only wait for as many ECUs as we've seen
         if self.fast and cmd.fast:
-            cmd_string += str(len(self.port.ecus()))
+            cmd_string += str(len(self.port.ecus())).encode()
 
         # if we sent this last time, just send
         if self.fast and (cmd_string == self.__last_command):
-            cmd_string = ""
+            cmd_string = b""
 
         return cmd_string
