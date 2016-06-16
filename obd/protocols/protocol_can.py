@@ -65,10 +65,10 @@ class CANProtocol(Protocol):
             raw = "00000" + raw
 
         # Handle odd size frames and drop
-        if len(raw) > 16 and len(raw) & 1:
-            debug("Dropping frame for being wrong size (odd)")
+        if len(raw) & 1:
+            debug("Dropping frame for being odd")
             return False
-    
+
         raw_bytes = bytearray(unhexlify(raw))
 
         # check for valid size

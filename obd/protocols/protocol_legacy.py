@@ -47,6 +47,11 @@ class LegacyProtocol(Protocol):
 
         raw = frame.raw
 
+        # Handle odd size frames and drop
+        if len(raw) & 1:
+            debug("Dropping frame for being odd")
+            return False
+
         raw_bytes = bytearray(unhexlify(raw))
 
         if len(raw_bytes) < 6:

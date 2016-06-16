@@ -42,6 +42,10 @@ def test_single_frame():
         r = p(["48 6B 10 41 00 00 01 02 03 04 05 FF"])
         assert len(r) == 0
 
+        # odd (invalid)
+        r = p(["48 6B 10 41 00 00 F"])
+        assert len(r) == 0
+
 
 def test_hex_straining():
     """

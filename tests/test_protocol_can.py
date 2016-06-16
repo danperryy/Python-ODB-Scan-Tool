@@ -40,6 +40,10 @@ def test_single_frame():
 
         # TODO: check for invalid length filterring
 
+        # drop odd-sized frames (post padding)
+        r = p(["7E8 08 41 00 00 01 02 03 04 0"])
+        assert len(r) == 0
+
 
 def test_hex_straining():
     """
