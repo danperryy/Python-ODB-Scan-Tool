@@ -85,6 +85,19 @@ class ELM327:
         "A", # SAE_J1939
     ]
 
+    # 38400, 9600 are the possible boot bauds (unless reprogrammed via
+    # PP 0C).  19200, 38400, 57600, 115200, 230400, 500000 are listed on
+    # p.46 of the ELM327 datasheet.
+    #
+    # Once pyserial supports non-standard baud rates on platforms other
+    # than Linux, we'll add 500K to this list.
+    #
+    # We check the two default baud rates first, then go fastest to
+    # slowest, on the theory that anyone who's using a slow baud rate is
+    # going to be less picky about the time required to detect it.
+    _TRY_BAUDS = [ 38400, 9600, 230400, 115200, 57600, 19200 ]
+
+
 
     def __init__(self, portname, baudrate, protocol):
         """Initializes port by resetting device and gettings supported PIDs. """
@@ -223,6 +236,35 @@ class ELM327:
 
         # if we've come this far, then we have failed...
         return False
+
+
+    def auto_baudrate(self):
+        """Detect, select, and return the baud rate at which a connected
+        ELM32x interface is operating.
+
+        Return None if the baud rate couldn't be determined.
+        """
+        for baud in self._TRY_BAUDS:
+            self.port.setBaudrate(baud)
+            self.port.flushInput()
+            self.port.flushOutput()
+
+            # Send a nonsense command to get a prompt back from the scanner
+            # (an empty command runs the risk of repeating a dangerous command)
+            # The first character might get eaten if the interface was busy,
+            # so write a second one (again so that the lone CR doesn't repeat
+            # the previous command)
+            port.write("\x7F\x7F\r")
+            port.set_timeout(timeout)
+                response = self.__read()
+
+            if (response.endswith("\r\r>")):
+                #print "%d baud detected (%r)" % (baud, response)
+                break
+            else:
+                baud = None
+
+        return baud
 
 
 
