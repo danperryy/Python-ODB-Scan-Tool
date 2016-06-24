@@ -73,15 +73,13 @@ class CANProtocol(Protocol):
 
         # check for valid size
 
-        # TODO: lookup this limit
-        # if len(raw_bytes) < 9:
-        #     debug("Dropped frame for being too short")
-        #     return False
+        if len(raw_bytes) < 5:
+            debug("Dropped frame for being too short")
+            return False
 
-        # TODO: lookup this limit
-        # if len(raw_bytes) > 16:
-        #     debug("Dropped frame for being too long")
-        #     return False
+        if len(raw_bytes) > 12:
+            debug("Dropped frame for being too long")
+            return False
 
 
         # read header information
@@ -133,14 +131,26 @@ class CANProtocol(Protocol):
             #              v
             # 00 00 07 E8 06 41 00 BE 7F B8 13
             frame.data_len = frame.data[0] & 0x0F
+
+            # drop frames with no data
+            if frame.data_len == 0:
+                return False
+
         elif frame.type == self.FRAME_TYPE_FF:
             # First frames have 12 bit length codes
-            #              v
-            # 00 00 07 E8 06 41 00 BE 7F B8 13
+            #              v vv
+            # 00 00 07 E8 10 20 49 04 00 01 02 03
             frame.data_len = (frame.data[0] & 0x0F) << 8
             frame.data_len += frame.data[1]
+
+            # drop frames with no data
+            if frame.data_len == 0:
+                return False
+
         elif frame.type == self.FRAME_TYPE_CF:
             # Consecutive frames have 4 bit sequence indices
+            #              v
+            # 00 00 07 E8 21 04 05 06 07 08 09 0A
             frame.seq_index = frame.data[0] & 0x0F
 
         return True
