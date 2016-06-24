@@ -31,14 +31,29 @@ def test_single_frame():
 
         r = p(["7E8 06 41 00 00 01 02 03"])
         assert len(r) == 1
-        check_message(r[0], 1, 0x0, list(range(4)))
+        check_message(r[0], 1, 0x0, [0x00, 0x01, 0x02, 0x03])
 
-
-        r = p(["7E8 08 41 00 00 01 02 03 04 05"])
+        # minimum valid length
+        r = p(["7E8 01 41"])
         assert len(r) == 1
-        check_message(r[0], 1, 0x0, list(range(6)))
+        check_message(r[0], 1, 0x0, [])
 
-        # TODO: check for invalid length filterring
+        # maximum valid length
+        r = p(["7E8 07 41 00 00 01 02 03 04"])
+        assert len(r) == 1
+        check_message(r[0], 1, 0x0, [0x00, 0x01, 0x02, 0x03, 0x04])
+
+        # to short
+        r = p(["7E8"])
+        assert len(r) == 0
+
+        # to long
+        r = p(["7E8 08 41 00 00 01 02 03 04 05"])
+        assert len(r) == 0
+
+        # drop frames with zero data
+        r = p(["7E8 00"])
+        assert len(r) == 0
 
         # drop odd-sized frames (post padding)
         r = p(["7E8 08 41 00 00 01 02 03 04 0"])
