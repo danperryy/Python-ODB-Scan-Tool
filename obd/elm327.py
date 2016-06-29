@@ -256,7 +256,7 @@ class ELM327:
             # the previous command)
             port.write("\x7F\x7F\r")
             port.set_timeout(timeout)
-                response = self.__read()
+            response = self.__read()
 
             if (response.endswith("\r\r>")):
                 #print "%d baud detected (%r)" % (baud, response)
