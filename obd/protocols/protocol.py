@@ -31,7 +31,10 @@
 
 from binascii import hexlify
 from obd.utils import isHex, num_bits_set
-from obd.debug import debug
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 """

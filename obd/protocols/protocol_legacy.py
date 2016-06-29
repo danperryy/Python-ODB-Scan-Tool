@@ -31,7 +31,11 @@
 
 from binascii import unhexlify
 from obd.utils import contiguous
-from .protocol import *
+from .protocol import Protocol, Message, Frame, ECU
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LegacyProtocol(Protocol):
@@ -49,17 +53,17 @@ class LegacyProtocol(Protocol):
 
         # Handle odd size frames and drop
         if len(raw) & 1:
-            debug("Dropping frame for being odd")
+            logger.debug("Dropping frame for being odd")
             return False
 
         raw_bytes = bytearray(unhexlify(raw))
 
         if len(raw_bytes) < 6:
-            debug("Dropped frame for being too short")
+            logger.debug("Dropped frame for being too short")
             return False
 
         if len(raw_bytes) > 11:
-            debug("Dropped frame for being too long")
+            logger.debug("Dropped frame for being too long")
             return False
 
         # Ex.
@@ -84,15 +88,15 @@ class LegacyProtocol(Protocol):
 
         # len(frames) will always be >= 1 (see the caller, protocol.py)
         mode = frames[0].data[0]
-        
+
         # test that all frames are responses to the same Mode (SID)
         if len(frames) > 1:
             if not all([mode == f.data[0] for f in frames[1:]]):
-                debug("Recieved frames from multiple commands")
+                logger.debug("Recieved frames from multiple commands")
                 return False
 
         # legacy protocols have different re-assembly
-        # procedures for different Modes 
+        # procedures for different Modes
 
         if mode == 0x43:
             # GET_DTC requests return frames with no PID or order bytes
@@ -134,7 +138,7 @@ class LegacyProtocol(Protocol):
                 # check contiguity
                 indices = [f.data[2] for f in frames]
                 if not contiguous(indices, 1, len(frames)):
-                    debug("Recieved multiline response with missing frames")
+                    logger.debug("Recieved multiline response with missing frames")
                     return False
 
                 # now that they're in order, accumulate the data from each frame

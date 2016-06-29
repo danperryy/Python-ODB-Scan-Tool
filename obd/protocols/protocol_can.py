@@ -31,7 +31,11 @@
 
 from binascii import unhexlify
 from obd.utils import contiguous
-from .protocol import *
+from .protocol import Protocol, Message, Frame, ECU
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CANProtocol(Protocol):
@@ -66,7 +70,7 @@ class CANProtocol(Protocol):
 
         # Handle odd size frames and drop
         if len(raw) & 1:
-            debug("Dropping frame for being odd")
+            logger.debug("Dropping frame for being odd")
             return False
 
         raw_bytes = bytearray(unhexlify(raw))
@@ -79,11 +83,11 @@ class CANProtocol(Protocol):
             #
             # 00 00 07 E8 10 20 ...
 
-            debug("Dropped frame for being too short")
+            logger.debug("Dropped frame for being too short")
             return False
 
         if len(raw_bytes) > 12:
-            debug("Dropped frame for being too long")
+            logger.debug("Dropped frame for being too long")
             return False
 
 
@@ -127,7 +131,7 @@ class CANProtocol(Protocol):
         if frame.type not in [self.FRAME_TYPE_SF,
                               self.FRAME_TYPE_FF,
                               self.FRAME_TYPE_CF]:
-            debug("Dropping frame carrying unknown PCI frame type")
+            logger.debug("Dropping frame carrying unknown PCI frame type")
             return False
 
 
@@ -169,7 +173,7 @@ class CANProtocol(Protocol):
             frame = frames[0]
 
             if frame.type != self.FRAME_TYPE_SF:
-                debug("Recieved lone frame not marked as single frame")
+                logger.debug("Recieved lone frame not marked as single frame")
                 return False
 
             # extract data, ignore PCI byte and anything after the marked length
@@ -190,19 +194,19 @@ class CANProtocol(Protocol):
                 elif f.type == self.FRAME_TYPE_CF:
                     cf.append(f)
                 else:
-                    debug("Dropping frame in multi-frame response not marked as FF or CF")
+                    logger.debug("Dropping frame in multi-frame response not marked as FF or CF")
 
             # check that we captured only one first-frame
             if len(ff) > 1:
-                debug("Recieved multiple frames marked FF")
+                logger.debug("Recieved multiple frames marked FF")
                 return False
             elif len(ff) == 0:
-                debug("Never received frame marked FF")
+                logger.debug("Never received frame marked FF")
                 return False
 
             # check that there was at least one consecutive-frame
             if len(cf) == 0:
-                debug("Never received frame marked CF")
+                logger.debug("Never received frame marked CF")
                 return False
 
             # calculate proper sequence indices from the lower 4 bits given
@@ -225,7 +229,7 @@ class CANProtocol(Protocol):
             # check contiguity, and that we aren't missing any frames
             indices = [f.seq_index for f in cf]
             if not contiguous(indices, 1, len(cf)):
-                debug("Recieved multiline response with missing frames")
+                logger.debug("Recieved multiline response with missing frames")
                 return False
 
 
