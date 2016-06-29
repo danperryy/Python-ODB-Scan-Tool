@@ -35,9 +35,7 @@ def async(request):
 
 
 def good_rpm_response(r):
-    return isinstance(r.value, float) and \
-           r.value >= 0.0 and \
-           r.unit == Unit.RPM
+    return (r.value.u == Unit.rpm) and (r.value >= 0.0 * Unit.rpm)
 
 def test_supports(obd):
     assert(len(obd.supported_commands) > 0)
