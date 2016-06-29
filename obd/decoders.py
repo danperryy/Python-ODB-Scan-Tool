@@ -98,14 +98,14 @@ def temp(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v - 40
-    return v * Unit.celsius
+    return Unit.Quantity(v, Unit.celsius) # non-multiplicative unit
 
 # -40 to 6513.5 C
 def catalyst_temp(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = (v / 10.0) - 40
-    return v * Unit.celsius
+    return Unit.Quantity(v, Unit.celsius) # non-multiplicative unit
 
 # -128 to 128 mA
 def current_centered(messages):
