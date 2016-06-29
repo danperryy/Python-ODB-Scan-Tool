@@ -32,8 +32,12 @@
 import math
 from .utils import *
 from .codes import *
-from .debug import debug
 from .OBDResponse import Unit, Status, Test
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 '''
 All decoders take the form:
@@ -248,7 +252,7 @@ def elm_voltage(messages):
     try:
         return (float(v), Unit.VOLT)
     except ValueError:
-        debug("Failed to parse ELM voltage", True)
+        logger.warning("Failed to parse ELM voltage")
         return (None, Unit.NONE)
 
 
@@ -281,7 +285,7 @@ def status(messages):
                              bitToBool(bits[9])))
 
 
-    # different tests for different ignition types 
+    # different tests for different ignition types
     if(output.ignition_type == IGNITION_TYPE[0]): # spark
         for i in range(8):
             if SPARK_TESTS[i] is not None:
@@ -299,7 +303,7 @@ def status(messages):
                 t = Test(COMPRESSION_TESTS[i], \
                          bitToBool(bits[(2 * 8) + i]), \
                          bitToBool(bits[(3 * 8) + i]))
-                
+
                 output.tests.append(t)
 
     return (output, Unit.NONE)
@@ -311,19 +315,19 @@ def fuel_status(messages):
     v = d[0] # todo, support second fuel system
 
     if v <= 0:
-        debug("Invalid fuel status response (v <= 0)", True)
+        logger.warning("Invalid fuel status response (v <= 0)")
         return (None, Unit.NONE)
 
     i = math.log(v, 2) # only a single bit should be on
 
     if i % 1 != 0:
-        debug("Invalid fuel status response (multiple bits set)", True)
+        logger.warning("Invalid fuel status response (multiple bits set)")
         return (None, Unit.NONE)
 
     i = int(i)
 
     if i >= len(FUEL_STATUS):
-        debug("Invalid fuel status response (no table entry)", True)
+        logger.warning("Invalid fuel status response (no table entry)")
         return (None, Unit.NONE)
 
     return (FUEL_STATUS[i], Unit.NONE)
@@ -334,19 +338,19 @@ def air_status(messages):
     v = d[0]
 
     if v <= 0:
-        debug("Invalid air status response (v <= 0)", True)
+        logger.warning("Invalid air status response (v <= 0)")
         return (None, Unit.NONE)
 
     i = math.log(v, 2) # only a single bit should be on
 
     if i % 1 != 0:
-        debug("Invalid air status response (multiple bits set)", True)
+        logger.warning("Invalid air status response (multiple bits set)")
         return (None, Unit.NONE)
 
     i = int(i)
 
     if i >= len(AIR_STATUS):
-        debug("Invalid air status response (no table entry)", True)
+        logger.warning("Invalid air status response (no table entry)")
         return (None, Unit.NONE)
 
     return (AIR_STATUS[i], Unit.NONE)
@@ -361,7 +365,7 @@ def obd_compliance(_hex):
     if i < len(OBD_COMPLIANCE):
         v = OBD_COMPLIANCE[i]
 
-    return (v, Unit.NONE) 
+    return (v, Unit.NONE)
 
 
 def fuel_type(_hex):

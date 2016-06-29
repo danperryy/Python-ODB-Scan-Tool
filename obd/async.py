@@ -31,9 +31,12 @@
 
 import time
 import threading
+import logging
 from .OBDResponse import OBDResponse
-from .debug import debug
-from . import OBD
+from .obd import OBD
+
+logger = logging.getLogger(__name__)
+
 
 class Async(OBD):
     """
@@ -58,15 +61,15 @@ class Async(OBD):
     def start(self):
         """ Starts the async update loop """
         if not self.is_connected():
-            debug("Async thread not started because no connection was made")
+            logger.info("Async thread not started because no connection was made")
             return
 
         if len(self.__commands) == 0:
-            debug("Async thread not started because no commands were registered")
+            logger.info("Async thread not started because no commands were registered")
             return
 
         if self.__thread is None:
-            debug("Starting async thread")
+            logger.info("Starting async thread")
             self.__running = True
             self.__thread = threading.Thread(target=self.run)
             self.__thread.daemon = True
@@ -76,11 +79,11 @@ class Async(OBD):
     def stop(self):
         """ Stops the async update loop """
         if self.__thread is not None:
-            debug("Stopping async thread...")
+            logger.info("Stopping async thread...")
             self.__running = False
             self.__thread.join()
             self.__thread = None
-            debug("Async thread stopped")
+            logger.info("Async thread stopped")
 
 
     def paused(self):
@@ -130,22 +133,22 @@ class Async(OBD):
 
         # the dict shouldn't be changed while the daemon thread is iterating
         if self.__running:
-            debug("Can't watch() while running, please use stop()", True)
+            logger.warning("Can't watch() while running, please use stop()")
         else:
 
             if not force and not self.supports(c):
-                debug("'%s' is not supported" % str(c), True)
+                logger.warning("'%s' is not supported" % str(c))
                 return
 
             # new command being watched, store the command
             if c not in self.__commands:
-                debug("Watching command: %s" % str(c))
+                logger.info("Watching command: %s" % str(c))
                 self.__commands[c] = OBDResponse() # give it an initial value
                 self.__callbacks[c] = [] # create an empty list
 
             # if a callback was given, push it
             if hasattr(callback, "__call__") and (callback not in self.__callbacks[c]):
-                debug("subscribing callback for command: %s" % str(c))
+                logger.info("subscribing callback for command: %s" % str(c))
                 self.__callbacks[c].append(callback)
 
 
@@ -158,9 +161,9 @@ class Async(OBD):
 
         # the dict shouldn't be changed while the daemon thread is iterating
         if self.__running:
-            debug("Can't unwatch() while running, please use stop()", True)
+            logger.warning("Can't unwatch() while running, please use stop()")
         else:
-            debug("Unwatching command: %s" % str(c))
+            logger.info("Unwatching command: %s" % str(c))
 
             if c in self.__commands:
                 # if a callback was specified, only remove the callback
@@ -181,9 +184,9 @@ class Async(OBD):
 
         # the dict shouldn't be changed while the daemon thread is iterating
         if self.__running:
-            debug("Can't unwatch_all() while running, please use stop()", True)
+            logger.warning("Can't unwatch_all() while running, please use stop()")
         else:
-            debug("Unwatching all")
+            logger.info("Unwatching all")
             self.__commands  = {}
             self.__callbacks = {}
 

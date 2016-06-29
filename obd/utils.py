@@ -34,7 +34,10 @@ import errno
 import string
 import glob
 import sys
-from .debug import debug
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 class OBDStatus:
@@ -161,5 +164,5 @@ def scan_serial():
 
 # TODO: deprecated, remove later
 def scanSerial():
-    print("scanSerial() is deprecated, use scan_serial() instead")
+    logger.warning("scanSerial() is deprecated, use scan_serial() instead")
     return scan_serial()

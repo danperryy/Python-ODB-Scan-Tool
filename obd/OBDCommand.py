@@ -30,9 +30,12 @@
 ########################################################################
 
 from .utils import *
-from .debug import debug
 from .protocols import ECU
 from .OBDResponse import OBDResponse
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class OBDCommand():
@@ -78,7 +81,7 @@ class OBDCommand():
     # TODO: remove later
     @property
     def supported(self):
-        debug("OBDCommand.supported is deprecated. Use OBD.supports() instead", True)
+        logger.warning("OBDCommand.supported is deprecated. Use OBD.supports() instead")
         return False
 
     def __call__(self, messages):
@@ -96,6 +99,8 @@ class OBDCommand():
         r = OBDResponse(self, messages)
         if messages:
             r.value, r.unit = self.decode(messages)
+        else:
+            logger.info(str(self) + " did not recieve any acceptable messages")
 
         return r
 
@@ -106,9 +111,11 @@ class OBDCommand():
             if len(message.data) > self.bytes:
                 # chop off the right side
                 message.data = message.data[:self.bytes]
+                logger.debug("Message was longer than expected. Trimmed message: " + repr(message.data))
             else:
                 # pad the right with zeros
                 message.data += (b'\x00' * (self.bytes - len(message.data)))
+                logger.debug("Message was shorter than expected. Padded message: " + repr(message.data))
 
 
     def __str__(self):

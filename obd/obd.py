@@ -37,7 +37,6 @@ from .elm327 import ELM327
 from .commands import commands
 from .OBDResponse import OBDResponse
 from .utils import scan_serial, OBDStatus
-from .debug import debug
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +182,7 @@ class OBD(object):
 
     def get_port_name(self):
         # TODO: deprecated, remove later
-        print("OBD.get_port_name() is deprecated, use OBD.port_name() instead")
+        logger.warning("OBD.get_port_name() is deprecated, use OBD.port_name() instead")
         return self.port_name()
 
 
