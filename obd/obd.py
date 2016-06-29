@@ -30,6 +30,8 @@
 ########################################################################
 
 
+import logging
+
 from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
@@ -37,6 +39,7 @@ from .OBDResponse import OBDResponse
 from .utils import scan_serial, OBDStatus
 from .debug import debug
 
+logger = logging.getLogger(__name__)
 
 
 class OBD(object):
@@ -51,10 +54,10 @@ class OBD(object):
         self.fast = fast
         self.__last_command = "" # used for running the previous command with a CR
 
-        debug("========================== python-OBD (v%s) ==========================" % __version__)
+        logger.info("======================= python-OBD (v%s) =======================" % __version__)
         self.__connect(portstr, baudrate, protocol) # initialize by connecting and loading sensors
         self.__load_commands()            # try to load the car's supported commands
-        debug("=========================================================================")
+        logger.info("===================================================================")
 
 
     def __connect(self, portstr, baudrate, protocol):
@@ -63,22 +66,22 @@ class OBD(object):
         """
 
         if portstr is None:
-            debug("Using scan_serial to select port")
+            logger.info("Using scan_serial to select port")
             portnames = scan_serial()
-            debug("Available ports: " + str(portnames))
+            logger.info("Available ports: " + str(portnames))
 
             if not portnames:
-                debug("No OBD-II adapters found", True)
+                logger.warning("No OBD-II adapters found")
                 return
 
             for port in portnames:
-                debug("Attempting to use port: " + str(port))
+                logger.info("Attempting to use port: " + str(port))
                 self.port = ELM327(port, baudrate, protocol)
 
                 if self.port.status() >= OBDStatus.ELM_CONNECTED:
                     break # success! stop searching for serial
         else:
-            debug("Explicit port defined")
+            logger.info("Explicit port defined")
             self.port = ELM327(portstr, baudrate, protocol)
 
         # if the connection failed, close it
@@ -94,10 +97,10 @@ class OBD(object):
         """
 
         if self.status() != OBDStatus.CAR_CONNECTED:
-            debug("Cannot load commands: No connection to car", True)
+            logger.warning("Cannot load commands: No connection to car")
             return
 
-        debug("querying for supported PIDs (commands)...")
+        logger.info("querying for supported PIDs (commands)...")
         pid_getters = commands.pid_getters()
         for get in pid_getters:
             # PID listing commands should sequentialy become supported
@@ -128,7 +131,7 @@ class OBD(object):
                     if mode == 1 and commands.has_pid(2, pid):
                         self.supported_commands.add(commands[2][pid])
 
-        debug("finished querying with %d commands supported" % len(self.supported_commands))
+        logger.info("finished querying with %d commands supported" % len(self.supported_commands))
 
 
     def close(self):
@@ -139,7 +142,7 @@ class OBD(object):
         self.supported_commands = []
 
         if self.port is not None:
-            debug("Closing connection")
+            logger.info("Closing connection")
             self.port.close()
             self.port = None
 
@@ -226,16 +229,16 @@ class OBD(object):
         """
 
         if self.status() == OBDStatus.NOT_CONNECTED:
-            debug("Query failed, no connection available", True)
+            logger.warning("Query failed, no connection available")
             return OBDResponse()
 
         if not force and not self.supports(cmd):
-            debug("'%s' is not supported" % str(cmd), True)
+            logger.warning("'%s' is not supported" % str(cmd))
             return OBDResponse()
 
 
         # send command and retrieve message
-        debug("Sending command: %s" % str(cmd))
+        logger.info("Sending command: %s" % str(cmd))
         cmd_string = self.__build_command_string(cmd)
         messages = self.port.send_and_parse(cmd_string)
 
@@ -244,7 +247,7 @@ class OBD(object):
             self.__last_command = cmd_string
 
         if not messages:
-            debug("No valid OBD Messages returned", True)
+            logger.info("No valid OBD Messages returned")
             return OBDResponse()
 
         return cmd(messages) # compute a response object

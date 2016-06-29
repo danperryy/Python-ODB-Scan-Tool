@@ -45,3 +45,12 @@ from .OBDResponse import OBDResponse, Unit
 from .protocols import ECU
 from .utils import scan_serial, scanSerial, OBDStatus # TODO: scanSerial() deprecated
 from .debug import debug
+
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+console_handler = logging.StreamHandler() # sends output to stderr
+console_handler.setFormatter(logging.Formatter("[%(name)s] %(message)s"))
+logger.addHandler(console_handler)
