@@ -66,6 +66,8 @@ __mode1__ = [
     OBDCommand("SPEED"                      , "Vehicle Speed"                           , b"010D", 1, speed,                 ECU.ENGINE, True),
     OBDCommand("TIMING_ADVANCE"             , "Timing Advance"                          , b"010E", 1, timing_advance,        ECU.ENGINE, True),
     OBDCommand("INTAKE_TEMP"                , "Intake Air Temp"                         , b"010F", 1, temp,                  ECU.ENGINE, True),
+
+    #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("MAF"                        , "Air Flow Rate (MAF)"                     , b"0110", 2, maf,                   ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS"               , "Throttle Position"                       , b"0111", 1, percent,               ECU.ENGINE, True),
     OBDCommand("AIR_STATUS"                 , "Secondary Air Status"                    , b"0112", 1, air_status,            ECU.ENGINE, True),
@@ -100,6 +102,8 @@ __mode1__ = [
     OBDCommand("EGR_ERROR"                  , "EGR Error"                               , b"012D", 1, percent_centered,      ECU.ENGINE, True),
     OBDCommand("EVAPORATIVE_PURGE"          , "Commanded Evaporative Purge"             , b"012E", 1, percent,               ECU.ENGINE, True),
     OBDCommand("FUEL_LEVEL"                 , "Fuel Level Input"                        , b"012F", 1, percent,               ECU.ENGINE, True),
+
+    #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("WARMUPS_SINCE_DTC_CLEAR"    , "Number of warm-ups since codes cleared"  , b"0130", 1, count,                 ECU.ENGINE, True),
     OBDCommand("DISTANCE_SINCE_DTC_CLEAR"   , "Distance traveled since codes cleared"   , b"0131", 2, distance,              ECU.ENGINE, True),
     OBDCommand("EVAP_VAPOR_PRESSURE"        , "Evaporative system vapor pressure"       , b"0132", 2, evap_pressure,         ECU.ENGINE, True),
@@ -134,6 +138,8 @@ __mode1__ = [
     OBDCommand("RUN_TIME_MIL"               , "Time run with MIL on"                    , b"014D", 2, minutes,               ECU.ENGINE, True),
     OBDCommand("TIME_SINCE_DTC_CLEARED"     , "Time since trouble codes cleared"        , b"014E", 2, minutes,               ECU.ENGINE, True),
     OBDCommand("MAX_VALUES"                 , "Various Max values"                      , b"014F", 4, drop,                  ECU.ENGINE, True), # todo: decode this
+
+    #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("MAX_MAF"                    , "Maximum value for mass air flow sensor"  , b"0150", 4, max_maf,               ECU.ENGINE, True),
     OBDCommand("FUEL_TYPE"                  , "Fuel Type"                               , b"0151", 1, fuel_type,             ECU.ENGINE, True),
     OBDCommand("ETHANOL_PERCENT"            , "Ethanol Fuel Percent"                    , b"0152", 1, percent,               ECU.ENGINE, True),
