@@ -98,7 +98,7 @@ class OBDCommand():
         # and reference to original command
         r = OBDResponse(self, messages)
         if messages:
-            r.value, r.unit = self.decode(messages)
+            r.value = self.decode(messages)
         else:
             logger.info(str(self) + " did not recieve any acceptable messages")
 

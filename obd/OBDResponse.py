@@ -32,33 +32,14 @@
 
 
 import time
+import pint
 
 
-
-class Unit:
-    """ All unit constants used in python-OBD """
-
-    NONE    = None
-    RATIO   = "Ratio"
-    COUNT   = "Count"
-    PERCENT = "%"
-    RPM     = "RPM"
-    VOLT    = "Volt"
-    F       = "F"
-    C       = "C"
-    SEC     = "Second"
-    MIN     = "Minute"
-    PA      = "Pa"
-    KPA     = "kPa"
-    PSI     = "psi"
-    KPH     = "kph"
-    MPH     = "mph"
-    DEGREES = "Degrees"
-    GPS     = "Grams per Second"
-    MA      = "mA"
-    KM      = "km"
-    LPH     = "Liters per Hour"
-
+# export the unit registry
+Unit = pint.UnitRegistry()
+Unit.define("percent = [] = %")
+Unit.define("gps = gram / second = GPS = grams_per_second")
+Unit.define("lph = liter / hour = LPH = liters_per_hour")
 
 
 class OBDResponse():
@@ -68,17 +49,13 @@ class OBDResponse():
         self.command  = command
         self.messages = messages if messages else []
         self.value    = None
-        self.unit     = Unit.NONE
         self.time     = time.time()
 
     def is_null(self):
         return (not self.messages) or (self.value == None)
 
     def __str__(self):
-        if self.unit != Unit.NONE:
-            return "%s %s" % (str(self.value), str(self.unit))
-        else:
-            return str(self.value)
+        return str(self.value)
 
 
 

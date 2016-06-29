@@ -51,23 +51,23 @@ def <name>(<list_of_messages>):
 
 # drop all messages, return None
 def drop(messages):
-    return (None, Unit.NONE)
+    return None
 
 
 # data in, data out
 def noop(messages):
-    return (messages[0].data, Unit.NONE)
+    return messages[0].data
 
 
 # hex in, bitstring out
 def pid(messages):
     d = messages[0].data
     v = bytes_to_bits(d)
-    return (v, Unit.NONE)
+    return v
 
 # returns the raw strings from the ELM
 def raw_string(messages):
-    return ("\n".join([m.raw() for m in messages]), Unit.NONE)
+    return "\n".join([m.raw() for m in messages])
 
 '''
 Sensor decoders
@@ -77,83 +77,83 @@ Return Value object with value and units
 def count(messages):
     d = messages[0].data
     v = bytes_to_int(d)
-    return (v, Unit.COUNT)
+    return v * Unit.count
 
 # 0 to 100 %
 def percent(messages):
     d = messages[0].data
     v = d[0]
     v = v * 100.0 / 255.0
-    return (v, Unit.PERCENT)
+    return v * Unit.percent
 
 # -100 to 100 %
 def percent_centered(messages):
     d = messages[0].data
     v = d[0]
     v = (v - 128) * 100.0 / 128.0
-    return (v, Unit.PERCENT)
+    return v * Unit.percent
 
 # -40 to 215 C
 def temp(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v - 40
-    return (v, Unit.C)
+    return v * Unit.celsius
 
 # -40 to 6513.5 C
 def catalyst_temp(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = (v / 10.0) - 40
-    return (v, Unit.C)
+    return v * Unit.celsius
 
 # -128 to 128 mA
 def current_centered(messages):
     d = messages[0].data
     v = bytes_to_int(d[2:4])
     v = (v / 256.0) - 128
-    return (v, Unit.MA)
+    return v * Unit.milliampere
 
 # 0 to 1.275 volts
 def sensor_voltage(messages):
     d = messages[0].data
     v = d[0]
     v = v / 200.0
-    return (v, Unit.VOLT)
+    return v * Unit.volt
 
 # 0 to 8 volts
 def sensor_voltage_big(messages):
     d = messages[0].data
     v = bytes_to_int(d[2:4])
     v = (v * 8.0) / 65535
-    return (v, Unit.VOLT)
+    return v * Unit.volt
 
 # 0 to 765 kPa
 def fuel_pressure(messages):
     d = messages[0].data
     v = d[0]
     v = v * 3
-    return (v, Unit.KPA)
+    return v * Unit.kilopascal
 
 # 0 to 255 kPa
 def pressure(messages):
     d = messages[0].data
     v = d[0]
-    return (v, Unit.KPA)
+    return v * Unit.kilopascal
 
 # 0 to 5177 kPa
 def fuel_pres_vac(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v * 0.079
-    return (v, Unit.KPA)
+    return v * Unit.kilopascal
 
 # 0 to 655,350 kPa
 def fuel_pres_direct(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v * 10
-    return (v, Unit.KPA)
+    return v * Unit.kilopascal
 
 # -8192 to 8192 Pa
 def evap_pressure(messages):
@@ -162,86 +162,86 @@ def evap_pressure(messages):
     a = twos_comp(unhex(d[0]), 8)
     b = twos_comp(unhex(d[1]), 8)
     v = ((a * 256.0) + b) / 4.0
-    return (v, Unit.PA)
+    return v * Unit.pascal
 
 # 0 to 327.675 kPa
 def abs_evap_pressure(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v / 200.0
-    return (v, Unit.KPA)
+    return v * Unit.kilopascal
 
 # -32767 to 32768 Pa
 def evap_pressure_alt(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v - 32767
-    return (v, Unit.PA)
+    return v * Unit.pascal
 
 # 0 to 16,383.75 RPM
 def rpm(messages):
     d = messages[0].data
     v = bytes_to_int(d) / 4.0
-    return (v, Unit.RPM)
+    return v * Unit.rpm
 
 # 0 to 255 KPH
 def speed(messages):
     d = messages[0].data
     v = bytes_to_int(d)
-    return (v, Unit.KPH)
+    return v * Unit.kph
 
 # -64 to 63.5 degrees
 def timing_advance(messages):
     d = messages[0].data
     v = d[0]
     v = (v - 128) / 2.0
-    return (v, Unit.DEGREES)
+    return v * Unit.degree
 
 # -210 to 301 degrees
 def inject_timing(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = (v - 26880) / 128.0
-    return (v, Unit.DEGREES)
+    return v * Unit.degree
 
 # 0 to 655.35 grams/sec
 def maf(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v / 100.0
-    return (v, Unit.GPS)
+    return v * Unit.gps
 
 # 0 to 2550 grams/sec
 def max_maf(messages):
     d = messages[0].data
     v = d[0]
     v = v * 10
-    return (v, Unit.GPS)
+    return v * Unit.gps
 
 # 0 to 65535 seconds
 def seconds(messages):
     d = messages[0].data
     v = bytes_to_int(d)
-    return (v, Unit.SEC)
+    return v * Unit.second
 
 # 0 to 65535 minutes
 def minutes(messages):
     d = messages[0].data
     v = bytes_to_int(d)
-    return (v, Unit.MIN)
+    return v * Unit.minute
 
 # 0 to 65535 km
 def distance(messages):
     d = messages[0].data
     v = bytes_to_int(d)
-    return (v, Unit.KM)
+    return v * Unit.kilometer
 
 # 0 to 3212 Liters/hour
 def fuel_rate(messages):
     d = messages[0].data
     v = bytes_to_int(d)
     v = v * 0.05
-    return (v, Unit.LPH)
+    return v * Unit.liters_per_hour
 
 
 def elm_voltage(messages):
@@ -250,10 +250,10 @@ def elm_voltage(messages):
     v = messages[0].frames[0].raw
 
     try:
-        return (float(v), Unit.VOLT)
+        return float(v) * Unit.volt
     except ValueError:
         logger.warning("Failed to parse ELM voltage")
-        return (None, Unit.NONE)
+        return None
 
 
 '''
@@ -306,7 +306,7 @@ def status(messages):
 
                 output.tests.append(t)
 
-    return (output, Unit.NONE)
+    return output
 
 
 
@@ -316,21 +316,21 @@ def fuel_status(messages):
 
     if v <= 0:
         logger.warning("Invalid fuel status response (v <= 0)")
-        return (None, Unit.NONE)
+        return None
 
     i = math.log(v, 2) # only a single bit should be on
 
     if i % 1 != 0:
         logger.warning("Invalid fuel status response (multiple bits set)")
-        return (None, Unit.NONE)
+        return None
 
     i = int(i)
 
     if i >= len(FUEL_STATUS):
         logger.warning("Invalid fuel status response (no table entry)")
-        return (None, Unit.NONE)
+        return None
 
-    return (FUEL_STATUS[i], Unit.NONE)
+    return FUEL_STATUS[i]
 
 
 def air_status(messages):
@@ -339,21 +339,21 @@ def air_status(messages):
 
     if v <= 0:
         logger.warning("Invalid air status response (v <= 0)")
-        return (None, Unit.NONE)
+        return None
 
     i = math.log(v, 2) # only a single bit should be on
 
     if i % 1 != 0:
         logger.warning("Invalid air status response (multiple bits set)")
-        return (None, Unit.NONE)
+        return None
 
     i = int(i)
 
     if i >= len(AIR_STATUS):
         logger.warning("Invalid air status response (no table entry)")
-        return (None, Unit.NONE)
+        return None
 
-    return (AIR_STATUS[i], Unit.NONE)
+    return AIR_STATUS[i]
 
 
 def obd_compliance(_hex):
@@ -365,7 +365,7 @@ def obd_compliance(_hex):
     if i < len(OBD_COMPLIANCE):
         v = OBD_COMPLIANCE[i]
 
-    return (v, Unit.NONE)
+    return v
 
 
 def fuel_type(_hex):
@@ -377,7 +377,7 @@ def fuel_type(_hex):
     if i < len(FUEL_TYPES):
         v = FUEL_TYPES[i]
 
-    return (v, Unit.NONE)
+    return v
 
 
 def single_dtc(_bytes):
@@ -424,4 +424,4 @@ def dtc(messages):
 
             codes.append( (dtc, desc) )
 
-    return (codes, Unit.NONE)
+    return codes
