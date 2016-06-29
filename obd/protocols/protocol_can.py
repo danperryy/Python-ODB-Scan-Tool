@@ -268,7 +268,9 @@ class CANProtocol(Protocol):
         mode = message.data[0]
         if mode == 0x43:
 
-            # TODO: confirm this logic. I don't have any raw test data for it yet
+            #    []
+            # 43 03 11 11 22 22 33 33
+            #       [DTC] [DTC] [DTC]
 
             # fetch the DTC count, and use it as a length code
             num_dtc_bytes = message.data[1] * 2
