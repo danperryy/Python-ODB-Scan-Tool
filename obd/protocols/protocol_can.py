@@ -73,7 +73,12 @@ class CANProtocol(Protocol):
 
         # check for valid size
 
-        if len(raw_bytes) < 5:
+        if len(raw_bytes) < 6:
+            # make sure that we have at least a PCI byte, and one following byte
+            # for FF frames with 12-bit length codes, or 1 byte of data
+            #
+            # 00 00 07 E8 10 20 ...
+
             debug("Dropped frame for being too short")
             return False
 

@@ -44,7 +44,7 @@ def test_single_frame():
         check_message(r[0], 1, 0x0, [0x00, 0x01, 0x02, 0x03, 0x04])
 
         # to short
-        r = p(["7E8"])
+        r = p(["7E8 01"])
         assert len(r) == 0
 
         # to long
