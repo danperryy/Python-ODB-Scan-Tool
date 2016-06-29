@@ -48,7 +48,7 @@ from .utils import scan_serial, scanSerial, OBDStatus # TODO: scanSerial() depre
 import logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 console_handler = logging.StreamHandler() # sends output to stderr
 console_handler.setFormatter(logging.Formatter("[%(name)s] %(message)s"))
