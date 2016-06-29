@@ -32,10 +32,11 @@
 import re
 import serial
 import time
+import logging
 from .protocols import *
 from .utils import OBDStatus
-from .debug import debug
 
+logger = logging.getLogger(__name__)
 
 
 class ELM327:
@@ -109,14 +110,14 @@ class ELM327:
 
         # ------------- open port -------------
         try:
-            debug("Opening serial port '%s'" % portname)
+            logger.info("Opening serial port '%s'" % portname)
             self.__port = serial.Serial(portname, \
                                         baudrate = baudrate, \
                                         parity   = serial.PARITY_NONE, \
                                         stopbits = 1, \
                                         bytesize = 8, \
                                         timeout  = 3) # seconds
-            debug("Serial port successfully opened on " + self.port_name())
+            logger.info("Serial port successfully opened on " + self.port_name())
 
         except serial.SerialException as e:
             self.__error(e)
@@ -158,16 +159,16 @@ class ELM327:
         # try to communicate with the car, and load the correct protocol parser
         if self.load_protocol(protocol):
             self.__status = OBDStatus.CAR_CONNECTED
-            debug("Connection successful")
+            logger.info("Connection successful")
         else:
-            debug("Connected to the adapter, but failed to connect to the vehicle", True)
+            logger.error("Connected to the adapter, but failed to connect to the vehicle")
 
 
     def load_protocol(self, protocol):
         if protocol is not None:
             # an explicit protocol was specified
             if protocol not in self._SUPPORTED_PROTOCOLS:
-                debug("%s is not a valid protocol. Please use \"1\" through \"A\"", True)
+                logger.error("%s is not a valid protocol. Please use \"1\" through \"A\"")
                 return False
             return self.manual_protocol(protocol)
         else:
@@ -207,7 +208,7 @@ class ELM327:
         # ------------------- ATDPN (list protocol number) -------------------
         r = self.__send(b"ATDPN")
         if len(r) != 1:
-            debug("Failed to retrieve current protocol", True)
+            logger.error("Failed to retrieve current protocol")
             return False
 
 
@@ -224,7 +225,7 @@ class ELM327:
             # an unknown protocol
             # this is likely because not all adapter/car combinations work
             # in "auto" mode. Some respond to ATDPN responded with "0"
-            debug("ELM responded with unknown protocol. Trying them one-by-one")
+            logger.info("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
                 r = self.__send(b"ATTP" + p.encode())
@@ -287,13 +288,13 @@ class ELM327:
 
 
     def __error(self, msg=None):
-        """ handles fatal failures, print debug info and closes serial """
+        """ handles fatal failures, print logger.info info and closes serial """
 
         self.close()
 
-        debug("Connection Error:", True)
+        logger.error("Connection Error:")
         if msg is not None:
-            debug('    ' + str(msg), True)
+            logger.error(str(msg))
 
 
     def port_name(self):
@@ -347,7 +348,7 @@ class ELM327:
         """
 
         if self.__status == OBDStatus.NOT_CONNECTED:
-            debug("cannot send_and_parse() when unconnected", True)
+            logger.info("cannot send_and_parse() when unconnected")
             return None
 
         lines = self.__send(cmd)
@@ -367,7 +368,7 @@ class ELM327:
         self.__write(cmd)
 
         if delay is not None:
-            debug("wait: %d seconds" % delay)
+            logger.info("wait: %d seconds" % delay)
             time.sleep(delay)
 
         return self.__read()
@@ -380,12 +381,12 @@ class ELM327:
 
         if self.__port:
             cmd += b"\r\n" # terminate
-            debug("write: " + repr(cmd))
+            logger.debug("write: " + repr(cmd))
             self.__port.flushInput() # dump everything in the input buffer
             self.__port.write(cmd) # turn the string into bytes and write
             self.__port.flush() # wait for the output buffer to finish transmitting
         else:
-            debug("cannot perform __write() when unconnected", True)
+            logger.info("cannot perform __write() when unconnected")
 
 
     def __read(self):
@@ -407,10 +408,10 @@ class ELM327:
                 if not c:
 
                     if attempts <= 0:
-                        debug("Failed to read port, giving up")
+                        logger.info("Failed to read port, giving up")
                         break
 
-                    debug("Failed to read port, trying again...")
+                    logger.info("Failed to read port, trying again...")
                     attempts -= 1
                     continue
 
@@ -424,10 +425,10 @@ class ELM327:
 
                 buffer += c # whatever is left must be part of the response
         else:
-            debug("cannot perform __read() when unconnected", True)
+            logger.info("cannot perform __read() when unconnected")
             return ""
 
-        debug("read: " + repr(buffer))
+        logger.debug("read: " + repr(buffer))
 
         # convert bytes into a standard string
         raw = buffer.decode()
