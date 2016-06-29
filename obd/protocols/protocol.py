@@ -149,6 +149,11 @@ class Protocol(object):
         # subsequent runs will now be tagged correctly
         self.populate_ecu_map(messages)
 
+        # log out the ecu map
+        for tx_id, ecu in self.ecu_map.items():
+            names = [k for k in ECU.__dict__ if ECU.__dict__[k] == ecu ]
+            logger.debug("Chose ECU %d as %s" % (tx_id, names))
+
 
     def __call__(self, lines):
         """
