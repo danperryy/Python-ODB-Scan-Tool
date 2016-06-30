@@ -180,8 +180,10 @@ __mode4__ = [
 ]
 
 __mode6__ = [
+    # Mode 06 calls PID's MID's (Monitor ID)
+    # This is for CAN only
     #                      name                             description                            cmd     bytes       decoder           ECU        fast
-    OBDCommand("MIDS_A"                     , "Supported MIDs [01-20]"                         , b"0600",   0, drop,                  ECU.ALL,     False),
+    OBDCommand("MIDS_A"                     , "Supported MIDs [01-20]"                         , b"0600",   0, pid,                   ECU.ALL,     False),
     OBDCommand("MON_O2_B1S1"                , "O2 Sensor Monitor Bank 1 - Sensor 1"            , b"0601",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_O2_B1S2"                , "O2 Sensor Monitor Bank 1 - Sensor 2"            , b"0602",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_O2_B1S3"                , "O2 Sensor Monitor Bank 1 - Sensor 3"            , b"0603",   0, drop,                  ECU.ALL,     False),
@@ -199,7 +201,7 @@ __mode6__ = [
     OBDCommand("MON_O2_B4S3"                , "O2 Sensor Monitor Bank 4 - Sensor 3"            , b"060F",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_O2_B4S4"                , "O2 Sensor Monitor Bank 4 - Sensor 4"            , b"0610",   0, drop,                  ECU.ALL,     False),
 ] + ([None] * 15) + [ # 11 - 1F Reserved
-    OBDCommand("MIDS_B"                     , "Supported MIDs [21-40]"                         , b"0620",   0, drop,                  ECU.ALL,     False),
+    OBDCommand("MIDS_B"                     , "Supported MIDs [21-40]"                         , b"0620",   0, pid,                   ECU.ALL,     False),
     OBDCommand("MON_CATALYST_B1"            , "Catalyst Monitor Bank 1"                        , b"0621",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_CATALYST_B2"            , "Catalyst Monitor Bank 2"                        , b"0622",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_CATALYST_B3"            , "Catalyst Monitor Bank 3"                        , b"0623",   0, drop,                  ECU.ALL,     False),
@@ -219,7 +221,7 @@ __mode6__ = [
     OBDCommand("MON_EVAP_020"               , "EVAP Monitor (0.020\")"                         , b"063C",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_PURGE_FLOW"             , "Purge Flow Monitor"                             , b"063D",   0, drop,                  ECU.ALL,     False),
 ] + ([None] * 2) + [ # 3E - 3F Reserved
-    OBDCommand("MIDS_C"                     , "Supported MIDs [41-60]"                         , b"0640",   0, drop,                  ECU.ALL,     False),
+    OBDCommand("MIDS_C"                     , "Supported MIDs [41-60]"                         , b"0640",   0, pid,                   ECU.ALL,     False),
     OBDCommand("MON_O2_HEATER_B1S1"         , "O2 Sensor Heater Monitor Bank 1 - Sensor 1"     , b"0641",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_O2_HEATER_B1S2"         , "O2 Sensor Heater Monitor Bank 1 - Sensor 2"     , b"0642",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_O2_HEATER_B1S3"         , "O2 Sensor Heater Monitor Bank 1 - Sensor 3"     , b"0643",   0, drop,                  ECU.ALL,     False),
@@ -237,7 +239,7 @@ __mode6__ = [
     OBDCommand("MON_O2_HEATER_B4S3"         , "O2 Sensor Heater Monitor Bank 4 - Sensor 3"     , b"064F",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_O2_HEATER_B4S4"         , "O2 Sensor Heater Monitor Bank 4 - Sensor 4"     , b"0650",   0, drop,                  ECU.ALL,     False),
 ] + ([None] * 15) + [ # 51 - 5F Reserved
-    OBDCommand("MIDS_D"                     , "Supported MIDs [61-80]"                         , b"0660",   0, drop,                  ECU.ALL,     False),
+    OBDCommand("MIDS_D"                     , "Supported MIDs [61-80]"                         , b"0660",   0, pid,                   ECU.ALL,     False),
     OBDCommand("MON_HEATED_CATALYST_B1"     , "Heated Catalyst Monitor Bank 1"                 , b"0661",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_HEATED_CATALYST_B2"     , "Heated Catalyst Monitor Bank 2"                 , b"0662",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_HEATED_CATALYST_B3"     , "Heated Catalyst Monitor Bank 3"                 , b"0663",   0, drop,                  ECU.ALL,     False),
@@ -248,7 +250,7 @@ __mode6__ = [
     OBDCommand("MON_SECONDARY_AIR_3"        , "Secondary Air Monitor 3"                        , b"0673",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_SECONDARY_AIR_4"        , "Secondary Air Monitor 4"                        , b"0674",   0, drop,                  ECU.ALL,     False),
 ] + ([None] * 11) + [ # 75 - 7F Reserved
-    OBDCommand("MIDS_E"                     , "Supported MIDs [81-A0]"                         , b"0680",   0, drop,                  ECU.ALL,     False),
+    OBDCommand("MIDS_E"                     , "Supported MIDs [81-A0]"                         , b"0680",   0, pid,                   ECU.ALL,     False),
     OBDCommand("MON_FUEL_SYSTEM_B1"         , "Fuel System Monitor Bank 1"                     , b"0681",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_FUEL_SYSTEM_B2"         , "Fuel System Monitor Bank 2"                     , b"0682",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_FUEL_SYSTEM_B3"         , "Fuel System Monitor Bank 3"                     , b"0683",   0, drop,                  ECU.ALL,     False),
@@ -262,7 +264,7 @@ __mode6__ = [
     OBDCommand("MON_NOX_CATALYST_B1"        , "NOx Catalyst Monitor Bank 1"                    , b"0698",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_NOX_CATALYST_B2"        , "NOx Catalyst Monitor Bank 2"                    , b"0699",   0, drop,                  ECU.ALL,     False),
 ] + ([None] * 6) + [ # 9A - 9F Reserved
-    OBDCommand("MIDS_F"                     , "Supported MIDs [A1-C0]"                         , b"06A0",   0, drop,                  ECU.ALL,     False),
+    OBDCommand("MIDS_F"                     , "Supported MIDs [A1-C0]"                         , b"06A0",   0, pid,                   ECU.ALL,     False),
     OBDCommand("MON_MISFIRE_GENERAL"        , "Misfire Monitor General Data"                   , b"06A1",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_MISFIRE_CYLINDER_1"     , "Misfire Cylinder 1 Data"                        , b"06A2",   0, drop,                  ECU.ALL,     False),
     OBDCommand("MON_MISFIRE_CYLINDER_2"     , "Misfire Cylinder 2 Data"                        , b"06A3",   0, drop,                  ECU.ALL,     False),
