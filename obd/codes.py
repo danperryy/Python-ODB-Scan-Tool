@@ -2209,16 +2209,16 @@ FUEL_TYPES = [
 TEST_IDS = {
     # <TID> :       <name>                        <description>
     # 0x0 is reserved
-    0x1 : ("rtl_threshold voltage",    "Rich to lean sensor threshold voltage"),
-    0x2 : ("ltr_threshold voltage",    "Lean to rich sensor threshold voltage"),
-    0x3 : ("low_voltage_switch_time",  "Low sensor voltage for switch time calculation"),
-    0x4 : ("high_voltage_switch_time", "High sensor voltage for switch time calculation"),
-    0x5 : ("rtl_switch_time",          "Rich to lean sensor switch time"),
-    0x6 : ("ltr_switch_time",          "Lean to rich sensor switch time"),
-    0x7 : ("min_voltage",              "Minimum sensor voltage for test cycle"),
-    0x8 : ("max_voltage",              "Maximum sensor voltage for test cycle"),
-    0x9 : ("transition_time",          "Time between sensor transitions"),
-    0xA : ("sensor_period",            "Sensor period"),
-    0xB : ("misfire_average",          "Average misfire counts for last ten driving cycles"),
-    0xC : ("misfire_count",            "Misfire counts for last/current driving cycles"),
+    0x01 : ("rtl_threshold voltage",    "Rich to lean sensor threshold voltage"),
+    0x02 : ("ltr_threshold voltage",    "Lean to rich sensor threshold voltage"),
+    0x03 : ("low_voltage_switch_time",  "Low sensor voltage for switch time calculation"),
+    0x04 : ("high_voltage_switch_time", "High sensor voltage for switch time calculation"),
+    0x05 : ("rtl_switch_time",          "Rich to lean sensor switch time"),
+    0x06 : ("ltr_switch_time",          "Lean to rich sensor switch time"),
+    0x07 : ("min_voltage",              "Minimum sensor voltage for test cycle"),
+    0x08 : ("max_voltage",              "Maximum sensor voltage for test cycle"),
+    0x09 : ("transition_time",          "Time between sensor transitions"),
+    0x0A : ("sensor_period",            "Sensor period"),
+    0x0B : ("misfire_average",          "Average misfire counts for last ten driving cycles"),
+    0x0C : ("misfire_count",            "Misfire counts for last/current driving cycles"),
 }

@@ -430,7 +430,6 @@ def dtc(messages):
 def monitor_test(d):
     test = MonitorTest()
     test.tid = bytes_to_int(test_data[1])
-    test.name = TEST_IDS[test.tid][0] # lookup the description from the table
     test.desc = TEST_IDS[test.tid][1] # lookup the description from the table
 
     

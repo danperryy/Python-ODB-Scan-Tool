@@ -101,14 +101,37 @@ class Monitor():
     def __init__(self):
         # make all TID tests available as properties
         for tid in TEST_IDS:
-            self.__dict__[TEST_IDS[tid][0]] = MonitorTest()
+            name = TEST_IDS[tid][0]
+            self.__dict__[name] = MonitorTest()
+
+    def __str__(self):
+        output = ""
+
+        for tid in TEST_IDS:
+            name = TEST_IDS[tid][0]
+            test = self.__dict__[name]
+            if not test.is_null():
+                output += str(test) + "\n"
+
+        return output
 
 
 class MonitorTest():
     def __init__(self):
         self.tid = None
-        self.name = None
         self.desc = None
         self.value = None
         self.min = None
         self.max = None
+
+    @property
+    def passed(self):
+        return (self.value >= self.min) and (self.value <= self.max)
+
+    def is_null(self):
+        return self.tid is None or self.value is None
+
+    def __str__(self):
+        return "%s : %s [%s]" % (self.desc,
+                                 str(self.value),
+                                 "PASSED" if self.passed else "FAILED")
