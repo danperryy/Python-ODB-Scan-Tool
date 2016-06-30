@@ -89,21 +89,38 @@ class Test():
 
 class Monitor():
     def __init__(self):
-        self.tests = []
+        self._tests = {} # tid : MonitorTest
 
-        # make all TID tests available as properties
+        # make the standard TIDs available as null monitor tests
+        # until real data comes it. This also prevents things from
+        # breaking when the user looks up a standard test that's null.
+        null_test = MonitorTest()
+
         for tid in TEST_IDS:
             name = TEST_IDS[tid][0]
-            test = MonitorTest()
-            self.__dict__[name] = test
-            self.tests.append(test)
+            self.__dict__[name] = null_test
+            self._tests[tid] = null_test
+
+    def add_test(self, test):
+        self._tests[test.tid] = test
+        if test.name is not None:
+            self.__dict__[test.name] = test
+
+    @property
+    def tests(self):
+        return [test for test in self._tests.values() if not test.is_null()]
 
     def __str__(self):
-        valid_tests = [str(test) for test in self.tests if not test.is_null()]
-        if len(valid_tests) > 0:
-            return "\n".join(valid_tests)
+        if len(self.tests) > 0:
+            return "\n".join([ str(t) for t in self.tests ])
         else:
             return "No tests to report"
+
+    def __len__(self):
+        return len(self.tests)
+
+    def __getitem__(self, tid):
+        return self._tests.get(tid, MonitorTest())
 
 
 class MonitorTest():

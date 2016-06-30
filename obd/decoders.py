@@ -429,31 +429,32 @@ def dtc(messages):
 
 
 def parse_monitor_test(d, mon):
+    test = MonitorTest()
+
     tid = d[1]
 
-    if tid not in TEST_IDS:
+    if tid in TEST_IDS:
+        test.name = TEST_IDS[tid][0] # lookup the name from the table
+        test.desc = TEST_IDS[tid][1] # lookup the description from the table
+    else:
         logger.debug("Encountered unknown Test ID")
-        return # if it's an unknown TID, abort
-
-    name = TEST_IDS[tid][0] # lookup the name from the table
-    desc = TEST_IDS[tid][1] # lookup the description from the table
-
-    test = mon.__dict__[name] # use the "name" field to lookup the right test
+        test.name = "Unknown"
+        test.desc = "Unknown"
 
     uas = UAS_IDS.get(d[2], None)
 
-    # if we can't decode the value, return a null MonitorTest
+    # if we can't decode the value, abort
     if uas is None:
         logger.debug("Encountered unknown Units and Scaling ID")
-        return
+        return None
 
     # load the test results
     test.tid = tid
-    test.name = name
-    test.desc = desc
     test.value = uas(d[3:5]) # convert bytes to actual values
     test.min   = uas(d[5:7])
     test.max   = uas(d[7:])
+
+    return test
 
 
 def monitor(messages):
@@ -469,6 +470,9 @@ def monitor(messages):
 
     # look at data in blocks of 9 bytes (one test result)
     for n in range(0, len(d), 9):
-        parse_monitor_test(d[n:n + 9], mon) # extract the 9 byte block, and parse a new MonitorTest
+        # extract the 9 byte block, and parse a new MonitorTest
+        test = parse_monitor_test(d[n:n + 9], mon)
+        if test is not None:
+            mon.add_test(test)
 
     return mon

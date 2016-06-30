@@ -200,7 +200,7 @@ def test_dtc():
     ]
 
 def test_monitor():
-    # v = d.monitor(m("01010A0BB00BB00BB00105100048000000640185240096004BFFFF"))
-    v = d.monitor(m("01010A0BB00BB00BB0"))
+    v = d.monitor(m("01010A0BB00BB00BB00105100048000000640185240096004BFFFF"))
+    # v = d.monitor(m("01010A0BB00BB00BB0"))
     print(v)
     assert(False)
