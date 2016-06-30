@@ -120,8 +120,8 @@ class OBD(object):
             for i in range(len(supported)):
                 if supported[i] == "1":
 
-                    mode = get.mode_int
-                    pid  = get.pid_int + i + 1
+                    mode = get.mode
+                    pid  = get.pid + i + 1
 
                     if commands.has_pid(mode, pid):
                         self.supported_commands.add(commands[mode][pid])

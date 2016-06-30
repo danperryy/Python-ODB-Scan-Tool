@@ -382,10 +382,15 @@ class Commands():
     def pid_getters(self):
         """ returns a list of PID GET commands """
         getters = []
-        for m in self.modes:
-            for c in m:
-                if c.decode == pid: # GET commands have a special decoder
-                    getters.append(c)
+        for mode in self.modes:
+            for cmd in mode:
+
+                if cmd is None:
+                    continue # this command is reserved
+
+                if cmd.decode == pid: # GET commands have a special decoder
+                    getters.append(cmd)
+
         return getters
 
 

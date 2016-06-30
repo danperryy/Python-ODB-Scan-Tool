@@ -7,11 +7,14 @@ def test_list_integrity():
     for mode, cmds in enumerate(obd.commands.modes):
         for pid, cmd in enumerate(cmds):
 
+            if cmd is None:
+                continue # this command is reserved
+
             assert cmd.command != "",         "The Command's command string must not be null"
 
             # make sure the command tables are in mode & PID order
-            assert mode == cmd.mode_int,      "Command is in the wrong mode list: %s" % cmd.name
-            assert pid == cmd.pid_int,        "The index in the list must also be the PID: %s" % cmd.name
+            assert mode == cmd.mode,      "Command is in the wrong mode list: %s" % cmd.name
+            assert pid == cmd.pid,        "The index in the list must also be the PID: %s" % cmd.name
 
             # make sure all the fields are set
             assert cmd.name != "",                  "Command names must not be null"
@@ -30,6 +33,10 @@ def test_unique_names():
 
     for cmds in obd.commands.modes:
         for cmd in cmds:
+
+            if cmd is None:
+                continue # this command is reserved
+
             assert not names.__contains__(cmd.name), "Two commands share the same name: %s" % cmd.name
             names[cmd.name] = True
 
@@ -39,9 +46,12 @@ def test_getitem():
     for cmds in obd.commands.modes:
         for cmd in cmds:
 
+            if cmd is None:
+                continue # this command is reserved
+
             # by [mode][pid]
-            mode = cmd.mode_int
-            pid  = cmd.pid_int
+            mode = cmd.mode
+            pid  = cmd.pid
             assert cmd == obd.commands[mode][pid], "mode %d, PID %d could not be accessed through __getitem__" % (mode, pid)
 
             # by [name]
@@ -53,12 +63,15 @@ def test_contains():
     for cmds in obd.commands.modes:
         for cmd in cmds:
 
+            if cmd is None:
+                continue # this command is reserved
+
             # by (command)
             assert obd.commands.has_command(cmd)
 
             # by (mode, pid)
-            mode = cmd.mode_int
-            pid  = cmd.pid_int
+            mode = cmd.mode
+            pid  = cmd.pid
             assert obd.commands.has_pid(mode, pid)
 
             # by (name)
@@ -78,7 +91,11 @@ def test_pid_getters():
     # ensure that all pid getters are found
     pid_getters = obd.commands.pid_getters()
 
-    for cmds in obd.commands.modes:
-        for cmd in cmds:
+    for mode in obd.commands.modes:
+        for cmd in mode:
+
+            if cmd is None:
+                continue # this command is reserved
+
             if cmd.decode == pid:
                 assert cmd in pid_getters

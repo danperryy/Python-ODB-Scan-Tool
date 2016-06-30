@@ -65,14 +65,14 @@ class OBDCommand():
                           self.fast)
 
     @property
-    def mode_int(self):
+    def mode(self):
         if len(self.command) >= 2:
             return unhex(self.command[:2])
         else:
             return 0
 
     @property
-    def pid_int(self):
+    def pid(self):
         if len(self.command) > 2:
             return unhex(self.command[2:])
         else:
