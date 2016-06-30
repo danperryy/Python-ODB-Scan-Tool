@@ -201,6 +201,27 @@ def test_multi_line_mode_03():
         check_message(r[0], len(test_case), 0, correct_data)
 
 
+def test_multi_line_mode_06():
+    """
+        Tests the special handling of mode 6 commands.
+        The parser should chop off only the Mode byte from the response.
+    """
+
+    for protocol in CAN_11_PROTOCOLS:
+        p = protocol([])
+
+        test_case = [
+            "7E8 10 0A 46 01 01 0A 0B B0",
+            "7E8 21 0B B0 0B B0",
+        ]
+
+        correct_data = [0x01, 0x01, 0x0A, 0x0B, 0xB0, 0x0B, 0xB0, 0x0B, 0xB0]
+
+        r = p(test_case)
+        assert len(r) == 1
+        check_message(r[0], len(test_case), 0, correct_data)
+
+
 
 def test_can_29():
     pass
