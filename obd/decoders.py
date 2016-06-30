@@ -32,7 +32,8 @@
 import math
 from .utils import *
 from .codes import *
-from .OBDResponse import Unit, Status, Test, Monitor, MonitorTest
+from .OBDResponse import Status, Test, Monitor, MonitorTest
+from .UnitsAndScaling import Unit
 
 import logging
 
@@ -431,8 +432,6 @@ def monitor_test(d):
     test = MonitorTest()
     test.tid = bytes_to_int(test_data[1])
     test.desc = TEST_IDS[test.tid][1] # lookup the description from the table
-
-    
 
     return test
 

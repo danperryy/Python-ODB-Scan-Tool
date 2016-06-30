@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# uac.py                                                               #
+# UnitsAndScaling.py                                                   #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,8 +29,17 @@
 #                                                                      #
 ########################################################################
 
+import pint
 from .utils import *
-from .OBDResponse import Unit
+
+
+# export the unit registry
+Unit = pint.UnitRegistry()
+Unit.define("percent = [] = %")
+Unit.define("ratio = []")
+Unit.define("gps = gram / second = GPS = grams_per_second")
+Unit.define("lph = liter / hour = LPH = liters_per_hour")
+
 
 
 class UAS():
