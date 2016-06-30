@@ -39,6 +39,7 @@ from .codes import *
 # export the unit registry
 Unit = pint.UnitRegistry()
 Unit.define("percent = [] = %")
+Unit.define("ratio = []")
 Unit.define("gps = gram / second = GPS = grams_per_second")
 Unit.define("lph = liter / hour = LPH = liters_per_hour")
 
