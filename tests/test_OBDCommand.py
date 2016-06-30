@@ -1,6 +1,6 @@
 
 from obd.OBDCommand import OBDCommand
-from obd.OBDResponse import Unit
+from obd.UnitsAndScaling import Unit
 from obd.decoders import noop
 from obd.protocols import *
 

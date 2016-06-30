@@ -114,7 +114,7 @@ UAS_IDS = {
     0x2B : UAS(False, 1,          Unit.count),
     0x2C : UAS(False, 0.01,       Unit.gram), # per-cylinder
     0x2D : UAS(False, 0.01,       Unit.milligram), # per-stroke
-    0x2E : lambda _bytes: any([ bool(x) for x in _bytes])
+    0x2E : lambda _bytes: any([ bool(x) for x in _bytes]),
     0x2F : UAS(False, 0.01,       Unit.percent),
     0x30 : UAS(False, 0.001526,   Unit.percent),
     0x31 : UAS(False, 0.001,      Unit.liter),

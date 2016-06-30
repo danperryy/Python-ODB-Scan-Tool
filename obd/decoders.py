@@ -33,7 +33,7 @@ import math
 from .utils import *
 from .codes import *
 from .OBDResponse import Status, Test, Monitor, MonitorTest
-from .UnitsAndScaling import Unit
+from .UnitsAndScaling import Unit, UAS_IDS
 
 import logging
 
@@ -430,8 +430,20 @@ def dtc(messages):
 
 def monitor_test(d):
     test = MonitorTest()
+
+    uas = UAS_IDS.get(bytes_to_int(test_data[2]), None)
+
+    # if we can't decode the value, return a null MonitorTest
+    if uas is None:
+        return test
+
     test.tid = bytes_to_int(test_data[1])
     test.desc = TEST_IDS[test.tid][1] # lookup the description from the table
+
+    # convert the value and limits to actual values
+    test.value = uas(test_data[3:5])
+    test.min = uas(test_data[5:7])
+    test.max = uas(test_data[7:])
 
     return test
 
