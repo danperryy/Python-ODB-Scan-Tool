@@ -99,21 +99,18 @@ class Test():
 
 class Monitor():
     def __init__(self):
+        self.tests = []
+
         # make all TID tests available as properties
         for tid in TEST_IDS:
             name = TEST_IDS[tid][0]
-            self.__dict__[name] = MonitorTest()
+            test = MonitorTest()
+            self.__dict__[name] = test
+            self.tests.append(test)
 
     def __str__(self):
-        output = ""
-
-        for tid in TEST_IDS:
-            name = TEST_IDS[tid][0]
-            test = self.__dict__[name]
-            if not test.is_null():
-                output += str(test) + "\n"
-
-        return output
+        valid_tests = [str(test) for test in tests if not test.is_null()]
+        return "\n".join(valid_tests)
 
 
 class MonitorTest():
