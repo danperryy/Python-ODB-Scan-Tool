@@ -39,6 +39,7 @@ Unit.define("percent = [] = %")
 Unit.define("ratio = []")
 Unit.define("gps = gram / second = GPS = grams_per_second")
 Unit.define("lph = liter / hour = LPH = liters_per_hour")
+Unit.define("ppm = count / 1000000 = PPM = parts_per_million")
 
 
 
@@ -66,6 +67,7 @@ class UAS():
 
 # dict for looking up standardized UAS IDs with conversion objects
 UAS_IDS = {
+    # unsigned -----------------------------------------
     0x01 : UAS(False, 1,          Unit.count),
     0x02 : UAS(False, 0.1,        Unit.count),
     0x03 : UAS(False, 0.01,       Unit.count),
@@ -106,4 +108,66 @@ UAS_IDS = {
     0x26 : UAS(False, 0.1,        Unit.millivolt / Unit.millisecond),
     0x27 : UAS(False, 0.1,        Unit.grams_per_second),
     0x28 : UAS(False, 1,          Unit.grams_per_second),
+    0x29 : UAS(False, 0.25,       Unit.pascal / Unit.second),
+    0x2A : UAS(False, 0.001,      Unit.kilogram / Unit.hour),
+    0x2B : UAS(False, 1,          Unit.count),
+    0x2C : UAS(False, 0.01,       Unit.gram), # TODO: per-cylinder
+    0x2D : UAS(False, 0.01,       Unit.milligram), # TODO: per-stroke
+    0x2E : None, # TODO: True/False
+    0x2F : UAS(False, 0.01,       Unit.percent),
+    0x30 : UAS(False, 0.001526,   Unit.percent),
+    0x31 : UAS(False, 0.001,      Unit.liter),
+    0x32 : UAS(False, 0.0000305,  Unit.inch),
+    0x33 : UAS(False, 0.00024414, Unit.count), # TODO: equivalence ration (lambda)
+    0x34 : UAS(False, 1,          Unit.minute),
+    0x35 : UAS(False, 10,         Unit.millisecond),
+    0x36 : UAS(False, 0.01,       Unit.gram),
+    0x37 : UAS(False, 0.1,        Unit.gram),
+    0x38 : UAS(False, 1,          Unit.gram),
+    0x39 : UAS(False, 0.01,       Unit.percent), # TODO: centered
+    0x3A : UAS(False, 0.001,      Unit.gram),
+    0x3B : UAS(False, 0.0001,     Unit.gram),
+    0x3C : UAS(False, 0.1,        Unit.microsecond),
+    0x3D : UAS(False, 0.01,       Unit.milliampere),
+    0x3E : UAS(False, 0.00006103516, Unit.millimeter ** 2),
+    0x3F : UAS(False, 0.01,       Unit.liter),
+    0x40 : UAS(False, 1,          Unit.ppm),
+    0x41 : UAS(False, 0.1,        Unit.microampere),
+
+    # signed -----------------------------------------
+    0x81 : UAS(True, 1,          Unit.count),
+    0x82 : UAS(True, 0.1,        Unit.count),
+    0x83 : UAS(True, 0.01,       Unit.count),
+    0x84 : UAS(True, 0.001,      Unit.count),
+    0x85 : UAS(True, 0.0000305,  Unit.count),
+    0x86 : UAS(True, 0.000305,   Unit.count),
+    0x87 : UAS(True, 1,          Unit.ppm),
+    #
+    0x8A : UAS(True, 0.122,      Unit.millivolt),
+    0x8B : UAS(True, 0.001,      Unit.volt),
+    0x8C : UAS(True, 0.01,       Unit.volt),
+    0x8D : UAS(True, 0.00390625, Unit.milliampere),
+    0x8E : UAS(True, 0.001,      Unit.ampere),
+    #
+    0x90 : UAS(True, 1,          Unit.millisecond),
+    #
+    0x96 : UAS(True, 0.1,        Unit.celsius),
+    #
+    0x99 : UAS(True, 0.1,        Unit.kilopascal),
+    #
+    0x9C : UAS(True, 0.01,       Unit.degree),
+    0x9D : UAS(True, 0.5,        Unit.degree),
+    #
+    0xA8 : UAS(True, 1,          Unit.grams_per_second),
+    0xA9 : UAS(True, 0.25,       Unit.pascal / Unit.second),
+    #
+    0xAD : UAS(True, 0.01,       Unit.milligram), # TODO: per-stroke
+    0xAE : UAS(True, 0.1,        Unit.milligram), # TODO: per-stroke
+    0xAF : UAS(True, 0.01,       Unit.percent),
+    0xB0 : UAS(True, 0.003052,   Unit.percent),
+    0xB1 : UAS(True, 2,          Unit.millivolt / Unit.second),
+    #
+    0xFC : UAS(True, 0.01,       Unit.kilopascal),
+    0xFD : UAS(True, 0.001,      Unit.kilopascal),
+    0xFE : UAS(True, 0.25,       Unit.pascal),
 }
