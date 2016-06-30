@@ -15,7 +15,7 @@ def m(hex_data, frames=[]):
     return [message]
 
 
-FLOAT_EQUALS_TOLERANCE = 0.02
+FLOAT_EQUALS_TOLERANCE = 0.025
 
 # comparison for pint floating point values
 def float_equals(va, vb):
@@ -200,7 +200,62 @@ def test_dtc():
     ]
 
 def test_monitor():
+    # single test -----------------------------------------
+    #                [      test      ]
+    v = d.monitor(m("01010A0BB00BB00BB0"))
+    assert len(v) == 1 # 1 test result
+
+    # make sure we can look things up by name and TID
+    assert v[0x01] == v.rtl_threshold_voltage
+
+    # make sure we got information
+    assert not v[0x01].is_null()
+
+    assert float_equals(v[0x01].value, 365 * Unit.millivolt)
+    assert float_equals(v[0x01].min,   365 * Unit.millivolt)
+    assert float_equals(v[0x01].max,   365 * Unit.millivolt)
+
+    # multiple tests --------------------------------------
+    #                [      test      ][      test      ][      test      ]
     v = d.monitor(m("01010A0BB00BB00BB00105100048000000640185240096004BFFFF"))
-    # v = d.monitor(m("01010A0BB00BB00BB0"))
-    print(v)
-    assert(False)
+    assert len(v) == 3 # 3 test results
+
+    # make sure we can look things up by name and TID
+    assert v[0x01] == v.rtl_threshold_voltage
+    assert v[0x05] == v.rtl_switch_time
+
+    # make sure we got information
+    assert not v[0x01].is_null()
+    assert not v[0x05].is_null()
+    assert not v[0x85].is_null()
+
+    assert float_equals(v[0x01].value, 365 * Unit.millivolt)
+    assert float_equals(v[0x01].min,   365 * Unit.millivolt)
+    assert float_equals(v[0x01].max,   365 * Unit.millivolt)
+
+    assert float_equals(v[0x05].value, 72 * Unit.millisecond)
+    assert float_equals(v[0x05].min,   0 * Unit.millisecond)
+    assert float_equals(v[0x05].max,   100 * Unit.millisecond)
+
+    assert float_equals(v[0x85].value, 150 * Unit.count)
+    assert float_equals(v[0x85].min,   75 * Unit.count)
+    assert float_equals(v[0x85].max,   65535 * Unit.count)
+
+    # truncate incomplete tests ----------------------------
+    #                [      test      ][junk]
+    v = d.monitor(m("01010A0BB00BB00BB0ABCDEF"))
+    assert len(v) == 1 # 1 test result
+
+    # make sure we can look things up by name and TID
+    assert v[0x01] == v.rtl_threshold_voltage
+
+    # make sure we got information
+    assert not v[0x01].is_null()
+
+    assert float_equals(v[0x01].value, 365 * Unit.millivolt)
+    assert float_equals(v[0x01].min,   365 * Unit.millivolt)
+    assert float_equals(v[0x01].max,   365 * Unit.millivolt)
+
+    # truncate incomplete tests ----------------------------
+    v = d.monitor(m("01010A0BB00BB00B"))
+    assert len(v) == 0 # no valid tests

@@ -2209,8 +2209,8 @@ FUEL_TYPES = [
 TEST_IDS = {
     # <TID> :       <name>                        <description>
     # 0x0 is reserved
-    0x01 : ("rtl_threshold voltage",    "Rich to lean sensor threshold voltage"),
-    0x02 : ("ltr_threshold voltage",    "Lean to rich sensor threshold voltage"),
+    0x01 : ("rtl_threshold_voltage",    "Rich to lean sensor threshold voltage"),
+    0x02 : ("ltr_threshold_voltage",    "Lean to rich sensor threshold voltage"),
     0x03 : ("low_voltage_switch_time",  "Low sensor voltage for switch time calculation"),
     0x04 : ("high_voltage_switch_time", "High sensor voltage for switch time calculation"),
     0x05 : ("rtl_switch_time",          "Rich to lean sensor switch time"),
