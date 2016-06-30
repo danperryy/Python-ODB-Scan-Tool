@@ -49,10 +49,11 @@ class UAS():
     Used in the decoding of Mode 06 monitor responses
     """
 
-    def __init__(self, signed, scale, unit):
+    def __init__(self, signed, scale, unit, offset=0):
         self.signed = signed
         self.scale = scale
         self.unit = unit
+        self.offset = offset
 
     def __call__(self, _bytes):
         value = bytes_to_int(_bytes)
@@ -61,7 +62,7 @@ class UAS():
             value = twos_comp(value, len(_bytes) * 8)
 
         value *= self.scale
-
+        value += self.offset
         return Unit.Quantity(value, self.unit)
 
 
@@ -89,7 +90,7 @@ UAS_IDS = {
     0x13 : UAS(False, 1,          Unit.milliohm),
     0x14 : UAS(False, 1,          Unit.ohm),
     0x15 : UAS(False, 1,          Unit.kiloohm),
-    0x16 : None, # TODO
+    0x16 : UAS(False, 0.1,        Unit.celsius, offset=-40.0),
     0x17 : UAS(False, 0.01,       Unit.kilopascal),
     0x18 : UAS(False, 0.0117,     Unit.kilopascal),
     0x19 : UAS(False, 0.079,      Unit.kilopascal),
@@ -97,7 +98,7 @@ UAS_IDS = {
     0x1B : UAS(False, 10,         Unit.kilopascal),
     0x1C : UAS(False, 0.01,       Unit.degree),
     0x1D : UAS(False, 0.5,        Unit.degree),
-    0x1E : None, # TODO
+    0x1E : UAS(False, 0.0000305,  Unit.ratio),
     0x1F : UAS(False, 0.05,       Unit.ratio),
     0x20 : UAS(False, 0.00390625, Unit.ratio),
     0x21 : UAS(False, 1,          Unit.millihertz),
@@ -111,20 +112,20 @@ UAS_IDS = {
     0x29 : UAS(False, 0.25,       Unit.pascal / Unit.second),
     0x2A : UAS(False, 0.001,      Unit.kilogram / Unit.hour),
     0x2B : UAS(False, 1,          Unit.count),
-    0x2C : UAS(False, 0.01,       Unit.gram), # TODO: per-cylinder
-    0x2D : UAS(False, 0.01,       Unit.milligram), # TODO: per-stroke
-    0x2E : None, # TODO: True/False
+    0x2C : UAS(False, 0.01,       Unit.gram), # per-cylinder
+    0x2D : UAS(False, 0.01,       Unit.milligram), # per-stroke
+    0x2E : lambda _bytes: any([ bool(x) for x in _bytes])
     0x2F : UAS(False, 0.01,       Unit.percent),
     0x30 : UAS(False, 0.001526,   Unit.percent),
     0x31 : UAS(False, 0.001,      Unit.liter),
     0x32 : UAS(False, 0.0000305,  Unit.inch),
-    0x33 : UAS(False, 0.00024414, Unit.count), # TODO: equivalence ration (lambda)
+    0x33 : UAS(False, 0.00024414, Unit.ratio),
     0x34 : UAS(False, 1,          Unit.minute),
     0x35 : UAS(False, 10,         Unit.millisecond),
     0x36 : UAS(False, 0.01,       Unit.gram),
     0x37 : UAS(False, 0.1,        Unit.gram),
     0x38 : UAS(False, 1,          Unit.gram),
-    0x39 : UAS(False, 0.01,       Unit.percent), # TODO: centered
+    0x39 : UAS(False, 0.01,       Unit.percent, offset=-327.68),
     0x3A : UAS(False, 0.001,      Unit.gram),
     0x3B : UAS(False, 0.0001,     Unit.gram),
     0x3C : UAS(False, 0.1,        Unit.microsecond),
@@ -161,8 +162,8 @@ UAS_IDS = {
     0xA8 : UAS(True, 1,          Unit.grams_per_second),
     0xA9 : UAS(True, 0.25,       Unit.pascal / Unit.second),
     #
-    0xAD : UAS(True, 0.01,       Unit.milligram), # TODO: per-stroke
-    0xAE : UAS(True, 0.1,        Unit.milligram), # TODO: per-stroke
+    0xAD : UAS(True, 0.01,       Unit.milligram), # per-stroke
+    0xAE : UAS(True, 0.1,        Unit.milligram), # per-stroke
     0xAF : UAS(True, 0.01,       Unit.percent),
     0xB0 : UAS(True, 0.003052,   Unit.percent),
     0xB1 : UAS(True, 2,          Unit.millivolt / Unit.second),
