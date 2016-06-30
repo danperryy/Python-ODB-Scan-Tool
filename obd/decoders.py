@@ -316,19 +316,19 @@ def fuel_status(messages):
     v = d[0] # todo, support second fuel system
 
     if v <= 0:
-        logger.warning("Invalid fuel status response (v <= 0)")
+        logger.debug("Invalid fuel status response (v <= 0)")
         return None
 
     i = math.log(v, 2) # only a single bit should be on
 
     if i % 1 != 0:
-        logger.warning("Invalid fuel status response (multiple bits set)")
+        logger.debug("Invalid fuel status response (multiple bits set)")
         return None
 
     i = int(i)
 
     if i >= len(FUEL_STATUS):
-        logger.warning("Invalid fuel status response (no table entry)")
+        logger.debug("Invalid fuel status response (no table entry)")
         return None
 
     return FUEL_STATUS[i]
@@ -339,19 +339,19 @@ def air_status(messages):
     v = d[0]
 
     if v <= 0:
-        logger.warning("Invalid air status response (v <= 0)")
+        logger.debug("Invalid air status response (v <= 0)")
         return None
 
     i = math.log(v, 2) # only a single bit should be on
 
     if i % 1 != 0:
-        logger.warning("Invalid air status response (multiple bits set)")
+        logger.debug("Invalid air status response (multiple bits set)")
         return None
 
     i = int(i)
 
     if i >= len(AIR_STATUS):
-        logger.warning("Invalid air status response (no table entry)")
+        logger.debug("Invalid air status response (no table entry)")
         return None
 
     return AIR_STATUS[i]
@@ -428,24 +428,32 @@ def dtc(messages):
     return codes
 
 
-def monitor_test(d):
-    test = MonitorTest()
+def parse_monitor_test(d, mon):
+    tid = d[1]
 
-    uas = UAS_IDS.get(bytes_to_int(test_data[2]), None)
+    if tid not in TEST_IDS:
+        logger.debug("Encountered unknown Test ID")
+        return # if it's an unknown TID, abort
+
+    name = TEST_IDS[tid][0] # lookup the name from the table
+    desc = TEST_IDS[tid][1] # lookup the description from the table
+
+    test = mon.__dict__[name] # use the "name" field to lookup the right test
+
+    uas = UAS_IDS.get(d[2], None)
 
     # if we can't decode the value, return a null MonitorTest
     if uas is None:
-        return test
+        logger.debug("Encountered unknown Units and Scaling ID")
+        return
 
-    test.tid = bytes_to_int(test_data[1])
-    test.desc = TEST_IDS[test.tid][1] # lookup the description from the table
-
-    # convert the value and limits to actual values
-    test.value = uas(test_data[3:5])
-    test.min = uas(test_data[5:7])
-    test.max = uas(test_data[7:])
-
-    return test
+    # load the test results
+    test.tid = tid
+    test.name = name
+    test.desc = desc
+    test.value = uas(d[3:5]) # convert bytes to actual values
+    test.min   = uas(d[5:7])
+    test.max   = uas(d[7:])
 
 
 def monitor(messages):
@@ -461,7 +469,6 @@ def monitor(messages):
 
     # look at data in blocks of 9 bytes (one test result)
     for n in range(0, len(d), 9):
-        test = monitor_test(d[n:n + 8]) # extract the 9 byte block, and parse a new MonitorTest
-        setattr(mon,test.name, test) # use the "name" field as the property
+        parse_monitor_test(d[n:n + 9], mon) # extract the 9 byte block, and parse a new MonitorTest
 
     return mon

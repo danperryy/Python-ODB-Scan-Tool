@@ -198,3 +198,9 @@ def test_dtc():
         ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
         ("B0003", "Unknown error code"),
     ]
+
+def test_monitor():
+    # v = d.monitor(m("01010A0BB00BB00BB00105100048000000640185240096004BFFFF"))
+    v = d.monitor(m("01010A0BB00BB00BB0"))
+    print(v)
+    assert(False)

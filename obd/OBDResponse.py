@@ -99,13 +99,17 @@ class Monitor():
             self.tests.append(test)
 
     def __str__(self):
-        valid_tests = [str(test) for test in tests if not test.is_null()]
-        return "\n".join(valid_tests)
+        valid_tests = [str(test) for test in self.tests if not test.is_null()]
+        if len(valid_tests) > 0:
+            return "\n".join(valid_tests)
+        else:
+            return "No tests to report"
 
 
 class MonitorTest():
     def __init__(self):
         self.tid = None
+        self.name = None
         self.desc = None
         self.value = None
         self.min = None
@@ -113,10 +117,16 @@ class MonitorTest():
 
     @property
     def passed(self):
-        return (self.value >= self.min) and (self.value <= self.max)
+        if not self.is_null():
+            return (self.value >= self.min) and (self.value <= self.max)
+        else:
+            return False
 
     def is_null(self):
-        return self.tid is None or self.value is None
+        return (self.tid is None or
+                self.value is None or
+                self.min is None or
+                self.max is None)
 
     def __str__(self):
         return "%s : %s [%s]" % (self.desc,
