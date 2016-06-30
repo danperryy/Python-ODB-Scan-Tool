@@ -32,7 +32,7 @@
 import math
 from .utils import *
 from .codes import *
-from .OBDResponse import Unit, Status, Test
+from .OBDResponse import Unit, Status, Test, Monitor, MonitorTest
 
 import logging
 
@@ -425,3 +425,33 @@ def dtc(messages):
             codes.append( (dtc, desc) )
 
     return codes
+
+
+def monitor_test(d):
+    test = MonitorTest()
+    test.tid = bytes_to_int(test_data[1])
+    test.name = TEST_IDS[test.tid][0] # lookup the description from the table
+    test.desc = TEST_IDS[test.tid][1] # lookup the description from the table
+
+    
+
+    return test
+
+
+def monitor(messages):
+    d = messages[0].data
+    mon = Monitor()
+
+    # test that we got the right number of bytes
+    extra_bytes = len(d) % 9
+
+    if extra_bytes != 0:
+        logger.debug("Encountered monitor message with non-multiple of 9 bytes. Truncating...")
+        d = d[:len(d) - extra_bytes]
+
+    # look at data in blocks of 9 bytes (one test result)
+    for n in range(0, len(d), 9):
+        test = monitor_test(d[n:n + 8]) # extract the 9 byte block, and parse a new MonitorTest
+        setattr(mon,test.name, test) # use the "name" field as the property
+
+    return mon

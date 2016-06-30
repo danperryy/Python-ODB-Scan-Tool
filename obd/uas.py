@@ -10,7 +10,7 @@
 #                                                                      #
 ########################################################################
 #                                                                      #
-# OBDResponse.py                                                       #
+# uac.py                                                               #
 #                                                                      #
 # This file is part of python-OBD (a derivative of pyOBD)              #
 #                                                                      #
@@ -29,85 +29,27 @@
 #                                                                      #
 ########################################################################
 
+from .utils import *
+from .OBDResponse import Unit
 
 
-import time
-import pint
-from .codes import *
+class UAS():
+    """
+    Class for representing a Unit and Scale conversion
+    Used in the decoding of Mode 06 monitor responses
+    """
 
+    def __init__(self, signed, scale, unit):
+        self.signed = signed
+        self.scale = scale
+        self.unit = unit
 
-# export the unit registry
-Unit = pint.UnitRegistry()
-Unit.define("percent = [] = %")
-Unit.define("gps = gram / second = GPS = grams_per_second")
-Unit.define("lph = liter / hour = LPH = liters_per_hour")
+    def __call__(self, _bytes):
+        value = bytes_to_int(_bytes)
 
+        if self.signed:
+            value = twos_comp(value, len(_bytes) * 8)
 
-class OBDResponse():
-    """ Standard response object for any OBDCommand """
+        value *= self.scale
 
-    def __init__(self, command=None, messages=None):
-        self.command  = command
-        self.messages = messages if messages else []
-        self.value    = None
-        self.time     = time.time()
-
-    @property
-    def unit(self):
-        # for backwards compatibility
-        if isinstance(self.value, Unit.Quantity):
-            return str(self.value.u)
-        elif self.value == None:
-            return None
-        else:
-            return str(type(self.value))
-
-    def is_null(self):
-        return (not self.messages) or (self.value == None)
-
-    def __str__(self):
-        return str(self.value)
-
-
-
-"""
-    Special value types used in OBDResponses
-    instantiated in decoders.py
-"""
-
-
-class Status():
-    def __init__(self):
-        self.MIL           = False
-        self.DTC_count     = 0
-        self.ignition_type = ""
-        self.tests         = []
-
-
-class Test():
-    def __init__(self, name, available, incomplete):
-        self.name       = name
-        self.available  = available
-        self.incomplete = incomplete
-
-    def __str__(self):
-        a = "Available" if self.available else "Unavailable"
-        c = "Incomplete" if self.incomplete else "Complete"
-        return "Test %s: %s, %s" % (self.name, a, c)
-
-
-class Monitor():
-    def __init__(self):
-        # make all TID tests available as properties
-        for tid in TEST_IDS:
-            self.__dict__[TEST_IDS[tid][0]] = MonitorTest()
-
-
-class MonitorTest():
-    def __init__(self):
-        self.tid = None
-        self.name = None
-        self.desc = None
-        self.value = None
-        self.min = None
-        self.max = None
+        return Unit.Quantity(value, self.unit)
