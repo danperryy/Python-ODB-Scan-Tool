@@ -3,6 +3,7 @@ from binascii import unhexlify
 
 from obd.UnitsAndScaling import Unit
 from obd.protocols.protocol import Frame, Message
+from obd.codes import TEST_IDS
 import obd.decoders as d
 
 
@@ -259,3 +260,8 @@ def test_monitor():
     # truncate incomplete tests ----------------------------
     v = d.monitor(m("01010A0BB00BB00B"))
     assert len(v) == 0 # no valid tests
+
+    # make sure that the standard tests are null
+    for tid in TEST_IDS:
+        name = TEST_IDS[tid][0]
+        assert v[tid].is_null()
