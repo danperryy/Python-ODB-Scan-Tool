@@ -83,12 +83,6 @@ def bytes_to_hex(bs):
         h += ("0" * (2 - len(bh))) + bh
     return h
 
-def bitstring(_hex, bits=None):
-    b = bin(unhex(_hex))[2:]
-    if bits is not None:
-        b = ('0' * (bits - len(b))) + b
-    return b
-
 def bitToBool(_bit):
     return (_bit == '1')
 
