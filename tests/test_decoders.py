@@ -165,6 +165,18 @@ def test_air_status():
     assert d.air_status(m("08")) == "Pump commanded on for diagnostics"
     assert d.air_status(m("03")) == None
 
+def test_o2_sensors():
+    assert d.o2_sensors(m("00")) == ((False, False, False, False), (False, False, False, False))
+    assert d.o2_sensors(m("01")) == ((False, False, False, False), (False, False, False, True))
+    assert d.o2_sensors(m("0F")) == ((False, False, False, False), (True, True, True, True))
+    assert d.o2_sensors(m("F0")) == ((True, True, True, True), (False, False, False, False))
+
+def test_o2_sensors_alt():
+    assert d.o2_sensors_alt(m("00")) == ((False, False), (False, False), (False, False), (False, False))
+    assert d.o2_sensors_alt(m("01")) == ((False, False), (False, False), (False, False), (False, True))
+    assert d.o2_sensors_alt(m("0F")) == ((False, False), (False, False), (True, True), (True, True))
+    assert d.o2_sensors_alt(m("F0")) == ((True, True), (True, True), (False, False), (False, False))
+
 def test_elm_voltage():
     # these aren't parsed as standard hex messages, so manufacture our own
     assert d.elm_voltage([ Message([ Frame("12.875") ]) ]) == 12.875 * Unit.volt

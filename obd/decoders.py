@@ -244,6 +244,25 @@ def fuel_rate(messages):
     v = v * 0.05
     return v * Unit.liters_per_hour
 
+# special bit encoding for PID 13
+def o2_sensors(messages):
+    d = messages[0].data
+    bitstring = bytes_to_bits(d)
+    return (
+        tuple([ b == "1" for b in bitstring[:4] ]), # bank 1
+        tuple([ b == "1" for b in bitstring[4:] ]), # bank 2
+    )
+
+# special bit encoding for PID 1D
+def o2_sensors_alt(messages):
+    d = messages[0].data
+    bitstring = bytes_to_bits(d)
+    return (
+        tuple([ b == "1" for b in bitstring[:2] ]), # bank 1
+        tuple([ b == "1" for b in bitstring[2:4] ]), # bank 2
+        tuple([ b == "1" for b in bitstring[4:6] ]), # bank 3
+        tuple([ b == "1" for b in bitstring[6:] ]), # bank 4
+    )
 
 def elm_voltage(messages):
     # doesn't register as a normal OBD response,

@@ -69,7 +69,7 @@ __mode1__ = [
     OBDCommand("MAF"                        , "Air Flow Rate (MAF)"                     , b"0110", 2, maf,                   ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS"               , "Throttle Position"                       , b"0111", 1, percent,               ECU.ENGINE, True),
     OBDCommand("AIR_STATUS"                 , "Secondary Air Status"                    , b"0112", 1, air_status,            ECU.ENGINE, True),
-    OBDCommand("O2_SENSORS"                 , "O2 Sensors Present"                      , b"0113", 1, drop,                  ECU.ENGINE, True),
+    OBDCommand("O2_SENSORS"                 , "O2 Sensors Present"                      , b"0113", 1, o2_sensors,            ECU.ENGINE, True),
     OBDCommand("O2_B1S1"                    , "O2: Bank 1 - Sensor 1 Voltage"           , b"0114", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("O2_B1S2"                    , "O2: Bank 1 - Sensor 2 Voltage"           , b"0115", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("O2_B1S3"                    , "O2: Bank 1 - Sensor 3 Voltage"           , b"0116", 2, sensor_voltage,        ECU.ENGINE, True),
@@ -79,7 +79,7 @@ __mode1__ = [
     OBDCommand("O2_B2S3"                    , "O2: Bank 2 - Sensor 3 Voltage"           , b"011A", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("O2_B2S4"                    , "O2: Bank 2 - Sensor 4 Voltage"           , b"011B", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("OBD_COMPLIANCE"             , "OBD Standards Compliance"                , b"011C", 1, obd_compliance,        ECU.ENGINE, True),
-    OBDCommand("O2_SENSORS_ALT"             , "O2 Sensors Present (alternate)"          , b"011D", 1, drop,                  ECU.ENGINE, True),
+    OBDCommand("O2_SENSORS_ALT"             , "O2 Sensors Present (alternate)"          , b"011D", 1, o2_sensors_alt,        ECU.ENGINE, True),
     OBDCommand("AUX_INPUT_STATUS"           , "Auxiliary input status"                  , b"011E", 1, drop,                  ECU.ENGINE, True),
     OBDCommand("RUN_TIME"                   , "Engine Run Time"                         , b"011F", 2, seconds,               ECU.ENGINE, True),
 
