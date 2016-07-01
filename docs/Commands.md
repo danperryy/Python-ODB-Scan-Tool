@@ -104,7 +104,7 @@ obd.commands.has_pid(1, 12) # True
 | 1B | O2_B2S4                   | O2: Bank 2 - Sensor 4 Voltage           |
 | 1C | OBD_COMPLIANCE            | OBD Standards Compliance                |
 | 1D | O2_SENSORS_ALT            | O2 Sensors Present (alternate)          |
-| 1E | *unsupported*             | *unsupported*                           |
+| 1E | AUX_INPUT_STATUS          | Auxiliary input status (power take off) |
 | 1F | RUN_TIME                  | Engine Run Time                         |
 | 20 | PIDS_B                    | Supported PIDs [21-40]                  |
 | 21 | DISTANCE_W_MIL            | Distance Traveled with MIL on           |
