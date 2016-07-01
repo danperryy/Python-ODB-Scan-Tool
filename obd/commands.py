@@ -52,7 +52,7 @@ __mode1__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("PIDS_A"                     , "Supported PIDs [01-20]"                  , b"0100", 4, pid,                   ECU.ENGINE, True),
     OBDCommand("STATUS"                     , "Status since DTCs cleared"               , b"0101", 4, status,                ECU.ENGINE, True),
-    OBDCommand("FREEZE_DTC"                 , "Freeze DTC"                              , b"0102", 2, drop,                  ECU.ENGINE, True),
+    OBDCommand("FREEZE_DTC"                 , "Freeze DTC"                              , b"0102", 2, single_dtc,            ECU.ENGINE, True),
     OBDCommand("FUEL_STATUS"                , "Fuel System Status"                      , b"0103", 2, fuel_status,           ECU.ENGINE, True),
     OBDCommand("ENGINE_LOAD"                , "Calculated Engine Load"                  , b"0104", 1, percent,               ECU.ENGINE, True),
     OBDCommand("COOLANT_TEMP"               , "Engine Coolant Temperature"              , b"0105", 1, temp,                  ECU.ENGINE, True),
