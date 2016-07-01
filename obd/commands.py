@@ -80,7 +80,7 @@ __mode1__ = [
     OBDCommand("O2_B2S4"                    , "O2: Bank 2 - Sensor 4 Voltage"           , b"011B", 2, sensor_voltage,        ECU.ENGINE, True),
     OBDCommand("OBD_COMPLIANCE"             , "OBD Standards Compliance"                , b"011C", 1, obd_compliance,        ECU.ENGINE, True),
     OBDCommand("O2_SENSORS_ALT"             , "O2 Sensors Present (alternate)"          , b"011D", 1, o2_sensors_alt,        ECU.ENGINE, True),
-    OBDCommand("AUX_INPUT_STATUS"           , "Auxiliary input status"                  , b"011E", 1, drop,                  ECU.ENGINE, True),
+    OBDCommand("AUX_INPUT_STATUS"           , "Auxiliary input status"                  , b"011E", 1, aux_input_status,      ECU.ENGINE, True),
     OBDCommand("RUN_TIME"                   , "Engine Run Time"                         , b"011F", 2, seconds,               ECU.ENGINE, True),
 
     #                      name                             description                    cmd  bytes       decoder           ECU       fast

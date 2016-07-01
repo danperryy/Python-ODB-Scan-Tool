@@ -253,6 +253,10 @@ def o2_sensors(messages):
         tuple([ b == "1" for b in bitstring[4:] ]), # bank 2
     )
 
+def aux_input_status(messages):
+    d = messages[0].data
+    return ((d[0] >> 7) & 1) == 1 # first bit indicate PTO status
+
 # special bit encoding for PID 1D
 def o2_sensors_alt(messages):
     d = messages[0].data

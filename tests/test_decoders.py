@@ -177,6 +177,10 @@ def test_o2_sensors_alt():
     assert d.o2_sensors_alt(m("0F")) == ((False, False), (False, False), (True, True), (True, True))
     assert d.o2_sensors_alt(m("F0")) == ((True, True), (True, True), (False, False), (False, False))
 
+def test_aux_input_status():
+    assert d.aux_input_status(m("00")) == False
+    assert d.aux_input_status(m("80")) == True
+
 def test_elm_voltage():
     # these aren't parsed as standard hex messages, so manufacture our own
     assert d.elm_voltage([ Message([ Frame("12.875") ]) ]) == 12.875 * Unit.volt
