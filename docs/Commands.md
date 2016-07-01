@@ -76,7 +76,7 @@ obd.commands.has_pid(1, 12) # True
 |----|---------------------------|-----------------------------------------|
 | 00 | PIDS_A                    | Supported PIDs [01-20]                  |
 | 01 | STATUS                    | Status since DTCs cleared               |
-| 02 | *unsupported*             | *unsupported*                           |
+| 02 | FREEZE_DTC                | DTC that triggered the freeze frame     |
 | 03 | FUEL_STATUS               | Fuel System Status                      |
 | 04 | ENGINE_LOAD               | Calculated Engine Load                  |
 | 05 | COOLANT_TEMP              | Engine Coolant Temperature              |
