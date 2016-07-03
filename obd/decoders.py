@@ -30,6 +30,7 @@
 ########################################################################
 
 import math
+import functools
 from .utils import *
 from .codes import *
 from .OBDResponse import Status, Test, Monitor, MonitorTest
@@ -39,7 +40,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 '''
 All decoders take the form:
 
@@ -48,6 +48,17 @@ def <name>(<list_of_messages>):
     return (<value>, <unit>)
 
 '''
+
+
+
+def uas(id):
+    """ get the corresponding decoder for this UAS ID """
+    return functools.partial(decode_uas, id=id)
+
+def decode_uas(messages, id):
+    d = messages[0].data
+    return UAS_IDS[id](d)
+
 
 
 # drop all messages, return None
@@ -75,11 +86,6 @@ Sensor decoders
 Return Value object with value and units
 '''
 
-def count(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    return v * Unit.count
-
 # 0 to 100 %
 def percent(messages):
     d = messages[0].data
@@ -101,13 +107,6 @@ def temp(messages):
     v = v - 40
     return Unit.Quantity(v, Unit.celsius) # non-multiplicative unit
 
-# -40 to 6513.5 C
-def catalyst_temp(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    v = (v / 10.0) - 40
-    return Unit.Quantity(v, Unit.celsius) # non-multiplicative unit
-
 # -128 to 128 mA
 def current_centered(messages):
     d = messages[0].data
@@ -118,8 +117,7 @@ def current_centered(messages):
 # 0 to 1.275 volts
 def sensor_voltage(messages):
     d = messages[0].data
-    v = d[0]
-    v = v / 200.0
+    v = d[0] / 200.0
     return v * Unit.volt
 
 # 0 to 8 volts
@@ -140,20 +138,6 @@ def fuel_pressure(messages):
 def pressure(messages):
     d = messages[0].data
     v = d[0]
-    return v * Unit.kilopascal
-
-# 0 to 5177 kPa
-def fuel_pres_vac(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    v = v * 0.079
-    return v * Unit.kilopascal
-
-# 0 to 655,350 kPa
-def fuel_pres_direct(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    v = v * 10
     return v * Unit.kilopascal
 
 # -8192 to 8192 Pa
@@ -179,18 +163,6 @@ def evap_pressure_alt(messages):
     v = v - 32767
     return v * Unit.pascal
 
-# 0 to 16,383.75 RPM
-def rpm(messages):
-    d = messages[0].data
-    v = bytes_to_int(d) / 4.0
-    return v * Unit.rpm
-
-# 0 to 255 KPH
-def speed(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    return v * Unit.kph
-
 # -64 to 63.5 degrees
 def timing_advance(messages):
     d = messages[0].data
@@ -205,37 +177,12 @@ def inject_timing(messages):
     v = (v - 26880) / 128.0
     return v * Unit.degree
 
-# 0 to 655.35 grams/sec
-def maf(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    v = v / 100.0
-    return v * Unit.gps
-
 # 0 to 2550 grams/sec
 def max_maf(messages):
     d = messages[0].data
     v = d[0]
     v = v * 10
     return v * Unit.gps
-
-# 0 to 65535 seconds
-def seconds(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    return v * Unit.second
-
-# 0 to 65535 minutes
-def minutes(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    return v * Unit.minute
-
-# 0 to 65535 km
-def distance(messages):
-    d = messages[0].data
-    v = bytes_to_int(d)
-    return v * Unit.kilometer
 
 # 0 to 3212 Liters/hour
 def fuel_rate(messages):

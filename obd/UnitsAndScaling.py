@@ -107,7 +107,7 @@ UAS_IDS = {
     0x24 : UAS(False, 1,          Unit.count),
     0x25 : UAS(False, 1,          Unit.kilometer),
     0x26 : UAS(False, 0.1,        Unit.millivolt / Unit.millisecond),
-    0x27 : UAS(False, 0.1,        Unit.grams_per_second),
+    0x27 : UAS(False, 0.01,       Unit.grams_per_second),
     0x28 : UAS(False, 1,          Unit.grams_per_second),
     0x29 : UAS(False, 0.25,       Unit.pascal / Unit.second),
     0x2A : UAS(False, 0.001,      Unit.kilogram / Unit.hour),
