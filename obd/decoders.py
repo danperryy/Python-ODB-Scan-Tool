@@ -160,8 +160,8 @@ def fuel_pres_direct(messages):
 def evap_pressure(messages):
     # decode the twos complement
     d = messages[0].data
-    a = twos_comp(unhex(d[0]), 8)
-    b = twos_comp(unhex(d[1]), 8)
+    a = twos_comp(d[0], 8)
+    b = twos_comp(d[1], 8)
     v = ((a * 256.0) + b) / 4.0
     return v * Unit.pascal
 

@@ -67,14 +67,14 @@ class OBDCommand():
     @property
     def mode(self):
         if len(self.command) >= 2:
-            return unhex(self.command[:2])
+            return int(self.command[:2], 16)
         else:
             return 0
 
     @property
     def pid(self):
         if len(self.command) > 2:
-            return unhex(self.command[2:])
+            return int(self.command[2:], 16)
         else:
             return 0
 
