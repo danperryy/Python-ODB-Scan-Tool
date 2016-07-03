@@ -45,11 +45,6 @@ def test_pid():
     assert d.pid(m("F00AA00F")) == "11110000000010101010000000001111"
     assert d.pid(m("11")) == "00010001"
 
-def test_count():
-    assert d.count(m("00"))   == 0 * Unit.count
-    assert d.count(m("0F"))   == 15 * Unit.count
-    assert d.count(m("03E8")) == 1000 * Unit.count
-
 def test_percent():
     assert d.percent(m("00"))  == 0.0 * Unit.percent
     assert d.percent(m("FF"))  == 100.0 * Unit.percent
@@ -63,10 +58,6 @@ def test_temp():
     assert d.temp(m("00"))   == Unit.Quantity(-40, Unit.celsius)
     assert d.temp(m("FF"))   == Unit.Quantity(215, Unit.celsius)
     assert d.temp(m("03E8")) == Unit.Quantity(960, Unit.celsius)
-
-def test_catalyst_temp():
-    assert d.catalyst_temp(m("0000")) == Unit.Quantity(-40.0, Unit.celsius)
-    assert d.catalyst_temp(m("FFFF")) == Unit.Quantity(6513.5, Unit.celsius)
 
 def test_current_centered():
     assert              d.current_centered(m("00000000")) == -128.0 * Unit.milliampere
@@ -93,14 +84,6 @@ def test_pressure():
     assert d.pressure(m("00")) == 0 * Unit.kilopascal
     assert d.pressure(m("00")) == 0 * Unit.kilopascal
 
-def test_fuel_pres_vac():
-    assert d.fuel_pres_vac(m("0000")) == 0.0 * Unit.kilopascal
-    assert d.fuel_pres_vac(m("FFFF")) == 5177.265 * Unit.kilopascal
-
-def test_fuel_pres_direct():
-    assert d.fuel_pres_direct(m("0000")) == 0 * Unit.kilopascal
-    assert d.fuel_pres_direct(m("FFFF")) == 655350 * Unit.kilopascal
-
 def test_evap_pressure():
     pass # TODO
     #assert d.evap_pressure(m("0000")) == 0.0 * Unit.PA)
@@ -114,14 +97,6 @@ def test_evap_pressure_alt():
     assert d.evap_pressure_alt(m("7FFF")) == 0 * Unit.pascal
     assert d.evap_pressure_alt(m("FFFF")) == 32768 *  Unit.pascal
 
-def test_rpm():
-    assert d.rpm(m("0000")) == 0.0 * Unit.rpm
-    assert d.rpm(m("FFFF")) == 16383.75 * Unit.rpm
-
-def test_speed():
-    assert d.speed(m("00")) == 0 * Unit.kph
-    assert d.speed(m("FF")) == 255 * Unit.kph
-
 def test_timing_advance():
     assert d.timing_advance(m("00")) == -64.0 * Unit.degrees
     assert d.timing_advance(m("FF")) == 63.5 *  Unit.degrees
@@ -130,26 +105,10 @@ def test_inject_timing():
     assert              d.inject_timing(m("0000")) == -210 * Unit.degrees
     assert float_equals(d.inject_timing(m("FFFF")),   302 * Unit.degrees)
 
-def test_maf():
-    assert d.maf(m("0000")) == 0.0 * Unit.grams_per_second
-    assert d.maf(m("FFFF")) == 655.35 * Unit.grams_per_second
-
 def test_max_maf():
     assert d.max_maf(m("00000000")) == 0 * Unit.grams_per_second
     assert d.max_maf(m("FF000000")) == 2550 * Unit.grams_per_second
     assert d.max_maf(m("00ABCDEF")) == 0 * Unit.grams_per_second # last 3 bytes are unused (should be disregarded)
-
-def test_seconds():
-    assert d.seconds(m("0000")) == 0 * Unit.second
-    assert d.seconds(m("FFFF")) == 65535 * Unit.second
-
-def test_minutes():
-    assert d.minutes(m("0000")) == 0 * Unit.minute
-    assert d.minutes(m("FFFF")) == 65535 * Unit.minute
-
-def test_distance():
-    assert d.distance(m("0000")) == 0 * Unit.kilometer
-    assert d.distance(m("FFFF")) == 65535 * Unit.kilometer
 
 def test_fuel_rate():
     assert d.fuel_rate(m("0000")) == 0.0 * Unit.liters_per_hour
