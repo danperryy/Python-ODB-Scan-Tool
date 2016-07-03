@@ -330,6 +330,7 @@ class ELM327:
         self.__protocol = None
 
         if self.__port is not None:
+            logger.info("closing port")
             self.__write(b"ATZ")
             self.__port.close()
             self.__port = None
@@ -408,7 +409,7 @@ class ELM327:
                 if not c:
 
                     if attempts <= 0:
-                        logger.info("Failed to read port, giving up")
+                        logger.warning("Failed to read port, giving up")
                         break
 
                     logger.info("Failed to read port, trying again...")
