@@ -54,6 +54,8 @@ class ELM327:
             ecus()
     """
 
+    ELM_PROMPT = b'>'
+
     _SUPPORTED_PROTOCOLS = {
         #"0" : None, # Automatic Mode. This isn't an actual protocol. If the
                      # ELM reports this, then we don't have enough
@@ -397,46 +399,47 @@ class ELM327:
             accumulates characters until the prompt character is seen
             returns a list of [/r/n] delimited strings
         """
-
-        attempts = 2
-        buffer = b''
-
-        if self.__port:
-            while True:
-                c = self.__port.read(1)
-
-                # if nothing was recieved
-                if not c:
-
-                    if attempts <= 0:
-                        logger.warning("Failed to read port, giving up")
-                        break
-
-                    logger.info("Failed to read port, trying again...")
-                    attempts -= 1
-                    continue
-
-                # end on chevron (ELM prompt character)
-                if c == b'>':
-                    break
-
-                # skip null characters (ELM spec page 9)
-                if c == b'\x00':
-                    continue
-
-                buffer += c # whatever is left must be part of the response
-        else:
+        if not self.__port:
             logger.info("cannot perform __read() when unconnected")
             return ""
 
-        logger.debug("read: " + repr(buffer))
+        attempts = 2
+        buffer = bytearray()
+
+        while True:
+            data = self.__port.read(self.__port.in_waiting or 1)
+
+            # if nothing was recieved
+            if not data:
+
+                if attempts <= 0:
+                    logger.warning("Failed to read port, giving up")
+                    break
+
+                logger.info("Failed to read port, trying again...")
+                attempts -= 1
+                continue
+
+            buffer.extend(data)
+
+            # end on chevron (ELM prompt character)
+            if self.ELM_PROMPT in buffer:
+                break
+
+        # log, and remove the "bytearray(   ...   )" part
+        logger.debug("read: " + repr(buffer)[10:-1])
+
+        # clean out any null characters
+        buffer = re.sub(b"\x00", b"", buffer)
+
+        # remove the prompt character
+        if buffer.endswith(self.ELM_PROMPT):
+            buffer = buffer[:-1]
 
         # convert bytes into a standard string
-        raw = buffer.decode()
+        string = buffer.decode()
 
-        # splits into lines
-        # removes empty lines
-        # removes trailing spaces
-        lines = [ s.strip() for s in re.split("[\r\n]", raw) if bool(s) ]
+        # splits into lines while removing empty lines and trailing spaces
+        lines = [ s.strip() for s in re.split("[\r\n]", string) if bool(s) ]
 
         return lines
