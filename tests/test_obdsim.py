@@ -3,7 +3,7 @@ import time
 import pytest
 from obd import commands, Unit
 
-STANDARD_WAIT_TIME = 0.25
+STANDARD_WAIT_TIME = 0.1
 
 
 @pytest.fixture(scope="module")
