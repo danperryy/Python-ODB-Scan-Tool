@@ -11,12 +11,6 @@ def obd(request):
     """provides an OBD connection object for obdsim"""
     import obd
     port = request.config.getoption("--port")
-
-    # TODO: lookup how to fail inside of a fixture
-    if port is None:
-        print("Please run obdsim and use --port=<port>")
-        exit(1)
-
     return obd.OBD(port)
 
 
@@ -25,23 +19,22 @@ def async(request):
     """provides an OBD *Async* connection object for obdsim"""
     import obd
     port = request.config.getoption("--port")
-
-    # TODO: lookup how to fail inside of a fixture
-    if port is None:
-        print("Please run obdsim and use --port=<port>")
-        exit(1)
-
     return obd.Async(port)
 
 
 def good_rpm_response(r):
     return (r.value.u == Unit.rpm) and (r.value >= 0.0 * Unit.rpm)
 
+
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_supports(obd):
     assert(len(obd.supported_commands) > 0)
     assert(obd.supports(commands.RPM))
 
 
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_rpm(obd):
     r = obd.query(commands.RPM)
     assert(good_rpm_response(r))
@@ -49,6 +42,8 @@ def test_rpm(obd):
 
 # Async tests
 
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_async_query(async):
 
     rs = []
@@ -67,6 +62,8 @@ def test_async_query(async):
     assert(all([ good_rpm_response(r) for r in rs ]))
 
 
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_async_callback(async):
 
     rs = []
@@ -81,6 +78,8 @@ def test_async_callback(async):
     assert(all([ good_rpm_response(r) for r in rs ]))
 
 
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_async_paused(async):
 
     assert(not async.running)
@@ -97,6 +96,8 @@ def test_async_paused(async):
     assert(not async.running)
 
 
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_async_unwatch(async):
 
     watched_rs = []
@@ -127,6 +128,8 @@ def test_async_unwatch(async):
     assert(all([ r.is_null() for r in unwatched_rs ]))
 
 
+@pytest.mark.skipif(not pytest.config.getoption("--port"),
+                    reason="needs --port=<port> to run")
 def test_async_unwatch_callback(async):
 
     a_rs = []
