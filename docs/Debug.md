@@ -2,9 +2,8 @@ python-OBD uses python's builtin logging system. By default, it is setup to send
 
 ```python
 import obd
-import logging
 
-obd.logger.setLevel(logging.DEBUG)
+obd.logger.setLevel(obd.logging.DEBUG) # enables all debug information
 ```
 
 Or, to silence all logging output from python-OBD:
