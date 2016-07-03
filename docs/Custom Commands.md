@@ -38,16 +38,14 @@ c = OBDCommand("RPM", \          # name
 By default, custom commands will be treated as "unsupported by the vehicle". There are two ways to handle this:
 
 ```python
+o = obd.OBD()
+
 # use the `force` parameter when querying
-o = obd.OBD()
 o.query(c, force=True)
-```
 
-or
+# OR
 
-```python
 # add your command to the set of supported commands
-o = obd.OBD()
 o.supported_commands.add(c)
 o.query(c)
 ```
