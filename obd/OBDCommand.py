@@ -112,7 +112,7 @@ class OBDCommand():
                 # chop off the right side
                 message.data = message.data[:self.bytes]
                 logger.debug("Message was longer than expected. Trimmed message: " + repr(message.data))
-            else:
+            elif len(message.data) < self.bytes:
                 # pad the right with zeros
                 message.data += (b'\x00' * (self.bytes - len(message.data)))
                 logger.debug("Message was shorter than expected. Padded message: " + repr(message.data))
