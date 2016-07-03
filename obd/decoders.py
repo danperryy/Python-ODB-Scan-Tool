@@ -51,16 +51,6 @@ def <name>(<list_of_messages>):
 
 
 
-def uas(id):
-    """ get the corresponding decoder for this UAS ID """
-    return functools.partial(decode_uas, id=id)
-
-def decode_uas(messages, id):
-    d = messages[0].data
-    return UAS_IDS[id](d)
-
-
-
 # drop all messages, return None
 def drop(messages):
     return None
@@ -81,10 +71,26 @@ def pid(messages):
 def raw_string(messages):
     return "\n".join([m.raw() for m in messages])
 
-'''
-Sensor decoders
-Return Value object with value and units
-'''
+
+"""
+Some decoders are simple and are already implemented in the Units And Scaling
+tables (used mainly for Mode 06). The uas() decoder is a wrapper for any
+Unit/Scaling in that table, simply to avoid redundant code.
+"""
+
+def uas(id):
+    """ get the corresponding decoder for this UAS ID """
+    return functools.partial(decode_uas, id=id)
+
+def decode_uas(messages, id):
+    d = messages[0].data
+    return UAS_IDS[id](d)
+
+
+"""
+General sensor decoders
+Return pint Quantities
+"""
 
 # 0 to 100 %
 def percent(messages):
