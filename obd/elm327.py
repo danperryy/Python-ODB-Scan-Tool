@@ -114,11 +114,10 @@ class ELM327:
         try:
             logger.info("Opening serial port '%s'" % portname)
             self.__port = serial.Serial(portname, \
-                                        baudrate = baudrate, \
                                         parity   = serial.PARITY_NONE, \
                                         stopbits = 1, \
-                                        bytesize = 8, \
-                                        timeout  = 3) # seconds
+                                        bytesize = 8,
+                                        timeout = 3) # seconds
             logger.info("Serial port successfully opened on " + self.port_name())
 
         except serial.SerialException as e:
@@ -128,6 +127,10 @@ class ELM327:
             self.__error(e)
             return
 
+        # ------------------------ find the ELM's baud ------------------------
+
+        if not self.set_baudrate(baudrate):
+            self.__error("Failed to set baudrate");
 
         # ---------------------------- ATZ (reset) ----------------------------
         try:
@@ -159,14 +162,14 @@ class ELM327:
         self.__status = OBDStatus.ELM_CONNECTED
 
         # try to communicate with the car, and load the correct protocol parser
-        if self.load_protocol(protocol):
+        if self.set_protocol(protocol):
             self.__status = OBDStatus.CAR_CONNECTED
             logger.info("Connection successful")
         else:
             logger.error("Connected to the adapter, but failed to connect to the vehicle")
 
 
-    def load_protocol(self, protocol):
+    def set_protocol(self, protocol):
         if protocol is not None:
             # an explicit protocol was specified
             if protocol not in self._SUPPORTED_PROTOCOLS:
@@ -241,33 +244,44 @@ class ELM327:
         return False
 
 
-    def auto_baudrate(self):
-        """Detect, select, and return the baud rate at which a connected
-        ELM32x interface is operating.
+    def set_baudrate(self, baud):
+        if baud is None:
+            return self.auto_baudrate()
+        else:
+            self.__port.baudrate = baud
+            return True
 
-        Return None if the baud rate couldn't be determined.
+
+    def auto_baudrate(self):
         """
+        Detect the baud rate at which a connected ELM32x interface is operating.
+        Returns boolean for success.
+        """
+
+        # before we change the timout, save the "normal" value
+        timeout = self.__port.timeout
+        self.__port.timeout = 0.05 # we're only talking with the ELM, so things should go quickly
+
         for baud in self._TRY_BAUDS:
-            self.port.setBaudrate(baud)
-            self.port.flushInput()
-            self.port.flushOutput()
+            self.__port.baudrate = baud
+            self.__port.flushInput()
+            self.__port.flushOutput()
 
             # Send a nonsense command to get a prompt back from the scanner
             # (an empty command runs the risk of repeating a dangerous command)
             # The first character might get eaten if the interface was busy,
             # so write a second one (again so that the lone CR doesn't repeat
             # the previous command)
-            port.write("\x7F\x7F\r")
-            port.set_timeout(timeout)
-            response = self.__read()
+            self.__port.write("\x7F\x7F\r\n")
+            response = self.port.read(1024)
 
-            if (response.endswith("\r\r>")):
-                #print "%d baud detected (%r)" % (baud, response)
-                break
-            else:
-                baud = None
+            # watch for the prompt character
+            if response.endswith(b">"):
+                return True
 
-        return baud
+        self.__port.timeout = timeout
+
+        return False
 
 
 
