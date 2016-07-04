@@ -247,7 +247,11 @@ class ELM327:
 
     def set_baudrate(self, baud):
         if baud is None:
-            return self.auto_baudrate()
+            # when connecting to pseudo terminal, don't bother with auto baud
+            if self.port_name().startswith("/dev/pts"):
+                return True
+            else:
+                return self.auto_baudrate()
         else:
             self.__port.baudrate = baud
             return True
@@ -263,7 +267,7 @@ class ELM327:
 
         # before we change the timout, save the "normal" value
         timeout = self.__port.timeout
-        self.__port.timeout = 0.3 # we're only talking with the ELM, so things should go quickly
+        self.__port.timeout = 0.1 # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
             self.__port.baudrate = baud
@@ -283,11 +287,12 @@ class ELM327:
             # watch for the prompt character
             if response.endswith(b">"):
                 logger.debug("Choosing baud %d" % baud)
+                self.__port.timeout = timeout # reinstate our original timeout
                 return True
 
-        self.__port.timeout = timeout
 
         logger.debug("Failed to choose baud")
+        self.__port.timeout = timeout # reinstate our original timeout
         return False
 
 

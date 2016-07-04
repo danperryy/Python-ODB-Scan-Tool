@@ -3,7 +3,7 @@ import time
 import pytest
 from obd import commands, Unit
 
-STANDARD_WAIT_TIME = 0.1
+STANDARD_WAIT_TIME = 0.2
 
 
 @pytest.fixture(scope="module")
@@ -23,7 +23,9 @@ def async(request):
 
 
 def good_rpm_response(r):
-    return (r.value.u == Unit.rpm) and (r.value >= 0.0 * Unit.rpm)
+    return (not r.is_null()) and \
+           (r.value.u == Unit.rpm) and \
+           (r.value >= 0.0 * Unit.rpm)
 
 
 @pytest.mark.skipif(not pytest.config.getoption("--port"),
