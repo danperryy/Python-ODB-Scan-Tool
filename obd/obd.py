@@ -84,7 +84,7 @@ class OBD(object):
             self.port = ELM327(portstr, baudrate, protocol)
 
         # if the connection failed, close it
-        if self.port.status == OBDStatus.NOT_CONNECTED:
+        if self.port.status() == OBDStatus.NOT_CONNECTED:
             # the ELM327 class will report its own errors
             self.close()
 
@@ -138,7 +138,7 @@ class OBD(object):
             Closes the connection, and clears supported_commands
         """
 
-        self.supported_commands = []
+        self.supported_commands = set()
 
         if self.port is not None:
             logger.info("Closing connection")
