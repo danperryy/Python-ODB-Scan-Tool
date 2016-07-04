@@ -91,12 +91,6 @@ Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If 
 
 ---
 
-### get_port_name()
-
-**Deprecated:** use `port_name()` instead
-
----
-
 ### supports(command)
 
 Returns a boolean for whether a command is supported by both the car and python-OBD

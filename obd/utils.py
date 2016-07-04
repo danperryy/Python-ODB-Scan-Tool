@@ -151,8 +151,3 @@ def scan_serial():
             available.append(port)
 
     return available
-
-# TODO: deprecated, remove later
-def scanSerial():
-    logger.warning("scanSerial() is deprecated, use scan_serial() instead")
-    return scan_serial()

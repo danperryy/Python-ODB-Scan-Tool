@@ -78,11 +78,6 @@ class OBDCommand():
         else:
             return 0
 
-    # TODO: remove later
-    @property
-    def supported(self):
-        logger.warning("OBDCommand.supported is deprecated. Use OBD.supports() instead")
-        return False
 
     def __call__(self, messages):
 

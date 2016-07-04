@@ -180,12 +180,6 @@ class OBD(object):
             return self.port.protocol_id()
 
 
-    def get_port_name(self):
-        # TODO: deprecated, remove later
-        logger.warning("OBD.get_port_name() is deprecated, use OBD.port_name() instead")
-        return self.port_name()
-
-
     def port_name(self):
         """ Returns the name of the currently connected port """
         if self.port is not None:
