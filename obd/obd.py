@@ -215,6 +215,24 @@ class OBD(object):
         return cmd in self.supported_commands
 
 
+    def test_cmd(self, cmd):
+        """
+            Returns a boolean for whether a command will
+            be sent without using force=True.
+        """
+        # test if the command is supported
+        if not self.supports(cmd):
+            logger.warning("'%s' is not supported" % str(cmd))
+            return False
+
+        # mode 06 is only implemented for the CAN protocols
+        if cmd.mode == 6 and self.port.protocol_id() not in ["6", "7", "8", "9"]:
+            logger.warning("Mode 06 commands are only supported over CAN protocols")
+            return False
+
+        return True
+
+
     def query(self, cmd, force=False):
         """
             primary API function. Sends commands to the car, and
@@ -225,10 +243,9 @@ class OBD(object):
             logger.warning("Query failed, no connection available")
             return OBDResponse()
 
-        if not force and not self.supports(cmd):
-            logger.warning("'%s' is not supported" % str(cmd))
+        # if the user forces, skip all checks
+        if not force and not self.test_cmd(cmd):
             return OBDResponse()
-
 
         # send command and retrieve message
         logger.info("Sending command: %s" % str(cmd))

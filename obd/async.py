@@ -136,8 +136,8 @@ class Async(OBD):
             logger.warning("Can't watch() while running, please use stop()")
         else:
 
-            if not force and not self.supports(c):
-                logger.warning("'%s' is not supported" % str(c))
+            if not force and not self.test_cmd(c):
+                # self.test_cmd() will print warnings
                 return
 
             # new command being watched, store the command
