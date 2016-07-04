@@ -329,7 +329,7 @@ class ELM327:
         if self.__port is not None:
             return self.__port.portstr
         else:
-            return "No Port"
+            return ""
 
 
     def status(self):
@@ -433,6 +433,7 @@ class ELM327:
         buffer = bytearray()
 
         while True:
+            # retrieve as much data as possible
             data = self.__port.read(self.__port.in_waiting or 1)
 
             # if nothing was recieved

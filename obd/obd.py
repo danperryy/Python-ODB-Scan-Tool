@@ -185,7 +185,7 @@ class OBD(object):
         if self.port is not None:
             return self.port.port_name()
         else:
-            return "Not connected to any port"
+            return ""
 
 
     def is_connected(self):
