@@ -48,7 +48,7 @@ class OBD(object):
     """
 
     def __init__(self, portstr=None, baudrate=None, protocol=None, fast=True):
-        self.port = None
+        self.interface = None
         self.supported_commands = set(commands.base_commands())
         self.fast = fast
         self.__last_command = "" # used for running the previous command with a CR
@@ -75,16 +75,16 @@ class OBD(object):
 
             for port in portnames:
                 logger.info("Attempting to use port: " + str(port))
-                self.port = ELM327(port, baudrate, protocol)
+                self.interface = ELM327(port, baudrate, protocol)
 
-                if self.port.status() >= OBDStatus.ELM_CONNECTED:
+                if self.interface.status() >= OBDStatus.ELM_CONNECTED:
                     break # success! stop searching for serial
         else:
             logger.info("Explicit port defined")
-            self.port = ELM327(portstr, baudrate, protocol)
+            self.interface = ELM327(portstr, baudrate, protocol)
 
         # if the connection failed, close it
-        if self.port.status() == OBDStatus.NOT_CONNECTED:
+        if self.interface.status() == OBDStatus.NOT_CONNECTED:
             # the ELM327 class will report its own errors
             self.close()
 
@@ -140,50 +140,50 @@ class OBD(object):
 
         self.supported_commands = set()
 
-        if self.port is not None:
+        if self.interface is not None:
             logger.info("Closing connection")
-            self.port.close()
-            self.port = None
+            self.interface.close()
+            self.interface = None
 
 
     def status(self):
         """ returns the OBD connection status """
-        if self.port is None:
+        if self.interface is None:
             return OBDStatus.NOT_CONNECTED
         else:
-            return self.port.status()
+            return self.interface.status()
 
 
     # not sure how useful this would be
 
     # def ecus(self):
     #     """ returns a list of ECUs in the vehicle """
-    #     if self.port is None:
+    #     if self.interface is None:
     #         return []
     #     else:
-    #         return self.port.ecus()
+    #         return self.interface.ecus()
 
 
     def protocol_name(self):
         """ returns the name of the protocol being used by the ELM327 """
-        if self.port is None:
+        if self.interface is None:
             return ""
         else:
-            return self.port.protocol_name()
+            return self.interface.protocol_name()
 
 
     def protocol_id(self):
         """ returns the ID of the protocol being used by the ELM327 """
-        if self.port is None:
+        if self.interface is None:
             return ""
         else:
-            return self.port.protocol_id()
+            return self.interface.protocol_id()
 
 
     def port_name(self):
         """ Returns the name of the currently connected port """
-        if self.port is not None:
-            return self.port.port_name()
+        if self.interface is not None:
+            return self.interface.port_name()
         else:
             return ""
 
@@ -226,7 +226,7 @@ class OBD(object):
             return False
 
         # mode 06 is only implemented for the CAN protocols
-        if cmd.mode == 6 and self.port.protocol_id() not in ["6", "7", "8", "9"]:
+        if cmd.mode == 6 and self.interface.protocol_id() not in ["6", "7", "8", "9"]:
             logger.warning("Mode 06 commands are only supported over CAN protocols")
             return False
 
@@ -250,7 +250,7 @@ class OBD(object):
         # send command and retrieve message
         logger.info("Sending command: %s" % str(cmd))
         cmd_string = self.__build_command_string(cmd)
-        messages = self.port.send_and_parse(cmd_string)
+        messages = self.interface.send_and_parse(cmd_string)
 
         # if we're sending a new command, note it
         if cmd_string:
@@ -269,7 +269,7 @@ class OBD(object):
 
         # only wait for as many ECUs as we've seen
         if self.fast and cmd.fast:
-            cmd_string += str(len(self.port.ecus())).encode()
+            cmd_string += str(len(self.interface.ecus())).encode()
 
         # if we sent this last time, just send
         if self.fast and (cmd_string == self.__last_command):

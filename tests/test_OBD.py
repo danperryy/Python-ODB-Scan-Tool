@@ -76,7 +76,7 @@ def test_is_connected():
     assert not o.is_connected()
 
     # our fake ELM class always returns success for connections
-    o.port = FakeELM("/dev/null")
+    o.interface = FakeELM("/dev/null")
     assert o.is_connected()
 
 
@@ -88,17 +88,17 @@ def test_status():
     o = obd.OBD("/dev/null")
     assert o.status() == OBDStatus.NOT_CONNECTED
 
-    o.port = None
+    o.interface = None
     assert o.status() == OBDStatus.NOT_CONNECTED
 
     # we can manually set our fake ELM class to test
     # the other values
-    o.port = FakeELM("/dev/null")
+    o.interface = FakeELM("/dev/null")
 
-    o.port._status = OBDStatus.ELM_CONNECTED
+    o.interface._status = OBDStatus.ELM_CONNECTED
     assert o.status() == OBDStatus.ELM_CONNECTED
 
-    o.port._status = OBDStatus.CAR_CONNECTED
+    o.interface._status = OBDStatus.CAR_CONNECTED
     assert o.status() == OBDStatus.CAR_CONNECTED
 
 
@@ -121,31 +121,31 @@ def test_port_name():
         same values as the underlying ELM327 class.
     """
     o = obd.OBD("/dev/null")
-    o.port = FakeELM("/dev/null")
-    assert o.port_name() == o.port._portname
+    o.interface = FakeELM("/dev/null")
+    assert o.port_name() == o.interface._portname
 
-    o.port = FakeELM("A different port name")
-    assert o.port_name() == o.port._portname
+    o.interface = FakeELM("A different port name")
+    assert o.port_name() == o.interface._portname
 
 
 def test_protocol_name():
     o = obd.OBD("/dev/null")
 
-    o.port = None
+    o.interface = None
     assert o.protocol_name() == ""
 
-    o.port = FakeELM("/dev/null")
-    assert o.protocol_name() == o.port.protocol_name()
+    o.interface = FakeELM("/dev/null")
+    assert o.protocol_name() == o.interface.protocol_name()
 
 
 def test_protocol_id():
     o = obd.OBD("/dev/null")
 
-    o.port = None
+    o.interface = None
     assert o.protocol_id() == ""
 
-    o.port = FakeELM("/dev/null")
-    assert o.protocol_id() == o.port.protocol_id()
+    o.interface = FakeELM("/dev/null")
+    assert o.protocol_id() == o.interface.protocol_id()
 
 
 
@@ -158,30 +158,30 @@ def test_protocol_id():
 
 def test_force():
     o = obd.OBD("/dev/null", fast=False) # disable the trailing response count byte
-    o.port = FakeELM("/dev/null")
+    o.interface = FakeELM("/dev/null")
 
     r = o.query(obd.commands.RPM)
     assert r.is_null()
-    assert o.port._test_last_command(None)
+    assert o.interface._test_last_command(None)
 
     r = o.query(obd.commands.RPM, force=True)
     assert not r.is_null()
-    assert o.port._test_last_command(obd.commands.RPM.command)
+    assert o.interface._test_last_command(obd.commands.RPM.command)
 
     # a command that isn't in python-OBD's tables
     r = o.query(command)
     assert r.is_null()
-    assert o.port._test_last_command(None)
+    assert o.interface._test_last_command(None)
 
     r = o.query(command, force=True)
-    assert o.port._test_last_command(command.command)
+    assert o.interface._test_last_command(command.command)
 
 
 
 def test_fast():
     o = obd.OBD("/dev/null", fast=False)
-    o.port = FakeELM("/dev/null")
+    o.interface = FakeELM("/dev/null")
 
     assert command.fast
     o.query(command, force=True) # force since this command isn't in the tables
-    # assert o.port._test_last_command(command.command)
+    # assert o.interface._test_last_command(command.command)
