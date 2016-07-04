@@ -47,7 +47,7 @@ class OBD(object):
         with it's assorted commands/sensors.
     """
 
-    def __init__(self, portstr=None, baudrate=38400, protocol=None, fast=True):
+    def __init__(self, portstr=None, baudrate=None, protocol=None, fast=True):
         self.port = None
         self.supported_commands = set(commands.base_commands())
         self.fast = fast

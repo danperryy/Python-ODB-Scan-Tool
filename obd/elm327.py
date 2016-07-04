@@ -241,6 +241,7 @@ class ELM327:
                     return True
 
         # if we've come this far, then we have failed...
+        logger.error("Failed to determine protocol")
         return False
 
 
@@ -258,9 +259,11 @@ class ELM327:
         Returns boolean for success.
         """
 
+        logger.debug("Choosing baudrate automatically")
+
         # before we change the timout, save the "normal" value
         timeout = self.__port.timeout
-        self.__port.timeout = 0.05 # we're only talking with the ELM, so things should go quickly
+        self.__port.timeout = 0.3 # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
             self.__port.baudrate = baud
@@ -272,15 +275,19 @@ class ELM327:
             # The first character might get eaten if the interface was busy,
             # so write a second one (again so that the lone CR doesn't repeat
             # the previous command)
-            self.__port.write("\x7F\x7F\r\n")
-            response = self.port.read(1024)
+            self.__port.write(b"\x7F\x7F\r\n")
+            self.__port.flush()
+            response = self.__port.read(1024)
+            logger.debug("Response from baud %d: %s" % (baud, repr(response)))
 
             # watch for the prompt character
             if response.endswith(b">"):
+                logger.debug("Choosing baud %d" % baud)
                 return True
 
         self.__port.timeout = timeout
 
+        logger.debug("Failed to choose baud")
         return False
 
 
