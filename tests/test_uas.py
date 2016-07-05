@@ -373,3 +373,201 @@ def test_41():
     assert UAS_IDS[0x41](b("0000")) == 0 * Unit.microampere
     assert UAS_IDS[0x41](b("0001")) == 0.01 * Unit.microampere
     assert UAS_IDS[0x41](b("FFFF")) == 655.35 * Unit.microampere
+
+
+
+
+"""
+signed Units
+"""
+
+def test_81():
+    assert UAS_IDS[0x81](b("8000")) == -32768 * Unit.count
+    assert UAS_IDS[0x81](b("FFFF")) == -1 * Unit.count
+    assert UAS_IDS[0x81](b("0000")) == 0 * Unit.count
+    assert UAS_IDS[0x81](b("0001")) == 1 * Unit.count
+    assert UAS_IDS[0x81](b("7FFF")) == 32767 * Unit.count
+
+def test_82():
+    assert UAS_IDS[0x82](b("8000")) == -3276.8 * Unit.count
+    assert UAS_IDS[0x82](b("FFFF")) == -0.1 * Unit.count
+    assert UAS_IDS[0x82](b("0000")) == 0 * Unit.count
+    assert UAS_IDS[0x82](b("0001")) == 0.1 * Unit.count
+    assert float_equals(UAS_IDS[0x82](b("7FFF")), 3276.7 * Unit.count)
+
+def test_83():
+    assert UAS_IDS[0x83](b("8000")) == -327.68 * Unit.count
+    assert UAS_IDS[0x83](b("FFFF")) == -0.01 * Unit.count
+    assert UAS_IDS[0x83](b("0000")) == 0 * Unit.count
+    assert UAS_IDS[0x83](b("0001")) == 0.01 * Unit.count
+    assert float_equals(UAS_IDS[0x83](b("7FFF")), 327.67 * Unit.count)
+
+def test_84():
+    assert UAS_IDS[0x84](b("8000")) == -32.768 * Unit.count
+    assert UAS_IDS[0x84](b("FFFF")) == -0.001 * Unit.count
+    assert UAS_IDS[0x84](b("0000")) == 0 * Unit.count
+    assert UAS_IDS[0x84](b("0001")) == 0.001 * Unit.count
+    assert float_equals(UAS_IDS[0x84](b("7FFF")), 32.767 * Unit.count)
+
+def test_85():
+    assert float_equals(UAS_IDS[0x85](b("8000")), -0.9999995 * Unit.count)
+    assert float_equals(UAS_IDS[0x85](b("FFFF")), -0.0000305 * Unit.count)
+    assert float_equals(UAS_IDS[0x85](b("0000")), 0 * Unit.count)
+    assert float_equals(UAS_IDS[0x85](b("0001")), 0.0000305 * Unit.count)
+    assert float_equals(UAS_IDS[0x85](b("7FFF")), 0.9999995 * Unit.count)
+
+def test_86():
+    assert float_equals(UAS_IDS[0x86](b("8000")), -9.999995 * Unit.count)
+    assert float_equals(UAS_IDS[0x86](b("FFFF")), -0.000305 * Unit.count)
+    assert float_equals(UAS_IDS[0x86](b("0000")), 0 * Unit.count)
+    assert float_equals(UAS_IDS[0x86](b("0001")), 0.000305 * Unit.count)
+    assert float_equals(UAS_IDS[0x86](b("7FFF")), 9.999995 * Unit.count)
+
+def test_87():
+    assert UAS_IDS[0x87](b("8000")) == -32768 * Unit.ppm
+    assert UAS_IDS[0x87](b("FFFF")) == -1 * Unit.ppm
+    assert UAS_IDS[0x87](b("0000")) == 0 * Unit.ppm
+    assert UAS_IDS[0x87](b("0001")) == 1 * Unit.ppm
+    assert UAS_IDS[0x87](b("7FFF")) == 32767 * Unit.ppm
+
+def test_8A():
+    # the standard gives example values that don't line up perfectly
+    # with the scale. The last two tests here deviate from the standard
+    assert float_equals(UAS_IDS[0x8A](b("8000")), -3997.696 * Unit.millivolt) # -3999.998 mV
+    assert float_equals(UAS_IDS[0x8A](b("FFFF")), -0.122 * Unit.millivolt)
+    assert float_equals(UAS_IDS[0x8A](b("0000")), 0 * Unit.millivolt)
+    assert float_equals(UAS_IDS[0x8A](b("0001")), 0.122 * Unit.millivolt)
+    assert float_equals(UAS_IDS[0x8A](b("7FFF")), 3997.574 * Unit.millivolt) # 3999.876 mV
+
+def test_8B():
+    assert UAS_IDS[0x8B](b("8000")) == -32.768 * Unit.volt
+    assert UAS_IDS[0x8B](b("FFFF")) == -0.001 * Unit.volt
+    assert UAS_IDS[0x8B](b("0000")) == 0 * Unit.volt
+    assert UAS_IDS[0x8B](b("0001")) == 0.001 * Unit.volt
+    assert UAS_IDS[0x8B](b("7FFF")) == 32.767 * Unit.volt
+
+def test_8C():
+    assert UAS_IDS[0x8C](b("8000")) == -327.68 * Unit.volt
+    assert UAS_IDS[0x8C](b("FFFF")) == -0.01 * Unit.volt
+    assert UAS_IDS[0x8C](b("0000")) == 0 * Unit.volt
+    assert UAS_IDS[0x8C](b("0001")) == 0.01 * Unit.volt
+    assert UAS_IDS[0x8C](b("7FFF")) == 327.67 * Unit.volt
+
+def test_8D():
+    assert float_equals(UAS_IDS[0x8D](b("8000")), -128 * Unit.milliampere)
+    assert float_equals(UAS_IDS[0x8D](b("FFFF")), -0.00390625 * Unit.milliampere)
+    assert float_equals(UAS_IDS[0x8D](b("0000")), 0 * Unit.milliampere)
+    assert float_equals(UAS_IDS[0x8D](b("0001")), 0.00390625 * Unit.milliampere)
+    assert float_equals(UAS_IDS[0x8D](b("7FFF")), 127.996 * Unit.milliampere)
+
+def test_8E():
+    assert UAS_IDS[0x8E](b("8000")) == -32.768 * Unit.ampere
+    assert UAS_IDS[0x8E](b("FFFF")) == -0.001 * Unit.ampere
+    assert UAS_IDS[0x8E](b("0000")) == 0 * Unit.ampere
+    assert UAS_IDS[0x8E](b("0001")) == 0.001 * Unit.ampere
+    assert UAS_IDS[0x8E](b("7FFF")) == 32.767 * Unit.ampere
+
+def test_90():
+    assert UAS_IDS[0x90](b("8000")) == -32768 * Unit.millisecond
+    assert UAS_IDS[0x90](b("FFFF")) == -1 * Unit.millisecond
+    assert UAS_IDS[0x90](b("0000")) == 0 * Unit.millisecond
+    assert UAS_IDS[0x90](b("0001")) == 1 * Unit.millisecond
+    assert UAS_IDS[0x90](b("7FFF")) == 32767 * Unit.millisecond
+
+def test_96():
+    assert float_equals(UAS_IDS[0x96](b("8000")), Unit.Quantity(-3276.8, Unit.celsius))
+    assert float_equals(UAS_IDS[0x96](b("FFFF")), Unit.Quantity(-0.1, Unit.celsius))
+    assert float_equals(UAS_IDS[0x96](b("0000")), Unit.Quantity(0, Unit.celsius))
+    assert float_equals(UAS_IDS[0x96](b("0001")), Unit.Quantity(0.1, Unit.celsius))
+    assert float_equals(UAS_IDS[0x96](b("7FFF")), Unit.Quantity(3276.7, Unit.celsius))
+
+def test_99():
+    assert float_equals(UAS_IDS[0x99](b("8000")), -3276.8 * Unit.kilopascal)
+    assert float_equals(UAS_IDS[0x99](b("FFFF")), -0.1 * Unit.kilopascal)
+    assert float_equals(UAS_IDS[0x99](b("0000")), 0 * Unit.kilopascal)
+    assert float_equals(UAS_IDS[0x99](b("0001")), 0.1 * Unit.kilopascal)
+    assert float_equals(UAS_IDS[0x99](b("7FFF")), 3276.7 * Unit.kilopascal)
+
+def test_9C():
+    assert UAS_IDS[0x9C](b("8000")) == -327.68 * Unit.degree
+    assert UAS_IDS[0x9C](b("FFFF")) == -0.01 * Unit.degree
+    assert UAS_IDS[0x9C](b("0000")) == 0 * Unit.degree
+    assert UAS_IDS[0x9C](b("0001")) == 0.01 * Unit.degree
+    assert UAS_IDS[0x9C](b("7FFF")) == 327.67 * Unit.degree
+
+def test_9D():
+    assert UAS_IDS[0x9D](b("8000")) == -16384 * Unit.degree
+    assert UAS_IDS[0x9D](b("FFFF")) == -0.5 * Unit.degree
+    assert UAS_IDS[0x9D](b("0000")) == 0 * Unit.degree
+    assert UAS_IDS[0x9D](b("0001")) == 0.5 * Unit.degree
+    assert UAS_IDS[0x9D](b("7FFF")) == 16383.5 * Unit.degree
+
+def test_A8():
+    assert UAS_IDS[0xA8](b("8000")) == -32768 * Unit.grams_per_second
+    assert UAS_IDS[0xA8](b("FFFF")) == -1 * Unit.grams_per_second
+    assert UAS_IDS[0xA8](b("0000")) == 0 * Unit.grams_per_second
+    assert UAS_IDS[0xA8](b("0001")) == 1 * Unit.grams_per_second
+    assert UAS_IDS[0xA8](b("7FFF")) == 32767 * Unit.grams_per_second
+
+def test_A9():
+    assert UAS_IDS[0xA9](b("8000")) == -8192 * Unit.pascal / Unit.second
+    assert UAS_IDS[0xA9](b("FFFC")) == -1 * Unit.pascal / Unit.second
+    assert UAS_IDS[0xA9](b("0000")) == 0 * Unit.pascal / Unit.second
+    assert UAS_IDS[0xA9](b("0004")) == 1 * Unit.pascal / Unit.second
+    assert UAS_IDS[0xA9](b("7FFF")) == 8191.75 * Unit.pascal / Unit.second
+
+def test_AD():
+    assert UAS_IDS[0xAD](b("8000")) == -327.68 * Unit.milligram
+    assert UAS_IDS[0xAD](b("FFFF")) == -0.01 * Unit.milligram
+    assert UAS_IDS[0xAD](b("0000")) == 0 * Unit.milligram
+    assert UAS_IDS[0xAD](b("0001")) == 0.01 * Unit.milligram
+    assert UAS_IDS[0xAD](b("7FFF")) == 327.67 * Unit.milligram
+
+def test_AE():
+    assert UAS_IDS[0xAE](b("8000")) == -3276.8 * Unit.milligram
+    assert UAS_IDS[0xAE](b("FFFF")) == -0.1 * Unit.milligram
+    assert UAS_IDS[0xAE](b("0000")) == 0 * Unit.milligram
+    assert UAS_IDS[0xAE](b("0001")) == 0.1 * Unit.milligram
+    assert float_equals(UAS_IDS[0xAE](b("7FFF")), 3276.7 * Unit.milligram)
+
+def test_AF():
+    assert UAS_IDS[0xAF](b("8000")) == -327.68 * Unit.percent
+    assert UAS_IDS[0xAF](b("FFFF")) == -0.01 * Unit.percent
+    assert UAS_IDS[0xAF](b("0000")) == 0 * Unit.percent
+    assert UAS_IDS[0xAF](b("0001")) == 0.01 * Unit.percent
+    assert UAS_IDS[0xAF](b("7FFF")) == 327.67 * Unit.percent
+
+def test_B0():
+    assert UAS_IDS[0xB0](b("8000")) == -100.007936 * Unit.percent
+    assert UAS_IDS[0xB0](b("FFFF")) == -0.003052 * Unit.percent
+    assert UAS_IDS[0xB0](b("0000")) == 0 * Unit.percent
+    assert UAS_IDS[0xB0](b("0001")) == 0.003052 * Unit.percent
+    assert UAS_IDS[0xB0](b("7FFF")) == 100.004884 * Unit.percent
+
+def test_B1():
+    assert UAS_IDS[0xB1](b("8000")) == -65536 * Unit.millivolt / Unit.second
+    assert UAS_IDS[0xB1](b("FFFF")) == -2 * Unit.millivolt / Unit.second
+    assert UAS_IDS[0xB1](b("0000")) == 0 * Unit.millivolt / Unit.second
+    assert UAS_IDS[0xB1](b("0001")) == 2 * Unit.millivolt / Unit.second
+    assert UAS_IDS[0xB1](b("7FFF")) == 65534 * Unit.millivolt / Unit.second
+
+def test_FC():
+    assert UAS_IDS[0xFC](b("8000")) == -327.68 * Unit.kilopascal
+    assert UAS_IDS[0xFC](b("FFFF")) == -0.01 * Unit.kilopascal
+    assert UAS_IDS[0xFC](b("0000")) == 0 * Unit.kilopascal
+    assert UAS_IDS[0xFC](b("0001")) == 0.01 * Unit.kilopascal
+    assert UAS_IDS[0xFC](b("7FFF")) == 327.67 * Unit.kilopascal
+
+def test_FD():
+    assert UAS_IDS[0xFD](b("8000")) == -32.768 * Unit.kilopascal
+    assert UAS_IDS[0xFD](b("FFFF")) == -0.001 * Unit.kilopascal
+    assert UAS_IDS[0xFD](b("0000")) == 0 * Unit.kilopascal
+    assert UAS_IDS[0xFD](b("0001")) == 0.001 * Unit.kilopascal
+    assert UAS_IDS[0xFD](b("7FFF")) == 32.767 * Unit.kilopascal
+
+def test_FE():
+    assert UAS_IDS[0xFE](b("8000")) == -8192 * Unit.pascal
+    assert UAS_IDS[0xFE](b("FFFC")) == -1 * Unit.pascal
+    assert UAS_IDS[0xFE](b("0000")) == 0 * Unit.pascal
+    assert UAS_IDS[0xFE](b("0004")) == 1 * Unit.pascal
+    assert UAS_IDS[0xFE](b("7FFF")) == 8191.75 * Unit.pascal
