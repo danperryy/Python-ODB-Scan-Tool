@@ -107,6 +107,9 @@ responce.value = (
     (False, False), # bank 2
     (False, False)  # bank 2
 )
+
+# example usage:
+response.value[1][2] == True # Bank 1, Sensor 2 is present
 ```
 ---
 
