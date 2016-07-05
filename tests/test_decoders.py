@@ -146,6 +146,12 @@ def test_elm_voltage():
     assert d.elm_voltage([ Message([ Frame("12") ]) ]) == 12 * Unit.volt
     assert d.elm_voltage([ Message([ Frame("12ABCD") ]) ]) == None
 
+def test_single_dtc():
+    assert d.single_dtc(m("0104")) == ("P0104", "Mass or Volume Air Flow Circuit Intermittent")
+    assert d.single_dtc(m("4123")) == ("C0123", "")
+    assert d.single_dtc(m("01")) == None
+    assert d.single_dtc(m("010400")) == None
+
 def test_dtc():
     assert d.dtc(m("0104")) == [
         ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),

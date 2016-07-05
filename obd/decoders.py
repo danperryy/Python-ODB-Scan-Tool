@@ -359,7 +359,7 @@ def fuel_type(_hex):
     return v
 
 
-def single_dtc(_bytes):
+def parse_dtc(_bytes):
     """ converts 2 bytes into a DTC code """
 
     # check validity (also ignores padding that the ELM returns)
@@ -381,6 +381,12 @@ def single_dtc(_bytes):
     return (dtc, DTC.get(dtc, ""))
 
 
+def single_dtc(messages):
+    """ parses a single DTC from a message """
+    d = messages[0].data
+    return parse_dtc(d)
+
+
 def dtc(messages):
     """ converts a frame of 2-byte DTCs into a list of DTCs """
     codes = []
@@ -393,7 +399,7 @@ def dtc(messages):
     for n in range(1, len(d), 2):
 
         # parse the code
-        dtc = single_dtc( (d[n-1], d[n]) )
+        dtc = parse_dtc( (d[n-1], d[n]) )
 
         if dtc is not None:
             codes.append(dtc)
