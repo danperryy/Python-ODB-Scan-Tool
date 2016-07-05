@@ -115,10 +115,68 @@ response.value[1][2] == True # Bank 1, Sensor 2 is present
 
 # Monitors (Mode 06 Responses)
 
-All mode 06 commands return `Monitor` objects holding various test results for the requested sensor. A single monitor response can hold multiple tests.
+All mode 06 commands return `Monitor` objects holding various test results for the requested sensor. A single monitor response can hold multiple tests, in the form of `MonitorTest` objects. The OBD standard defines some tests, but vehicles can always implement custom tests beyond the standard. Here are the standard Test IDs (TIDs) that python-OBD will recognize:
+
+| TID | Name                     | Description                                        |
+|-----|--------------------------|----------------------------------------------------|
+| 01  | RTL_THRESHOLD_VOLTAGE    | Rich to lean sensor threshold voltage              |
+| 02  | LTR_THRESHOLD_VOLTAGE    | Lean to rich sensor threshold voltage              |
+| 03  | LOW_VOLTAGE_SWITCH_TIME  | Low sensor voltage for switch time calculation     |
+| 04  | HIGH_VOLTAGE_SWITCH_TIME | High sensor voltage for switch time calculation    |
+| 05  | RTL_SWITCH_TIME          | Rich to lean sensor switch time                    |
+| 06  | LTR_SWITCH_TIME          | Lean to rich sensor switch time                    |
+| 07  | MIN_VOLTAGE              | Minimum sensor voltage for test cycle              |
+| 08  | MAX_VOLTAGE              | Maximum sensor voltage for test cycle              |
+| 09  | TRANSITION_TIME          | Time between sensor transitions                    |
+| 0A  | SENSOR_PERIOD            | Sensor period                                      |
+| 0B  | MISFIRE_AVERAGE          | Average misfire counts for last ten driving cycles |
+| 0C  | MISFIRE_COUNT            | Misfire counts for last/current driving cycles     |
+
+Test results can be accessed by property name or TID (same as the `obd.commands` tables). All of the standard tests above will be present, though some may be null. Use the `MonitorTest.is_null()` function to determine if a test is null.
 
 ```python
-# TODO
+response.value.MISFIRE_COUNT
+
+# OR
+
+response.value["MISFIRE_COUNT"]
+
+# OR
+
+response.value[0x0C] # TID for MISFIRE_COUNT
+```
+
+All `MonitorTest` objects have the following properties: (for null tests, these are set to `None`)
+
+```python
+result = response.value.MISFIRE_COUNT
+
+result.tid      # integer Test ID for this test
+result.name     # test name
+result.desc     # test description
+result.value    # value of the test (will be a Pint value, or in rare cases, a boolean)
+result.min      # maximum acceptable value
+result.max      # minimum acceptable value
+result.passed   # boolean marking the test as passing
+```
+
+Here is an example of looking up live misfire counts for the engine's second cylinder:
+
+```python
+import obd
+
+connection = obd.OBD()
+
+response = connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
+
+# in the test results, lookup the result for MISFIRE_COUNT
+result = response.value.MISFIRE_COUNT
+
+# check that we got data for this test
+if not result.is_null():
+    print(result.value) # will be a Pint value
+else:
+    print("Misfire count wasn't reported")
 ```
 
 ---
