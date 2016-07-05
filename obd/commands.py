@@ -381,15 +381,6 @@ class Commands():
         return getters
 
 
-    def set_supported(self, mode, pid, v):
-        """ sets the boolean supported flag for the given command """
-        if isinstance(v, bool):
-            if self.has(mode, pid):
-                self.modes[mode][pid].supported = v
-        else:
-            logger.warning("set_supported() only accepts boolean values")
-
-
     def has_command(self, c):
         """ checks for existance of a command by OBDCommand object """
         return c in self.__dict__.values()
