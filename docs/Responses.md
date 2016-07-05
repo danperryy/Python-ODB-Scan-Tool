@@ -69,6 +69,23 @@ import obd
 
 ---
 
+# Diagnostic Trouble Codes (DTCs)
+
+Each DTC is represented by a tuple containing the DTC code, and a description (if python-OBD has one). When multiple DTCs are returned, they are stored in a list.
+
+```python
+# obd.commands.GET_DTC
+responce.value = [
+    ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
+    ("B0003", ""), # unknown error code, it's probably vehicle-specific
+    ("C0123", "")
+]
+
+# obd.commands.FREEZE_DTC
+responce.value = ("P0104", "Mass or Volume Air Flow Circuit Intermittent")
+```
+
+---
 
 # Oxygen Sensors Present
 
@@ -90,6 +107,15 @@ responce.value = (
     (False, False), # bank 2
     (False, False)  # bank 2
 )
+```
+---
+
+# Monitors (Mode 06 Responses)
+
+All mode 06 commands return `Monitor` objects holding various test results for the requested sensor. A single monitor response can hold multiple tests.
+
+```python
+# TODO
 ```
 
 ---

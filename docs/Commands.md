@@ -63,10 +63,10 @@ obd.commands.has_pid(1, 12) # True
 
 # OBD-II adapter (ELM327 commands)
 
-|PID  | Name        | Description                             |
-|-----|-------------|-----------------------------------------|
-| N/A | ELM_VERSION | OBD-II adapter version string           |
-| N/A | ELM_VOLTAGE | Voltage detected by OBD-II adapter      |
+|PID  | Name        | Description                             | Response Value        |
+|-----|-------------|-----------------------------------------|-----------------------|
+| N/A | ELM_VERSION | OBD-II adapter version string           | string                |
+| N/A | ELM_VOLTAGE | Voltage detected by OBD-II adapter      | Unit.volt             |
 
 <br>
 
@@ -76,7 +76,7 @@ obd.commands.has_pid(1, 12) # True
 |----|---------------------------|-----------------------------------------|-----------------------|
 | 00 | PIDS_A                    | Supported PIDs [01-20]                  | bitstring             |
 | 01 | STATUS                    | Status since DTCs cleared               |                       |
-| 02 | FREEZE_DTC                | DTC that triggered the freeze frame     |                       |
+| 02 | FREEZE_DTC                | DTC that triggered the freeze frame     | [special](Responses.md#diagnostic-trouble-codes-dtcs) |
 | 03 | FUEL_STATUS               | Fuel System Status                      | string                |
 | 04 | ENGINE_LOAD               | Calculated Engine Load                  | Unit.percent          |
 | 05 | COOLANT_TEMP              | Engine Coolant Temperature              | Unit.celsius          |
@@ -189,143 +189,127 @@ obd.commands.DTC_RPM # the Mode 02 command
 
 # Mode 03
 
-Mode 03 contains a single command `GET_DTC` which requests all diagnostic trouble codes from the vehicle's engine.
+Mode 03 contains a single command `GET_DTC` which requests all diagnostic trouble codes from the vehicle. The response will contain the codes themselves, as well as a description (if python-OBD has one). See the [DTC Responses](Responses.md#diagnostic-trouble-codes-dtcs) section for more details.
 
-|PID  | Name    | Description                             |
-|-----|---------|-----------------------------------------|
-| N/A | GET_DTC | Get Diagnostic Trouble Codes            |
+|PID  | Name    | Description                             | Response Value        |
+|-----|---------|-----------------------------------------|-----------------------|
+| N/A | GET_DTC | Get Diagnostic Trouble Codes            | [special](Responses.md#diagnostic-trouble-codes-dtcs) |
 
-This command requests all diagnostic trouble codes from the vehicle's engine. The `value` field of the response object will contain a list of tuples, where each tuple contains the DTC, and a string description of that DTC (if available).
-
-```python
-import obd
-connection = obd.OBD()
-r = connection.query(obd.commands.GET_DTC)
-print(r.value)
-
-'''
-example output:
-[
-  ("P0030", "HO2S Heater Control Circuit"),
-  ("P1367", "Unknown error code")
-]
-'''
-```
 
 <br>
 
 # Mode 04
 
-|PID  | Name      | Description                             |
-|-----|-----------|-----------------------------------------|
-| N/A | CLEAR_DTC | Clear DTCs and Freeze data              |
+|PID  | Name      | Description                             | Response Value        |
+|-----|-----------|-----------------------------------------|-----------------------|
+| N/A | CLEAR_DTC | Clear DTCs and Freeze data              | N/A                   |
 
 <br>
 
 # Mode 06
 
-Mode 06 commands are used to monitor various test results from the vehicle. Currently, Mode 06 commands are only implemented for CAN protocols (ISO 15765-4).
+Mode 06 commands are used to monitor various test results from the vehicle. All commands in this mode return the same datatype, as described in the [Monitor Response](Responses.md#monitors-mode-06-responses) section. Currently, mode 06 commands are only implemented for CAN protocols (ISO 15765-4).
 
-|PID    | Name                        | Description                                |
-|-------|-----------------------------|--------------------------------------------|
-| 00    | MIDS_A                      | Supported MIDs [01-20]                     |
-| 01    | MONITOR_O2_B1S1             | O2 Sensor Monitor Bank 1 - Sensor 1        |
-| 02    | MONITOR_O2_B1S2             | O2 Sensor Monitor Bank 1 - Sensor 2        |
-| 03    | MONITOR_O2_B1S3             | O2 Sensor Monitor Bank 1 - Sensor 3        |
-| 04    | MONITOR_O2_B1S4             | O2 Sensor Monitor Bank 1 - Sensor 4        |
-| 05    | MONITOR_O2_B2S1             | O2 Sensor Monitor Bank 2 - Sensor 1        |
-| 06    | MONITOR_O2_B2S2             | O2 Sensor Monitor Bank 2 - Sensor 2        |
-| 07    | MONITOR_O2_B2S3             | O2 Sensor Monitor Bank 2 - Sensor 3        |
-| 08    | MONITOR_O2_B2S4             | O2 Sensor Monitor Bank 2 - Sensor 4        |
-| 09    | MONITOR_O2_B3S1             | O2 Sensor Monitor Bank 3 - Sensor 1        |
-| 0A    | MONITOR_O2_B3S2             | O2 Sensor Monitor Bank 3 - Sensor 2        |
-| 0B    | MONITOR_O2_B3S3             | O2 Sensor Monitor Bank 3 - Sensor 3        |
-| 0C    | MONITOR_O2_B3S4             | O2 Sensor Monitor Bank 3 - Sensor 4        |
-| 0D    | MONITOR_O2_B4S1             | O2 Sensor Monitor Bank 4 - Sensor 1        |
-| 0E    | MONITOR_O2_B4S2             | O2 Sensor Monitor Bank 4 - Sensor 2        |
-| 0F    | MONITOR_O2_B4S3             | O2 Sensor Monitor Bank 4 - Sensor 3        |
-| 10    | MONITOR_O2_B4S4             | O2 Sensor Monitor Bank 4 - Sensor 4        |
+|PID    | Name                        | Description                                | Response Value        |
+|-------|-----------------------------|--------------------------------------------|-----------------------|
+| 00    | MIDS_A                      | Supported MIDs [01-20]                     | bitstring             |
+| 01    | MONITOR_O2_B1S1             | O2 Sensor Monitor Bank 1 - Sensor 1        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 02    | MONITOR_O2_B1S2             | O2 Sensor Monitor Bank 1 - Sensor 2        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 03    | MONITOR_O2_B1S3             | O2 Sensor Monitor Bank 1 - Sensor 3        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 04    | MONITOR_O2_B1S4             | O2 Sensor Monitor Bank 1 - Sensor 4        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 05    | MONITOR_O2_B2S1             | O2 Sensor Monitor Bank 2 - Sensor 1        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 06    | MONITOR_O2_B2S2             | O2 Sensor Monitor Bank 2 - Sensor 2        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 07    | MONITOR_O2_B2S3             | O2 Sensor Monitor Bank 2 - Sensor 3        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 08    | MONITOR_O2_B2S4             | O2 Sensor Monitor Bank 2 - Sensor 4        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 09    | MONITOR_O2_B3S1             | O2 Sensor Monitor Bank 3 - Sensor 1        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 0A    | MONITOR_O2_B3S2             | O2 Sensor Monitor Bank 3 - Sensor 2        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 0B    | MONITOR_O2_B3S3             | O2 Sensor Monitor Bank 3 - Sensor 3        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 0C    | MONITOR_O2_B3S4             | O2 Sensor Monitor Bank 3 - Sensor 4        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 0D    | MONITOR_O2_B4S1             | O2 Sensor Monitor Bank 4 - Sensor 1        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 0E    | MONITOR_O2_B4S2             | O2 Sensor Monitor Bank 4 - Sensor 2        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 0F    | MONITOR_O2_B4S3             | O2 Sensor Monitor Bank 4 - Sensor 3        | [monitor](Responses.md#monitors-mode-06-responses) |
+| 10    | MONITOR_O2_B4S4             | O2 Sensor Monitor Bank 4 - Sensor 4        | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 20    | MIDS_B                      | Supported MIDs [21-40]                     |
-| 21    | MONITOR_CATALYST_B1         | Catalyst Monitor Bank 1                    |
-| 22    | MONITOR_CATALYST_B2         | Catalyst Monitor Bank 2                    |
-| 23    | MONITOR_CATALYST_B3         | Catalyst Monitor Bank 3                    |
-| 24    | MONITOR_CATALYST_B4         | Catalyst Monitor Bank 4                    |
+| 20    | MIDS_B                      | Supported MIDs [21-40]                     | bitstring             |
+| 21    | MONITOR_CATALYST_B1         | Catalyst Monitor Bank 1                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| 22    | MONITOR_CATALYST_B2         | Catalyst Monitor Bank 2                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| 23    | MONITOR_CATALYST_B3         | Catalyst Monitor Bank 3                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| 24    | MONITOR_CATALYST_B4         | Catalyst Monitor Bank 4                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 31    | MONITOR_EGR_B1              | EGR Monitor Bank 1                         |
-| 32    | MONITOR_EGR_B2              | EGR Monitor Bank 2                         |
-| 33    | MONITOR_EGR_B3              | EGR Monitor Bank 3                         |
-| 34    | MONITOR_EGR_B4              | EGR Monitor Bank 4                         |
-| 35    | MONITOR_VVT_B1              | VVT Monitor Bank 1                         |
-| 36    | MONITOR_VVT_B2              | VVT Monitor Bank 2                         |
-| 37    | MONITOR_VVT_B3              | VVT Monitor Bank 3                         |
-| 38    | MONITOR_VVT_B4              | VVT Monitor Bank 4                         |
-| 39    | MONITOR_EVAP_150            | EVAP Monitor (Cap Off / 0.150\")           |
-| 3A    | MONITOR_EVAP_090            | EVAP Monitor (0.090\")                     |
-| 3B    | MONITOR_EVAP_040            | EVAP Monitor (0.040\")                     |
-| 3C    | MONITOR_EVAP_020            | EVAP Monitor (0.020\")                     |
-| 3D    | MONITOR_PURGE_FLOW          | Purge Flow Monitor                         |
+| 31    | MONITOR_EGR_B1              | EGR Monitor Bank 1                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 32    | MONITOR_EGR_B2              | EGR Monitor Bank 2                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 33    | MONITOR_EGR_B3              | EGR Monitor Bank 3                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 34    | MONITOR_EGR_B4              | EGR Monitor Bank 4                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 35    | MONITOR_VVT_B1              | VVT Monitor Bank 1                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 36    | MONITOR_VVT_B2              | VVT Monitor Bank 2                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 37    | MONITOR_VVT_B3              | VVT Monitor Bank 3                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 38    | MONITOR_VVT_B4              | VVT Monitor Bank 4                         | [monitor](Responses.md#monitors-mode-06-responses) |
+| 39    | MONITOR_EVAP_150            | EVAP Monitor (Cap Off / 0.150\")           | [monitor](Responses.md#monitors-mode-06-responses) |
+| 3A    | MONITOR_EVAP_090            | EVAP Monitor (0.090\")                     | [monitor](Responses.md#monitors-mode-06-responses) |
+| 3B    | MONITOR_EVAP_040            | EVAP Monitor (0.040\")                     | [monitor](Responses.md#monitors-mode-06-responses) |
+| 3C    | MONITOR_EVAP_020            | EVAP Monitor (0.020\")                     | [monitor](Responses.md#monitors-mode-06-responses) |
+| 3D    | MONITOR_PURGE_FLOW          | Purge Flow Monitor                         | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 40    | MIDS_C                      | Supported MIDs [41-60]                     |
-| 41    | MONITOR_O2_HEATER_B1S1      | O2 Sensor Heater Monitor Bank 1 - Sensor 1 |
-| 42    | MONITOR_O2_HEATER_B1S2      | O2 Sensor Heater Monitor Bank 1 - Sensor 2 |
-| 43    | MONITOR_O2_HEATER_B1S3      | O2 Sensor Heater Monitor Bank 1 - Sensor 3 |
-| 44    | MONITOR_O2_HEATER_B1S4      | O2 Sensor Heater Monitor Bank 1 - Sensor 4 |
-| 45    | MONITOR_O2_HEATER_B2S1      | O2 Sensor Heater Monitor Bank 2 - Sensor 1 |
-| 46    | MONITOR_O2_HEATER_B2S2      | O2 Sensor Heater Monitor Bank 2 - Sensor 2 |
-| 47    | MONITOR_O2_HEATER_B2S3      | O2 Sensor Heater Monitor Bank 2 - Sensor 3 |
-| 48    | MONITOR_O2_HEATER_B2S4      | O2 Sensor Heater Monitor Bank 2 - Sensor 4 |
-| 49    | MONITOR_O2_HEATER_B3S1      | O2 Sensor Heater Monitor Bank 3 - Sensor 1 |
-| 4A    | MONITOR_O2_HEATER_B3S2      | O2 Sensor Heater Monitor Bank 3 - Sensor 2 |
-| 4B    | MONITOR_O2_HEATER_B3S3      | O2 Sensor Heater Monitor Bank 3 - Sensor 3 |
-| 4C    | MONITOR_O2_HEATER_B3S4      | O2 Sensor Heater Monitor Bank 3 - Sensor 4 |
-| 4D    | MONITOR_O2_HEATER_B4S1      | O2 Sensor Heater Monitor Bank 4 - Sensor 1 |
-| 4E    | MONITOR_O2_HEATER_B4S2      | O2 Sensor Heater Monitor Bank 4 - Sensor 2 |
-| 4F    | MONITOR_O2_HEATER_B4S3      | O2 Sensor Heater Monitor Bank 4 - Sensor 3 |
-| 50    | MONITOR_O2_HEATER_B4S4      | O2 Sensor Heater Monitor Bank 4 - Sensor 4 |
+| 40    | MIDS_C                      | Supported MIDs [41-60]                     | bitstring             |
+| 41    | MONITOR_O2_HEATER_B1S1      | O2 Sensor Heater Monitor Bank 1 - Sensor 1 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 42    | MONITOR_O2_HEATER_B1S2      | O2 Sensor Heater Monitor Bank 1 - Sensor 2 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 43    | MONITOR_O2_HEATER_B1S3      | O2 Sensor Heater Monitor Bank 1 - Sensor 3 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 44    | MONITOR_O2_HEATER_B1S4      | O2 Sensor Heater Monitor Bank 1 - Sensor 4 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 45    | MONITOR_O2_HEATER_B2S1      | O2 Sensor Heater Monitor Bank 2 - Sensor 1 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 46    | MONITOR_O2_HEATER_B2S2      | O2 Sensor Heater Monitor Bank 2 - Sensor 2 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 47    | MONITOR_O2_HEATER_B2S3      | O2 Sensor Heater Monitor Bank 2 - Sensor 3 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 48    | MONITOR_O2_HEATER_B2S4      | O2 Sensor Heater Monitor Bank 2 - Sensor 4 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 49    | MONITOR_O2_HEATER_B3S1      | O2 Sensor Heater Monitor Bank 3 - Sensor 1 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 4A    | MONITOR_O2_HEATER_B3S2      | O2 Sensor Heater Monitor Bank 3 - Sensor 2 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 4B    | MONITOR_O2_HEATER_B3S3      | O2 Sensor Heater Monitor Bank 3 - Sensor 3 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 4C    | MONITOR_O2_HEATER_B3S4      | O2 Sensor Heater Monitor Bank 3 - Sensor 4 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 4D    | MONITOR_O2_HEATER_B4S1      | O2 Sensor Heater Monitor Bank 4 - Sensor 1 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 4E    | MONITOR_O2_HEATER_B4S2      | O2 Sensor Heater Monitor Bank 4 - Sensor 2 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 4F    | MONITOR_O2_HEATER_B4S3      | O2 Sensor Heater Monitor Bank 4 - Sensor 3 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 50    | MONITOR_O2_HEATER_B4S4      | O2 Sensor Heater Monitor Bank 4 - Sensor 4 | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 60    | MIDS_D                      | Supported MIDs [61-80]                     |
-| 61    | MONITOR_HEATED_CATALYST_B1  | Heated Catalyst Monitor Bank 1             |
-| 62    | MONITOR_HEATED_CATALYST_B2  | Heated Catalyst Monitor Bank 2             |
-| 63    | MONITOR_HEATED_CATALYST_B3  | Heated Catalyst Monitor Bank 3             |
-| 64    | MONITOR_HEATED_CATALYST_B4  | Heated Catalyst Monitor Bank 4             |
+| 60    | MIDS_D                      | Supported MIDs [61-80]                     | bitstring             |
+| 61    | MONITOR_HEATED_CATALYST_B1  | Heated Catalyst Monitor Bank 1             | [monitor](Responses.md#monitors-mode-06-responses) |
+| 62    | MONITOR_HEATED_CATALYST_B2  | Heated Catalyst Monitor Bank 2             | [monitor](Responses.md#monitors-mode-06-responses) |
+| 63    | MONITOR_HEATED_CATALYST_B3  | Heated Catalyst Monitor Bank 3             | [monitor](Responses.md#monitors-mode-06-responses) |
+| 64    | MONITOR_HEATED_CATALYST_B4  | Heated Catalyst Monitor Bank 4             | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 71    | MONITOR_SECONDARY_AIR_1     | Secondary Air Monitor 1                    |
-| 72    | MONITOR_SECONDARY_AIR_2     | Secondary Air Monitor 2                    |
-| 73    | MONITOR_SECONDARY_AIR_3     | Secondary Air Monitor 3                    |
-| 74    | MONITOR_SECONDARY_AIR_4     | Secondary Air Monitor 4                    |
+| 71    | MONITOR_SECONDARY_AIR_1     | Secondary Air Monitor 1                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| 72    | MONITOR_SECONDARY_AIR_2     | Secondary Air Monitor 2                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| 73    | MONITOR_SECONDARY_AIR_3     | Secondary Air Monitor 3                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| 74    | MONITOR_SECONDARY_AIR_4     | Secondary Air Monitor 4                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 80    | MIDS_E                      | Supported MIDs [81-A0]                     |
-| 81    | MONITOR_FUEL_SYSTEM_B1      | Fuel System Monitor Bank 1                 |
-| 82    | MONITOR_FUEL_SYSTEM_B2      | Fuel System Monitor Bank 2                 |
-| 83    | MONITOR_FUEL_SYSTEM_B3      | Fuel System Monitor Bank 3                 |
-| 84    | MONITOR_FUEL_SYSTEM_B4      | Fuel System Monitor Bank 4                 |
-| 85    | MONITOR_BOOST_PRESSURE_B1   | Boost Pressure Control Monitor Bank 1      |
-| 86    | MONITOR_BOOST_PRESSURE_B2   | Boost Pressure Control Monitor Bank 1      |
+| 80    | MIDS_E                      | Supported MIDs [81-A0]                     | bitstring             |
+| 81    | MONITOR_FUEL_SYSTEM_B1      | Fuel System Monitor Bank 1                 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 82    | MONITOR_FUEL_SYSTEM_B2      | Fuel System Monitor Bank 2                 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 83    | MONITOR_FUEL_SYSTEM_B3      | Fuel System Monitor Bank 3                 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 84    | MONITOR_FUEL_SYSTEM_B4      | Fuel System Monitor Bank 4                 | [monitor](Responses.md#monitors-mode-06-responses) |
+| 85    | MONITOR_BOOST_PRESSURE_B1   | Boost Pressure Control Monitor Bank 1      | [monitor](Responses.md#monitors-mode-06-responses) |
+| 86    | MONITOR_BOOST_PRESSURE_B2   | Boost Pressure Control Monitor Bank 1      | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 90    | MONITOR_NOX_ABSORBER_B1     | NOx Absorber Monitor Bank 1                |
-| 91    | MONITOR_NOX_ABSORBER_B2     | NOx Absorber Monitor Bank 2                |
+| 90    | MONITOR_NOX_ABSORBER_B1     | NOx Absorber Monitor Bank 1                | [monitor](Responses.md#monitors-mode-06-responses) |
+| 91    | MONITOR_NOX_ABSORBER_B2     | NOx Absorber Monitor Bank 2                | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 98    | MONITOR_NOX_CATALYST_B1     | NOx Catalyst Monitor Bank 1                |
-| 99    | MONITOR_NOX_CATALYST_B2     | NOx Catalyst Monitor Bank 2                |
+| 98    | MONITOR_NOX_CATALYST_B1     | NOx Catalyst Monitor Bank 1                | [monitor](Responses.md#monitors-mode-06-responses) |
+| 99    | MONITOR_NOX_CATALYST_B2     | NOx Catalyst Monitor Bank 2                | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| A0    | MIDS_F                      | Supported MIDs [A1-C0]                     |
-| A1    | MONITOR_MISFIRE_GENERAL     | Misfire Monitor General Data               |
-| A2    | MONITOR_MISFIRE_CYLINDER_1  | Misfire Cylinder 1 Data                    |
-| A3    | MONITOR_MISFIRE_CYLINDER_2  | Misfire Cylinder 2 Data                    |
-| A4    | MONITOR_MISFIRE_CYLINDER_3  | Misfire Cylinder 3 Data                    |
-| A5    | MONITOR_MISFIRE_CYLINDER_4  | Misfire Cylinder 4 Data                    |
-| A6    | MONITOR_MISFIRE_CYLINDER_5  | Misfire Cylinder 5 Data                    |
-| A7    | MONITOR_MISFIRE_CYLINDER_6  | Misfire Cylinder 6 Data                    |
-| A8    | MONITOR_MISFIRE_CYLINDER_7  | Misfire Cylinder 7 Data                    |
-| A9    | MONITOR_MISFIRE_CYLINDER_8  | Misfire Cylinder 8 Data                    |
-| AA    | MONITOR_MISFIRE_CYLINDER_9  | Misfire Cylinder 9 Data                    |
-| AB    | MONITOR_MISFIRE_CYLINDER_10 | Misfire Cylinder 10 Data                   |
-| AC    | MONITOR_MISFIRE_CYLINDER_11 | Misfire Cylinder 11 Data                   |
-| AD    | MONITOR_MISFIRE_CYLINDER_12 | Misfire Cylinder 12 Data                   |
+| A0    | MIDS_F                      | Supported MIDs [A1-C0]                     | bitstring             |
+| A1    | MONITOR_MISFIRE_GENERAL     | Misfire Monitor General Data               | [monitor](Responses.md#monitors-mode-06-responses) |
+| A2    | MONITOR_MISFIRE_CYLINDER_1  | Misfire Cylinder 1 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A3    | MONITOR_MISFIRE_CYLINDER_2  | Misfire Cylinder 2 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A4    | MONITOR_MISFIRE_CYLINDER_3  | Misfire Cylinder 3 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A5    | MONITOR_MISFIRE_CYLINDER_4  | Misfire Cylinder 4 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A6    | MONITOR_MISFIRE_CYLINDER_5  | Misfire Cylinder 5 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A7    | MONITOR_MISFIRE_CYLINDER_6  | Misfire Cylinder 6 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A8    | MONITOR_MISFIRE_CYLINDER_7  | Misfire Cylinder 7 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| A9    | MONITOR_MISFIRE_CYLINDER_8  | Misfire Cylinder 8 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| AA    | MONITOR_MISFIRE_CYLINDER_9  | Misfire Cylinder 9 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
+| AB    | MONITOR_MISFIRE_CYLINDER_10 | Misfire Cylinder 10 Data                   | [monitor](Responses.md#monitors-mode-06-responses) |
+| AC    | MONITOR_MISFIRE_CYLINDER_11 | Misfire Cylinder 11 Data                   | [monitor](Responses.md#monitors-mode-06-responses) |
+| AD    | MONITOR_MISFIRE_CYLINDER_12 | Misfire Cylinder 12 Data                   | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| B0    | MONITOR_PM_FILTER_B1        | PM Filter Monitor Bank 1                   |
-| B1    | MONITOR_PM_FILTER_B2        | PM Filter Monitor Bank 2                   |
+| B0    | MONITOR_PM_FILTER_B1        | PM Filter Monitor Bank 1                   | [monitor](Responses.md#monitors-mode-06-responses) |
+| B1    | MONITOR_PM_FILTER_B2        | PM Filter Monitor Bank 2                   | [monitor](Responses.md#monitors-mode-06-responses) |
 
 <br>
 
@@ -333,8 +317,8 @@ Mode 06 commands are used to monitor various test results from the vehicle. Curr
 
 The return value will be encoded in the same structure as the Mode 03 `GET_DTC` command.
 
-|PID  | Name            | Description                                  |
-|-----|-----------------|----------------------------------------------|
-| N/A | GET_CURRENT_DTC | Get DTCs from the current/last driving cycle |
+|PID  | Name            | Description                                  | Response Value        |
+|-----|-----------------|----------------------------------------------|-----------------------|
+| N/A | GET_CURRENT_DTC | Get DTCs from the current/last driving cycle | [special](Responses.md#diagnostic-trouble-codes-dtcs) |
 
 <br>
