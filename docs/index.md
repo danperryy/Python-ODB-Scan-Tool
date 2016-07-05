@@ -31,11 +31,29 @@ cmd = obd.commands.RPM # select an OBD command (sensor)
 
 response = connection.query(cmd) # send the command, and parse the response
 
-print(response.value)
-print(response.unit)
+print(response.value) # returns unit-bearing values thanks to Pint
+print(response.value.magnitude) # or simple floats
 ```
 
 OBD connections operate in a request-reply fashion. To retrieve data from the car, you must send commands that query for the data you want (e.g. RPM, Vehicle speed, etc). In python-OBD, this is done with the `query()` function. The commands themselves are represented as objects, and can be looked up by name or value in `obd.commands`. The `query()` function will return a response object with parsed data in its `value` and `unit` properties.
+
+<br>
+
+# Module Layout
+
+```python
+import obd
+
+obd.OBD            # main OBD connection class
+obd.Async          # asynchronous OBD connection class
+obd.commands       # command tables
+obd.Unit           # unit tables (a Pint UnitRegistry)
+obd.logger         # the OBD module's root logger (for debug)
+obd.OBDStatus      # enum for connection status
+obd.scan_serial    # util function for manually scanning for OBD adapters
+obd.OBDCommand     # class for making your own OBD Commands
+obd.ECU            # enum for marking which ECU a command should listen to
+```
 
 <br>
 
