@@ -71,7 +71,7 @@ import obd
 
 # Diagnostic Trouble Codes (DTCs)
 
-Each DTC is represented by a tuple containing the DTC code, and a description (if python-OBD has one). When multiple DTCs are returned, they are stored in a list.
+Each DTC is represented by a tuple containing the DTC code, and a description (if python-OBD has one). For commands that return multiple DTCs, a list is used.
 
 ```python
 # obd.commands.GET_DTC
