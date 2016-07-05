@@ -80,11 +80,10 @@ def test_contains():
             # by `in`
             assert cmd.name in obd.commands
 
-    # test things NOT in the tables, or invalid parameters
+    # test things NOT in the tables
     assert 'modes' not in obd.commands
     assert not obd.commands.has_pid(-1, 0)
     assert not obd.commands.has_pid(1, -1)
-    assert not obd.commands.has_command("I'm a string, not an OBDCommand")
 
 
 def test_pid_getters():

@@ -349,15 +349,12 @@ class Commands():
 
     def __len__(self):
         """ returns the number of commands supported by python-OBD """
-        l = 0
-        for m in self.modes:
-            l += len(m)
-        return l
+        return sum([len(mode) for mode in self.modes])
 
 
-    def __contains__(self, s):
+    def __contains__(self, name):
         """ calls has_name(s) """
-        return self.has_name(s)
+        return self.has_name(name)
 
 
     def base_commands(self):
@@ -395,38 +392,26 @@ class Commands():
 
     def has_command(self, c):
         """ checks for existance of a command by OBDCommand object """
-        if isinstance(c, OBDCommand):
-            return c in self.__dict__.values()
-        else:
-            logger.warning("has_command() only accepts OBDCommand objects")
-            return False
+        return c in self.__dict__.values()
 
 
-    def has_name(self, s):
+    def has_name(self, name):
         """ checks for existance of a command by name """
-        if isinstance(s, str) or isinstance(s, unicode):
-            return s.isupper() and (s in self.__dict__.keys())
-        else:
-            logger.warning("has_name() only accepts string names for commands")
-            return False
+        # isupper() rejects all the normal properties
+        return name.isupper() and name in self.__dict__
 
 
     def has_pid(self, mode, pid):
         """ checks for existance of a command by int mode and int pid """
-        if isinstance(mode, int) and isinstance(pid, int):
-            if (mode < 0) or (pid < 0):
-                return False
-            if mode >= len(self.modes):
-                return False
-            if pid >= len(self.modes[mode]):
-                return False
-
-            # make sure that the command isn't reserved
-            return (self.modes[mode][pid] is not None)
-
-        else:
-            logger.warning("has_pid() only accepts integer values for mode and PID")
+        if (mode < 0) or (pid < 0):
             return False
+        if mode >= len(self.modes):
+            return False
+        if pid >= len(self.modes[mode]):
+            return False
+
+        # make sure that the command isn't reserved
+        return (self.modes[mode][pid] is not None)
 
 
 # export this object
