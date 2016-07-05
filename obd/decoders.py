@@ -202,6 +202,7 @@ def o2_sensors(messages):
     d = messages[0].data
     bitstring = bytes_to_bits(d)
     return (
+        (), # bank 0 is invalid
         tuple([ b == "1" for b in bitstring[:4] ]), # bank 1
         tuple([ b == "1" for b in bitstring[4:] ]), # bank 2
     )
@@ -215,6 +216,7 @@ def o2_sensors_alt(messages):
     d = messages[0].data
     bitstring = bytes_to_bits(d)
     return (
+        (), # bank 0 is invalid
         tuple([ b == "1" for b in bitstring[:2] ]), # bank 1
         tuple([ b == "1" for b in bitstring[2:4] ]), # bank 2
         tuple([ b == "1" for b in bitstring[4:6] ]), # bank 3
