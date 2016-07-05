@@ -125,16 +125,16 @@ def test_air_status():
     assert d.air_status(m("03")) == None
 
 def test_o2_sensors():
-    assert d.o2_sensors(m("00")) == ((False, False, False, False), (False, False, False, False))
-    assert d.o2_sensors(m("01")) == ((False, False, False, False), (False, False, False, True))
-    assert d.o2_sensors(m("0F")) == ((False, False, False, False), (True, True, True, True))
-    assert d.o2_sensors(m("F0")) == ((True, True, True, True), (False, False, False, False))
+    assert d.o2_sensors(m("00")) == ((),(False, False, False, False), (False, False, False, False))
+    assert d.o2_sensors(m("01")) == ((),(False, False, False, False), (False, False, False, True))
+    assert d.o2_sensors(m("0F")) == ((),(False, False, False, False), (True, True, True, True))
+    assert d.o2_sensors(m("F0")) == ((),(True, True, True, True), (False, False, False, False))
 
 def test_o2_sensors_alt():
-    assert d.o2_sensors_alt(m("00")) == ((False, False), (False, False), (False, False), (False, False))
-    assert d.o2_sensors_alt(m("01")) == ((False, False), (False, False), (False, False), (False, True))
-    assert d.o2_sensors_alt(m("0F")) == ((False, False), (False, False), (True, True), (True, True))
-    assert d.o2_sensors_alt(m("F0")) == ((True, True), (True, True), (False, False), (False, False))
+    assert d.o2_sensors_alt(m("00")) == ((),(False, False), (False, False), (False, False), (False, False))
+    assert d.o2_sensors_alt(m("01")) == ((),(False, False), (False, False), (False, False), (False, True))
+    assert d.o2_sensors_alt(m("0F")) == ((),(False, False), (False, False), (True, True), (True, True))
+    assert d.o2_sensors_alt(m("F0")) == ((),(True, True), (True, True), (False, False), (False, False))
 
 def test_aux_input_status():
     assert d.aux_input_status(m("00")) == False
@@ -154,14 +154,14 @@ def test_dtc():
     # multiple codes
     assert d.dtc(m("010480034123")) == [
         ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
-        ("B0003", "Unknown error code"),
-        ("C0123", "Unknown error code"),
+        ("B0003", ""), # unknown error codes return empty strings
+        ("C0123", ""),
     ]
 
     # invalid code lengths are dropped
     assert d.dtc(m("0104800341")) == [
         ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
-        ("B0003", "Unknown error code"),
+        ("B0003", ""),
     ]
 
     # 0000 codes are dropped
@@ -172,7 +172,7 @@ def test_dtc():
     # test multiple messages
     assert d.dtc(m("0104") + m("8003") + m("0000")) == [
         ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
-        ("B0003", "Unknown error code"),
+        ("B0003", ""),
     ]
 
 def test_monitor():

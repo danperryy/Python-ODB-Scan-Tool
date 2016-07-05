@@ -377,7 +377,8 @@ def single_dtc(_bytes):
     dtc += str( (_bytes[0] >> 4) & 0b0011 ) # the next pair of 2 bits. Mask off the bits we read above
     dtc += bytes_to_hex(_bytes)[1:4]
 
-    return dtc
+    # pull a description if we have one
+    return (dtc, DTC.get(dtc, ""))
 
 
 def dtc(messages):
@@ -395,13 +396,7 @@ def dtc(messages):
         dtc = single_dtc( (d[n-1], d[n]) )
 
         if dtc is not None:
-            # pull a description if we have one
-            if dtc in DTC:
-                desc = DTC[dtc]
-            else:
-                desc = "Unknown error code"
-
-            codes.append( (dtc, desc) )
+            codes.append(dtc)
 
     return codes
 

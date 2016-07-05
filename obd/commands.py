@@ -367,7 +367,7 @@ class Commands():
             self.MIDS_A,
             self.GET_DTC,
             self.CLEAR_DTC,
-            self.GET_FREEZE_DTC,
+            self.GET_CURRENT_DTC,
             self.ELM_VERSION,
             self.ELM_VOLTAGE,
         ]
