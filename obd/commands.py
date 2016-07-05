@@ -160,6 +160,8 @@ for c in __mode1__:
     c.command = b"02" + c.command[2:] # change the mode: 0100 ---> 0200
     c.name = "DTC_" + c.name
     c.desc = "DTC " + c.desc
+    if c.decode == pid:
+        c.decode = drop # Never send mode 02 pid requests (use mode 01 instead)
     __mode2__.append(c)
 
 
@@ -365,6 +367,7 @@ class Commands():
         """
         return [
             self.PIDS_A,
+            self.MIDS_A,
             self.GET_DTC,
             self.CLEAR_DTC,
             self.GET_FREEZE_DTC,
