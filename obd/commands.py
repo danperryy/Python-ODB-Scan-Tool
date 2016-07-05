@@ -380,14 +380,7 @@ class Commands():
         """ returns a list of PID GET commands """
         getters = []
         for mode in self.modes:
-            for cmd in mode:
-
-                if cmd is None:
-                    continue # this command is reserved
-
-                if cmd.decode == pid: # GET commands have a special decoder
-                    getters.append(cmd)
-
+            getters += [ cmd for cmd in mode if (cmd and cmd.decode == pid) ]
         return getters
 
 
