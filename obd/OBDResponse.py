@@ -33,6 +33,11 @@
 import time
 from .codes import *
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 
 class OBDResponse():
     """ Standard response object for any OBDCommand """
@@ -119,8 +124,14 @@ class Monitor():
     def __len__(self):
         return len(self.tests)
 
-    def __getitem__(self, tid):
-        return self._tests.get(tid, MonitorTest())
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self._tests.get(key, MonitorTest())
+        elif isinstance(key, str) or isinstance(key, unicode):
+            return self.__dict__.get(key, MonitorTest())
+        else:
+            logger.warning("Monitor test results can only be retrieved by TID value or property name")
+
 
 
 class MonitorTest():

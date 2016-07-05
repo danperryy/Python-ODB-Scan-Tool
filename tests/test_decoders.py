@@ -188,7 +188,7 @@ def test_monitor():
     assert len(v) == 1 # 1 test result
 
     # make sure we can look things up by name and TID
-    assert v[0x01] == v.rtl_threshold_voltage
+    assert v[0x01] == v.RTL_THRESHOLD_VOLTAGE == v["RTL_THRESHOLD_VOLTAGE"]
 
     # make sure we got information
     assert not v[0x01].is_null()
@@ -203,8 +203,8 @@ def test_monitor():
     assert len(v) == 3 # 3 test results
 
     # make sure we can look things up by name and TID
-    assert v[0x01] == v.rtl_threshold_voltage
-    assert v[0x05] == v.rtl_switch_time
+    assert v[0x01] == v.RTL_THRESHOLD_VOLTAGE == v["RTL_THRESHOLD_VOLTAGE"]
+    assert v[0x05] == v.RTL_SWITCH_TIME == v["RTL_SWITCH_TIME"]
 
     # make sure we got information
     assert not v[0x01].is_null()
@@ -229,7 +229,7 @@ def test_monitor():
     assert len(v) == 1 # 1 test result
 
     # make sure we can look things up by name and TID
-    assert v[0x01] == v.rtl_threshold_voltage
+    assert v[0x01] == v.RTL_THRESHOLD_VOLTAGE == v["RTL_THRESHOLD_VOLTAGE"]
 
     # make sure we got information
     assert not v[0x01].is_null()
