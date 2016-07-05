@@ -280,8 +280,8 @@ __mode6__ = [
 ]
 
 __mode7__ = [
-    #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("GET_FREEZE_DTC"             , "Get Freeze DTCs"                         , b"07",   0, dtc,                   ECU.ALL,     False),
+    #                      name                             description                    cmd  bytes       decoder                    ECU        fast
+    OBDCommand("GET_CURRENT_DTC"             , "Get DTCs from the current/last driving cycle"   , b"07",   0, dtc,                   ECU.ALL,     False),
 ]
 
 __mode9__ = [
