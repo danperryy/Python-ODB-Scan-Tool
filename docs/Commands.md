@@ -93,7 +93,7 @@ obd.commands.has_pid(1, 12) # True
 | 10 | MAF                       | Air Flow Rate (MAF)                     | Unit.grams_per_second |
 | 11 | THROTTLE_POS              | Throttle Position                       | Unit.percent          |
 | 12 | AIR_STATUS                | Secondary Air Status                    | string                |
-| 13 | O2_SENSORS                | O2 Sensors Present                      |                       |
+| 13 | O2_SENSORS                | O2 Sensors Present                      | [special](Responses.md#oxygen-sensors-present) |
 | 14 | O2_B1S1                   | O2: Bank 1 - Sensor 1 Voltage           | Unit.volt             |
 | 15 | O2_B1S2                   | O2: Bank 1 - Sensor 2 Voltage           | Unit.volt             |
 | 16 | O2_B1S3                   | O2: Bank 1 - Sensor 3 Voltage           | Unit.volt             |
@@ -103,7 +103,7 @@ obd.commands.has_pid(1, 12) # True
 | 1A | O2_B2S3                   | O2: Bank 2 - Sensor 3 Voltage           | Unit.volt             |
 | 1B | O2_B2S4                   | O2: Bank 2 - Sensor 4 Voltage           | Unit.volt             |
 | 1C | OBD_COMPLIANCE            | OBD Standards Compliance                | string                |
-| 1D | O2_SENSORS_ALT            | O2 Sensors Present (alternate)          |                       |
+| 1D | O2_SENSORS_ALT            | O2 Sensors Present (alternate)          | [special](Responses.md#oxygen-sensors-present) |
 | 1E | AUX_INPUT_STATUS          | Auxiliary input status (power take off) | boolean               |
 | 1F | RUN_TIME                  | Engine Run Time                         | Unit.second           |
 | 20 | PIDS_B                    | Supported PIDs [21-40]                  | bitstring             |

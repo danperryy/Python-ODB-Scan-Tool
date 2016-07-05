@@ -25,7 +25,7 @@ if not r.is_null():
 ---
 
 
-# Values
+# Pint Values
 
 The `value` property typically contains a [Pint](http://pint.readthedocs.io/en/latest/) `Quantity` object, but can also hold complex structures (depending on the request). Pint quantities combine a value and unit into a single class, and are used to represent physical values (such as "4 seconds", and "88 mph"). This allows for consistency when doing math and unit conversions. Pint maintains a registry of units, which is exposed in python-OBD as `obd.Unit`.
 
@@ -65,6 +65,31 @@ import obd
 # handles unit conversions transparently
 >>> response.value + (20 * obd.Unit.mph)
 <Quantity(132.18688, 'kph')>
+```
+
+---
+
+
+# Oxygen Sensors Present
+
+Returns a 2D structure of tuples (representing bank and sensor number), that holds boolean values for sensor presence.
+
+```python
+# obd.commands.O2_SENSORS
+responce.value = (
+    (),                           # bank 0 is invalid, this is merely for correct indexing
+    (True,  True,  True,  False), # bank 1
+    (False, False, False, False)  # bank 2
+)
+
+# obd.commands.O2_SENSORS_ALT
+responce.value = (
+    (),             # bank 0 is invalid, this is merely for correct indexing
+    (True,  True),  # bank 1
+    (True,  False), # bank 2
+    (False, False), # bank 2
+    (False, False)  # bank 2
+)
 ```
 
 ---
