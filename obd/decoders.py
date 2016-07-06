@@ -243,46 +243,29 @@ Return objects, lists, etc
 
 def status(messages):
     d = messages[0].data
-    bits = bytes_to_bits(d)
+    bits = bitarray(d)
 
     output = Status()
-    output.MIL           = bool(d[0] & 0b10000000)
-    output.DTC_count     =      d[0] & 0b01111111
-    output.ignition_type = IGNITION_TYPE[unbin(bits[12])]
+    output.MIL = bits[7]
+    output.DTC_count = bits[0:7]
+    output.ignition_type = IGNITION_TYPE[int(bits[12])]
 
-    output.tests.append(Test("Misfire", \
-                             bitToBool(bits[15]), \
-                             bitToBool(bits[11])))
-
-    output.tests.append(Test("Fuel System", \
-                             bitToBool(bits[14]), \
-                             bitToBool(bits[10])))
-
-    output.tests.append(Test("Components", \
-                             bitToBool(bits[13]), \
-                             bitToBool(bits[9])))
-
+    output.tests.append(Test("Misfire",     bits[15], bits[11]))
+    output.tests.append(Test("Fuel System", bits[14], bits[10]))
+    output.tests.append(Test("Components",  bits[13], bits[9]))
 
     # different tests for different ignition types
-    if(output.ignition_type == IGNITION_TYPE[0]): # spark
-        for i in range(8):
-            if SPARK_TESTS[i] is not None:
+    if bits[12]: # ignition type: compression
+        for i, name in enumerate(COMPRESSION_TESTS):
+            t = Test(name, bits[(2 * 8) + i],
+                           bits[(3 * 8) + i])
+            output.tests.append(t)
 
-                t = Test(SPARK_TESTS[i], \
-                         bitToBool(bits[(2 * 8) + i]), \
-                         bitToBool(bits[(3 * 8) + i]))
-
-                output.tests.append(t)
-
-    elif(output.ignition_type == IGNITION_TYPE[1]): # compression
-        for i in range(8):
-            if COMPRESSION_TESTS[i] is not None:
-
-                t = Test(COMPRESSION_TESTS[i], \
-                         bitToBool(bits[(2 * 8) + i]), \
-                         bitToBool(bits[(3 * 8) + i]))
-
-                output.tests.append(t)
+    else: # ignition type: spark
+        for i, name in enumerate(SPARK_TESTS):
+            t = Test(name, bits[(2 * 8) + i],
+                           bits[(3 * 8) + i])
+            output.tests.append(t)
 
     return output
 
