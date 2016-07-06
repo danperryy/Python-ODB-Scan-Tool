@@ -76,7 +76,7 @@ The status command returns information about the Malfunction Indicator Light (ch
 ```python
 response.value.MIL              # boolean for whether the check-engine is lit
 response.value.DTC_count        # number (int) of DTCs being thrown
-responce.value.ignition_type    # "spark" or "compression"
+response.value.ignition_type    # "spark" or "compression"
 ```
 
 The status command also provides information regarding the availability and status of various system tests. These are exposed as `StatusTest` objects, loaded into named properties. Each test object has boolean flags for its availability and completion.
@@ -115,14 +115,14 @@ Each DTC is represented by a tuple containing the DTC code, and a description (i
 
 ```python
 # obd.commands.GET_DTC
-responce.value = [
+response.value = [
     ("P0104", "Mass or Volume Air Flow Circuit Intermittent"),
     ("B0003", ""), # unknown error code, it's probably vehicle-specific
     ("C0123", "")
 ]
 
 # obd.commands.FREEZE_DTC
-responce.value = ("P0104", "Mass or Volume Air Flow Circuit Intermittent")
+response.value = ("P0104", "Mass or Volume Air Flow Circuit Intermittent")
 ```
 
 ---
@@ -161,14 +161,14 @@ Returns a 2D structure of tuples (representing bank and sensor number), that hol
 
 ```python
 # obd.commands.O2_SENSORS
-responce.value = (
+response.value = (
     (),                           # bank 0 is invalid, this is merely for correct indexing
     (True,  True,  True,  False), # bank 1
     (False, False, False, False)  # bank 2
 )
 
 # obd.commands.O2_SENSORS_ALT
-responce.value = (
+response.value = (
     (),             # bank 0 is invalid, this is merely for correct indexing
     (True,  True),  # bank 1
     (True,  False), # bank 2
