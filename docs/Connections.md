@@ -20,13 +20,13 @@ connection = obd.OBD(ports[0]) # connect to the first port in the list
 
 <br>
 
-### OBD(portstr=None, baudrate=38400, protocol=None, fast=True):
+### OBD(portstr=None, baudrate=None, protocol=None, fast=True):
 
 `portstr`: The UNIX device file or Windows COM Port for your adapter. The default value (`None`) will auto select a port.
 
-`baudrate`: The baudrate at which to set the serial connection. This can vary from adapter to adapter. Typical values are: 9600, 38400, 19200, 57600, 115200
+`baudrate`: The baudrate at which to set the serial connection. This can vary from adapter to adapter. Typical values are: 9600, 38400, 19200, 57600, 115200. The default value (`None`) will auto select a baudrate.
 
-`protocol`: Forces python-OBD to use the given protocol when communicating with the adapter. See `protocol_id()` for possible values. The default value (`None`) will auto select a protocol.
+`protocol`: Forces python-OBD to use the given protocol when communicating with the adapter. See [protocol_id()](Connections.md/#protocol_id) for possible values. The default value (`None`) will auto select a protocol.
 
 `fast`: Allows commands to be optimized before being sent to the car. Python-OBD currently makes two such optimizations:
 
@@ -41,7 +41,7 @@ Disabling fast mode will guarantee that python-OBD outputs the unaltered command
 
 ### query(command, force=False)
 
-Sends an `OBDCommand` to the car, and returns a `OBDResponse` object. This function will block until a response is received from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent to the car, and an empty `Response` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
+Sends an `OBDCommand` to the car, and returns an `OBDResponse` object. This function will block until a response is received from the car. This function will also check whether the given command is supported by your car. If a command is not marked as supported, it will not be sent, and an empty `OBDResponse` will be returned. To force an unsupported command to be sent, there is an optional `force` parameter for your convenience.
 
 *For non-blocking querying, see [Async Querying](Async Connections.md)*
 
