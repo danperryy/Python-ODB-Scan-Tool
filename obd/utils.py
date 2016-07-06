@@ -50,6 +50,37 @@ class OBDStatus:
 
 
 
+class bitarray:
+    """
+    Class for representing bitarrays (inefficiently)
+
+    There's a nice C-optimized lib for this: https://github.com/ilanschnell/bitarray
+    but python-OBD doesn't use it enough to be worth adding the dependency.
+    But, if this class starts getting used too much, we should switch to that lib.
+    """
+
+    def __init__(self, _bytearray):
+        bits = ""
+
+        for b in _bytearray[::-1]: # put the bytes in bit-number order
+            v = bin(b)[2:]
+            bits += ("0" * (8 - len(v))) + v # pad it with zeros
+        self.bits = bits[::-1] # reverse, to maintain zero indexing
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            if key >= 0 and key < len(self.bits):
+                return self.bits[key] == "1"
+            else:
+                return False
+        elif isinstance(key, slice):
+            bits = self.bits[key][::-1] # reverse back into correct bit-order
+            if bits:
+                return int(bits, 2)
+            else:
+                return 0
+
+
 def num_bits_set(n):
     return bin(n).count("1")
 
