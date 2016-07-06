@@ -101,9 +101,6 @@ class bitarray:
         return [ b == "1" for b in self.bits ].__iter__()
 
 
-def num_bits_set(n):
-    return bin(n).count("1")
-
 def bytes_to_int(bs):
     """ converts a big-endian byte array into a single integer """
     v = 0
@@ -119,9 +116,6 @@ def bytes_to_hex(bs):
         bh = hex(b)[2:]
         h += ("0" * (2 - len(bh))) + bh
     return h
-
-def bitToBool(_bit):
-    return (_bit == '1')
 
 def twos_comp(val, num_bits):
     """compute the 2's compliment of int value val"""
