@@ -308,25 +308,15 @@ def fuel_status(messages):
 
 def air_status(messages):
     d = messages[0].data
-    v = d[0]
+    bits = bitarray(d)
 
-    if v <= 0:
-        logger.debug("Invalid air status response (v <= 0)")
-        return None
+    status = None
+    if bits.num_set() == 1:
+        status = AIR_STATUS[ 7 - bits[0:8].index(True) ]
+    else:
+        logger.debug("Invalid response for fuel status (multiple/no bits set)")
 
-    i = math.log(v, 2) # only a single bit should be on
-
-    if i % 1 != 0:
-        logger.debug("Invalid air status response (multiple bits set)")
-        return None
-
-    i = int(i)
-
-    if i >= len(AIR_STATUS):
-        logger.debug("Invalid air status response (no table entry)")
-        return None
-
-    return AIR_STATUS[i]
+    return status
 
 
 def obd_compliance(_hex):
