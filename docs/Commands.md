@@ -75,7 +75,7 @@ obd.commands.has_pid(1, 12) # True
 |PID | Name                      | Description                             | Response Value        |
 |----|---------------------------|-----------------------------------------|-----------------------|
 | 00 | PIDS_A                    | Supported PIDs [01-20]                  | bitstring             |
-| 01 | STATUS                    | Status since DTCs cleared               |                       |
+| 01 | STATUS                    | Status since DTCs cleared               | [special](Responses.md#status) |
 | 02 | FREEZE_DTC                | DTC that triggered the freeze frame     | [special](Responses.md#diagnostic-trouble-codes-dtcs) |
 | 03 | FUEL_STATUS               | Fuel System Status                      | string                |
 | 04 | ENGINE_LOAD               | Calculated Engine Load                  | Unit.percent          |
