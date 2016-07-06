@@ -48,11 +48,11 @@ obd.OBD            # main OBD connection class
 obd.Async          # asynchronous OBD connection class
 obd.commands       # command tables
 obd.Unit           # unit tables (a Pint UnitRegistry)
-obd.logger         # the OBD module's root logger (for debug)
 obd.OBDStatus      # enum for connection status
 obd.scan_serial    # util function for manually scanning for OBD adapters
 obd.OBDCommand     # class for making your own OBD Commands
 obd.ECU            # enum for marking which ECU a command should listen to
+obd.logger         # the OBD module's root logger (for debug)
 ```
 
 <br>
