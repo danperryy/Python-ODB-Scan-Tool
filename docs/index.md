@@ -35,7 +35,7 @@ print(response.value) # returns unit-bearing values thanks to Pint
 print(response.value.magnitude) # or simple floats
 ```
 
-OBD connections operate in a request-reply fashion. To retrieve data from the car, you must send commands that query for the data you want (e.g. RPM, Vehicle speed, etc). In python-OBD, this is done with the `query()` function. The commands themselves are represented as objects, and can be looked up by name or value in `obd.commands`. The `query()` function will return a response object with parsed data in its `value` and `unit` properties.
+OBD connections operate in a request-reply fashion. To retrieve data from the car, you must send commands that query for the data you want (e.g. RPM, Vehicle speed, etc). In python-OBD, this is done with the `query()` function. The commands themselves are represented as objects, and can be looked up by name or value in `obd.commands`. The `query()` function will return a response object with parsed data in its `value` property.
 
 <br>
 
