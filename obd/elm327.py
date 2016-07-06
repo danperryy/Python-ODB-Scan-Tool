@@ -117,7 +117,7 @@ class ELM327:
                                         parity   = serial.PARITY_NONE, \
                                         stopbits = 1, \
                                         bytesize = 8,
-                                        timeout = 3) # seconds
+                                        timeout = 10) # seconds
             logger.info("Serial port successfully opened on " + self.port_name())
 
         except serial.SerialException as e:
@@ -429,7 +429,6 @@ class ELM327:
             logger.info("cannot perform __read() when unconnected")
             return ""
 
-        attempts = 2
         buffer = bytearray()
 
         while True:
@@ -438,14 +437,8 @@ class ELM327:
 
             # if nothing was recieved
             if not data:
-
-                if attempts <= 0:
-                    logger.warning("Failed to read port, giving up")
-                    break
-
-                logger.info("Failed to read port, trying again...")
-                attempts -= 1
-                continue
+                logger.warning("Failed to read port")
+                break
 
             buffer.extend(data)
 
