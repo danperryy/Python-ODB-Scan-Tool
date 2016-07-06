@@ -71,11 +71,41 @@ import obd
 
 # Status
 
-
+The status command returns information about the Malfunction Indicator Light (check-engine light), the number of trouble codes being thrown, and the type of engine.
 
 ```python
-
+response.value.MIL              # boolean for whether the check-engine is lit
+response.value.DTC_count        # number (int) of DTCs being thrown
+responce.value.ignition_type    # "spark" or "compression"
 ```
+
+The status command also provides information regarding the availability and status of various system tests. These are exposed as `StatusTest` objects, loaded into named properties. Each test object has boolean flags for its availability and completion.
+
+```python
+response.value.MISFIRE_MONITORING.available    # boolean for test availability
+response.value.MISFIRE_MONITORING.complete     # boolean for test completion
+```
+
+Here are all of the tests names that python-OBD reports:
+
+| Tests                             |
+|-----------------------------------|
+| MISFIRE_MONITORING                |
+| FUEL_SYSTEM_MONITORING            |
+| COMPONENT_MONITORING              |
+| CATALYST_MONITORING               |
+| HEATED_CATALYST_MONITORING        |
+| EVAPORATIVE_SYSTEM_MONITORING     |
+| SECONDARY_AIR_SYSTEM_MONITORING   |
+| OXYGEN_SENSOR_MONITORING          |
+| OXYGEN_SENSOR_HEATER_MONITORING   |
+| EGR_VVT_SYSTEM_MONITORING         |
+| NMHC_CATALYST_MONITORING          |
+| NOX_SCR_AFTERTREATMENT_MONITORING |
+| BOOST_PRESSURE_MONITORING         |
+| EXHAUST_GAS_SENSOR_MONITORING     |
+| PM_FILTER_MONITORING              |
+
 
 ---
 
