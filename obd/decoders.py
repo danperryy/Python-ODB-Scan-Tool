@@ -199,11 +199,11 @@ def fuel_rate(messages):
 # special bit encoding for PID 13
 def o2_sensors(messages):
     d = messages[0].data
-    bitstring = bytes_to_bits(d)
+    bits = bitarray(d)
     return (
         (), # bank 0 is invalid
-        tuple([ b == "1" for b in bitstring[:4] ]), # bank 1
-        tuple([ b == "1" for b in bitstring[4:] ]), # bank 2
+        tuple(bits[:4]), # bank 1
+        tuple(bits[4:]), # bank 2
     )
 
 def aux_input_status(messages):
@@ -213,13 +213,13 @@ def aux_input_status(messages):
 # special bit encoding for PID 1D
 def o2_sensors_alt(messages):
     d = messages[0].data
-    bitstring = bytes_to_bits(d)
+    bits = bitarray(d)
     return (
         (), # bank 0 is invalid
-        tuple([ b == "1" for b in bitstring[:2] ]), # bank 1
-        tuple([ b == "1" for b in bitstring[2:4] ]), # bank 2
-        tuple([ b == "1" for b in bitstring[4:6] ]), # bank 3
-        tuple([ b == "1" for b in bitstring[6:] ]), # bank 4
+        tuple(bits[:2]), # bank 1
+        tuple(bits[2:4]), # bank 2
+        tuple(bits[4:6]), # bank 3
+        tuple(bits[6:]), # bank 4
     )
 
 def elm_voltage(messages):
@@ -258,7 +258,7 @@ def status(messages):
 
     output = Status()
     output.MIL = bits[0]
-    output.DTC_count = bits[1:8]
+    output.DTC_count = bits.value(1, 8)
     output.ignition_type = IGNITION_TYPE[int(bits[12])]
 
     # load the 3 base tests that are always present

@@ -74,15 +74,22 @@ class bitarray:
         elif isinstance(key, slice):
             bits = self.bits[key]
             if bits:
-                return int(bits, 2)
+                return [ b == "1" for b in bits ]
             else:
-                return 0
+                return []
 
     def num_set(self):
         return self.bits.count("1")
 
     def num_cleared(self):
         return self.bits.count("0")
+
+    def value(self, start, stop):
+        bits = self.bits[start:stop]
+        if bits:
+            return int(bits, 2)
+        else:
+            return 0
 
     def __len__(self):
         return len(self.bits)
@@ -97,9 +104,6 @@ class bitarray:
 def num_bits_set(n):
     return bin(n).count("1")
 
-def unbin(_bin):
-    return int(_bin, 2)
-
 def bytes_to_int(bs):
     """ converts a big-endian byte array into a single integer """
     v = 0
@@ -108,13 +112,6 @@ def bytes_to_int(bs):
         v += b * (2**p)
         p += 8
     return v
-
-def bytes_to_bits(bs):
-    bits = ""
-    for b in bs:
-        v = bin(b)[2:]
-        bits += ("0" * (8 - len(v))) + v # pad it with zeros
-    return bits
 
 def bytes_to_hex(bs):
     h = ""
