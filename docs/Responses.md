@@ -27,9 +27,11 @@ if not r.is_null():
 
 # Pint Values
 
-The `value` property typically contains a [Pint](http://pint.readthedocs.io/en/latest/) `Quantity` object, but can also hold complex structures (depending on the request). Pint quantities combine a value and unit into a single class, and are used to represent physical values (such as "4 seconds", and "88 mph"). This allows for consistency when doing math and unit conversions. Pint maintains a registry of units, which is exposed in python-OBD as `obd.Unit`.
+The `value` property typically contains a [Pint](http://pint.readthedocs.io/en/latest/) `Quantity` object, but can also hold complex structures (depending on the request). Pint quantities combine a value and unit into a single class, and are used to represent physical values such as "4 seconds", and "88 mph". This allows for consistency when doing math and unit conversions. Pint maintains a registry of units, which is exposed in python-OBD as `obd.Unit`.
 
 Below are common operations that can be done with Pint units and quantities. For more information, check out the [Pint Documentation](http://pint.readthedocs.io/en/latest/).
+
+<span style="color:red">*NOTE: for backwards compatibility with previous versions of python-OBD, use `response.value.magnitude` in place of `response.value`*</span>
 
 ```python
 import obd

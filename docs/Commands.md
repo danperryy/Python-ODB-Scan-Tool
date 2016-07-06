@@ -208,6 +208,8 @@ Mode 03 contains a single command `GET_DTC` which requests all diagnostic troubl
 
 # Mode 06
 
+<span style="color:red">*WARNING: mode 06 is experimental. While it passes software tests, it has not been tested on a real vehicle. Any debug output for this mode would be greatly appreciated.*</span>
+
 Mode 06 commands are used to monitor various test results from the vehicle. All commands in this mode return the same datatype, as described in the [Monitor Response](Responses.md#monitors-mode-06-responses) section. Currently, mode 06 commands are only implemented for CAN protocols (ISO 15765-4).
 
 |PID    | Name                        | Description                                | Response Value        |
