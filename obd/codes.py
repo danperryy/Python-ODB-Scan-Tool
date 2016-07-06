@@ -2101,30 +2101,36 @@ DTC = {
 }
 
 IGNITION_TYPE = [
-    "Spark",
-    "Compression",
+    "spark",
+    "compression",
+]
+
+BASE_TESTS = [
+    "MISFIRE_MONITORING",
+    "FUEL_SYSTEM_MONITORING",
+    "COMPONENT_MONITORING",
 ]
 
 SPARK_TESTS = [
-    "EGR System",
-    "Oxygen Sensor Heater",
-    "Oxygen Sensor",
-    "A/C Refrigerant",
-    "Secondary Air System",
-    "Evaporative System",
-    "Heated Catalyst",
-    "Catalyst",
+    "CATALYST_MONITORING",
+    "HEATED_CATALYST_MONITORING",
+    "EVAPORATIVE_SYSTEM_MONITORING",
+    "SECONDARY_AIR_SYSTEM_MONITORING",
+    None,
+    "OXYGEN_SENSOR_MONITORING",
+    "OXYGEN_SENSOR_HEATER_MONITORING",
+    "EGR_VVT_SYSTEM_MONITORING"
 ]
 
 COMPRESSION_TESTS = [
-    "EGR and/or VVT System",
-    "PM filter monitoring",
-    "Exhaust Gas Sensor",
-    "None",
-    "Boost Pressure",
-    "None",
-    "NOx/SCR Monitor",
-    "NMHC Catalyst",
+    "NMHC_CATALYST_MONITORING",
+    "NOX_SCR_AFTERTREATMENT_MONITORING",
+    None,
+    "BOOST_PRESSURE_MONITORING",
+    None,
+    "EXHAUST_GAS_SENSOR_MONITORING",
+    "PM_FILTER_MONITORING",
+    "EGR_VVT_SYSTEM_MONITORING",
 ]
 
 FUEL_STATUS = [

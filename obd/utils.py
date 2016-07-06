@@ -61,7 +61,7 @@ class bitarray:
 
     def __init__(self, _bytearray):
         self.bits = ""
-        for b in _bytearray: # put the bytes in bit-number order
+        for b in _bytearray:
             v = bin(b)[2:]
             self.bits += ("0" * (8 - len(v))) + v # pad it with zeros
 
@@ -72,7 +72,7 @@ class bitarray:
             else:
                 return False
         elif isinstance(key, slice):
-            bits = self.bits[key] # reverse back into correct bit-order
+            bits = self.bits[key]
             if bits:
                 return int(bits, 2)
             else:

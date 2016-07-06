@@ -33,7 +33,7 @@ import math
 import functools
 from .utils import *
 from .codes import *
-from .OBDResponse import Status, Test, Monitor, MonitorTest
+from .OBDResponse import Status, StatusTest, Monitor, MonitorTest
 from .UnitsAndScaling import Unit, UAS_IDS
 
 import logging
@@ -245,27 +245,39 @@ def status(messages):
     d = messages[0].data
     bits = bitarray(d)
 
+    #            ┌Components not ready
+    #            |┌Fuel not ready
+    #            ||┌Misfire not ready
+    #            |||┌Spark vs. Compression
+    #            ||||┌Components supported
+    #            |||||┌Fuel supported
+    #  ┌MIL      ||||||┌Misfire supported
+    #  |         |||||||
+    #  10000011 00000111 11111111 00000000
+    #   [# DTC] X        [supprt] [~ready]
+
     output = Status()
-    output.MIL = bits[7]
-    output.DTC_count = bits[0:7]
+    output.MIL = bits[0]
+    output.DTC_count = bits[1:8]
     output.ignition_type = IGNITION_TYPE[int(bits[12])]
 
-    output.tests.append(Test("Misfire",     bits[15], bits[11]))
-    output.tests.append(Test("Fuel System", bits[14], bits[10]))
-    output.tests.append(Test("Components",  bits[13], bits[9]))
+    # load the 3 base tests that are always present
+    for i, name in enumerate(BASE_TESTS[::-1]):
+        t = StatusTest(name, bits[13 + i], not bits[9 + i])
+        output.__dict__[name] = t
 
     # different tests for different ignition types
-    if bits[12]: # ignition type: compression
-        for i, name in enumerate(COMPRESSION_TESTS):
-            t = Test(name, bits[(2 * 8) + i],
-                           bits[(3 * 8) + i])
-            output.tests.append(t)
+    if bits[12]: # compression
+        for i, name in enumerate(COMPRESSION_TESTS[::-1]): # reverse to correct for bit vs. indexing order
+            t = StatusTest(name, bits[(2 * 8) + i],
+                             not bits[(3 * 8) + i])
+            output.__dict__[name] = t
 
-    else: # ignition type: spark
-        for i, name in enumerate(SPARK_TESTS):
-            t = Test(name, bits[(2 * 8) + i],
-                           bits[(3 * 8) + i])
-            output.tests.append(t)
+    else: # spark
+        for i, name in enumerate(SPARK_TESTS[::-1]): # reverse to correct for bit vs. indexing order
+            t = StatusTest(name, bits[(2 * 8) + i],
+                             not bits[(3 * 8) + i])
+            output.__dict__[name] = t
 
     return output
 

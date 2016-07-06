@@ -3,7 +3,7 @@ from binascii import unhexlify
 
 from obd.UnitsAndScaling import Unit
 from obd.protocols.protocol import Frame, Message
-from obd.codes import TEST_IDS
+from obd.codes import BASE_TESTS, COMPRESSION_TESTS, SPARK_TESTS, TEST_IDS
 import obd.decoders as d
 
 
@@ -41,9 +41,9 @@ def test_raw_string():
     assert d.raw_string([ Message([ Frame("A") ]), Message([ Frame("B") ]) ]) == "A\nB"
 
 def test_pid():
-    assert d.pid(m("00000000")) == "00000000000000000000000000000000"
-    assert d.pid(m("F00AA00F")) == "11110000000010101010000000001111"
-    assert d.pid(m("11")) == "00010001"
+    assert d.pid(m("00000000")).bits == "00000000000000000000000000000000"
+    assert d.pid(m("F00AA00F")).bits == "11110000000010101010000000001111"
+    assert d.pid(m("11")).bits == "00010001"
 
 def test_percent():
     assert d.percent(m("00"))  == 0.0 * Unit.percent
@@ -147,13 +147,69 @@ def test_elm_voltage():
     assert d.elm_voltage([ Message([ Frame("12ABCD") ]) ]) == None
 
 def test_status():
-    status = d.status(m("83E0FF00"))
+    status = d.status(m("8307FF00"))
     assert status.MIL
     assert status.DTC_count == 3
+    assert status.ignition_type == "spark"
+
+    for name in BASE_TESTS:
+        assert status.__dict__[name].available
+        assert status.__dict__[name].complete
+
+    # check that NONE of the compression tests are available
+    for name in COMPRESSION_TESTS:
+        if name and name not in SPARK_TESTS: # there's one test name in common between spark/compression
+            assert not status.__dict__[name].available
+            assert not status.__dict__[name].complete
+
+    # check that ALL of the spark tests are availablex
+    for name in SPARK_TESTS:
+        if name:
+            assert status.__dict__[name].available
+            assert status.__dict__[name].complete
+
+    # a different test
+    status = d.status(m("00790303"))
+    assert not status.MIL
+    assert status.DTC_count == 0
+    assert status.ignition_type == "compression"
+
+    # availability
+    assert status.MISFIRE_MONITORING.available
+    assert not status.FUEL_SYSTEM_MONITORING.available
+    assert not status.COMPONENT_MONITORING.available
+
+    # completion
+    assert not status.MISFIRE_MONITORING.complete
+    assert not status.FUEL_SYSTEM_MONITORING.complete
+    assert not status.COMPONENT_MONITORING.complete
+
+    # check that NONE of the spark tests are availablex
+    for name in SPARK_TESTS:
+        if name and name not in COMPRESSION_TESTS:
+            assert not status.__dict__[name].available
+            assert not status.__dict__[name].complete
+
+    # availability
+    assert status.NMHC_CATALYST_MONITORING.available
+    assert status.NOX_SCR_AFTERTREATMENT_MONITORING.available
+    assert not status.BOOST_PRESSURE_MONITORING.available
+    assert not status.EXHAUST_GAS_SENSOR_MONITORING.available
+    assert not status.PM_FILTER_MONITORING.available
+    assert not status.EGR_VVT_SYSTEM_MONITORING.available
+
+    # completion
+    assert not status.NMHC_CATALYST_MONITORING.complete
+    assert not status.NOX_SCR_AFTERTREATMENT_MONITORING.complete
+    assert status.BOOST_PRESSURE_MONITORING.complete
+    assert status.EXHAUST_GAS_SENSOR_MONITORING.complete
+    assert status.PM_FILTER_MONITORING.complete
+    assert status.EGR_VVT_SYSTEM_MONITORING.complete
+
 
 def test_single_dtc():
     assert d.single_dtc(m("0104")) == ("P0104", "Mass or Volume Air Flow Circuit Intermittent")
-    assert d.single_dtc(m("4123")) == ("C0123", "")
+    assert d.single_dtc(m("4123")) == ("C0123", "") # reverse back into correct bit-order
     assert d.single_dtc(m("01")) == None
     assert d.single_dtc(m("010400")) == None
 

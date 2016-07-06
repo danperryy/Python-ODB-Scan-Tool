@@ -77,18 +77,25 @@ class Status():
         self.MIL           = False
         self.DTC_count     = 0
         self.ignition_type = ""
-        self.tests         = []
+
+        # make sure each test is available by name
+        # until real data comes it. This also prevents things from
+        # breaking when the user looks up a standard test that's null.
+        null_test = StatusTest()
+        for name in BASE_TESTS + SPARK_TESTS + COMPRESSION_TESTS:
+            if name: # filter out None/reserved tests
+                self.__dict__[name] = null_test
 
 
-class Test():
-    def __init__(self, name, available, incomplete):
-        self.name       = name
-        self.available  = available
-        self.incomplete = incomplete
+class StatusTest():
+    def __init__(self, name="", available=False, complete=False):
+        self.name = name
+        self.available = available
+        self.complete = complete
 
     def __str__(self):
         a = "Available" if self.available else "Unavailable"
-        c = "Incomplete" if self.incomplete else "Complete"
+        c = "Complete" if self.complete else "Incomplete"
         return "Test %s: %s, %s" % (self.name, a, c)
 
 
