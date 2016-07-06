@@ -142,8 +142,17 @@ Closes the connection.
 
 ### supported_commands
 
-Property containing a list of commands that are supported by the car.
+Property containing a `set` of commands that are supported by the car.
 
+If you wish to manually mark a command as supported (prevents having to use `query(force=True)`), add the command to this set. This is not necessary when using python-OBD's builtin commands, but is useful if you create [custom commands](Custom Commands.md).
+
+```python
+import obd
+connection = obd.OBD()
+
+# manually mark the given command as supported
+connection.supported_commands.add(<OBDCommand>)
+```
 ---
 
 <br>
