@@ -69,6 +69,16 @@ import obd
 
 ---
 
+# Status
+
+
+
+```python
+
+```
+
+---
+
 # Diagnostic Trouble Codes (DTCs)
 
 Each DTC is represented by a tuple containing the DTC code, and a description (if python-OBD has one). For commands that return multiple DTCs, a list is used.

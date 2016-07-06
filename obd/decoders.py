@@ -247,8 +247,8 @@ def status(messages):
     bits = bytes_to_bits(d)
 
     output = Status()
-    output.MIL           = bitToBool(bits[0])
-    output.DTC_count     = unbin(bits[1:8])
+    output.MIL           = bool(d[0] & 0b10000000)
+    output.DTC_count     =      d[0] & 0b01111111
     output.ignition_type = IGNITION_TYPE[unbin(bits[12])]
 
     output.tests.append(Test("Misfire", \
