@@ -285,25 +285,25 @@ def status(messages):
 
 def fuel_status(messages):
     d = messages[0].data
-    v = d[0] # todo, support second fuel system
+    bits = bitarray(d)
 
-    if v <= 0:
-        logger.debug("Invalid fuel status response (v <= 0)")
+    status_1 = ""
+    status_2 = ""
+
+    if bits[0:8].count(True) == 1:
+        status_1 = FUEL_STATUS[ 7 - bits[0:8].index(True) ]
+    else:
+        logger.debug("Invalid response for fuel status (multiple/no bits set)")
+
+    if bits[8:16].count(True) == 1:
+        status_2 = FUEL_STATUS[ 7 - bits[8:16].index(True) ]
+    else:
+        logger.debug("Invalid response for fuel status (multiple/no bits set)")
+
+    if not status_1 and not status_2:
         return None
-
-    i = math.log(v, 2) # only a single bit should be on
-
-    if i % 1 != 0:
-        logger.debug("Invalid fuel status response (multiple bits set)")
-        return None
-
-    i = int(i)
-
-    if i >= len(FUEL_STATUS):
-        logger.debug("Invalid fuel status response (no table entry)")
-        return None
-
-    return FUEL_STATUS[i]
+    else:
+        return (status_1, status_2)
 
 
 def air_status(messages):

@@ -115,9 +115,13 @@ def test_fuel_rate():
     assert d.fuel_rate(m("FFFF")) == 3276.75 * Unit.liters_per_hour
 
 def test_fuel_status():
-    assert d.fuel_status(m("0100")) == "Open loop due to insufficient engine temperature"
-    assert d.fuel_status(m("0800")) == "Open loop due to system failure"
+    assert d.fuel_status(m("0100")) == ("Open loop due to insufficient engine temperature", "")
+    assert d.fuel_status(m("0800")) == ("Open loop due to system failure", "")
+    assert d.fuel_status(m("0808")) == ("Open loop due to system failure",
+                                        "Open loop due to system failure")
+    assert d.fuel_status(m("0000")) == None
     assert d.fuel_status(m("0300")) == None
+    assert d.fuel_status(m("0303")) == None
 
 def test_air_status():
     assert d.air_status(m("01")) == "Upstream"
