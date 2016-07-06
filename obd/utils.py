@@ -60,11 +60,10 @@ class bitarray:
     """
 
     def __init__(self, _bytearray):
-        bits = ""
-        for b in _bytearray[::-1]: # put the bytes in bit-number order
+        self.bits = ""
+        for b in _bytearray: # put the bytes in bit-number order
             v = bin(b)[2:]
-            bits += ("0" * (8 - len(v))) + v # pad it with zeros
-        self.bits = bits[::-1] # reverse, to maintain zero indexing
+            self.bits += ("0" * (8 - len(v))) + v # pad it with zeros
 
     def __getitem__(self, key):
         if isinstance(key, int):
@@ -73,14 +72,26 @@ class bitarray:
             else:
                 return False
         elif isinstance(key, slice):
-            bits = self.bits[key][::-1] # reverse back into correct bit-order
+            bits = self.bits[key] # reverse back into correct bit-order
             if bits:
                 return int(bits, 2)
             else:
                 return 0
 
+    def num_set(self):
+        return self.bits.count("1")
+
+    def num_cleared(self):
+        return self.bits.count("0")
+
+    def __len__(self):
+        return len(self.bits)
+
     def __str__(self):
-        return self.bits[::-1]
+        return self.bits
+
+    def __iter__(self):
+        return [ b == "1" for b in self.bits ].__iter__()
 
 
 def num_bits_set(n):

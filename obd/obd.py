@@ -114,11 +114,9 @@ class OBD(object):
             if response.is_null():
                 continue
 
-            supported = response.value # string of binary 01010101010101
-
-            # loop through PIDs binary
-            for i in range(len(supported)):
-                if supported[i] == "1":
+            # loop through PIDs bitarray
+            for i, bit in enumerate(response.value):
+                if bit:
 
                     mode = get.mode
                     pid  = get.pid + i + 1

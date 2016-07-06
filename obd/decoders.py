@@ -64,8 +64,7 @@ def noop(messages):
 # hex in, bitstring out
 def pid(messages):
     d = messages[0].data
-    v = bytes_to_bits(d)
-    return v
+    return bitarray(d)
 
 # returns the raw strings from the ELM
 def raw_string(messages):
