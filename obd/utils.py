@@ -61,7 +61,6 @@ class bitarray:
 
     def __init__(self, _bytearray):
         bits = ""
-
         for b in _bytearray[::-1]: # put the bytes in bit-number order
             v = bin(b)[2:]
             bits += ("0" * (8 - len(v))) + v # pad it with zeros
@@ -79,6 +78,9 @@ class bitarray:
                 return int(bits, 2)
             else:
                 return 0
+
+    def __str__(self):
+        return self.bits[::-1]
 
 
 def num_bits_set(n):
