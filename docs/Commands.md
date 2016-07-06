@@ -74,10 +74,10 @@ obd.commands.has_pid(1, 12) # True
 
 |PID | Name                      | Description                             | Response Value        |
 |----|---------------------------|-----------------------------------------|-----------------------|
-| 00 | PIDS_A                    | Supported PIDs [01-20]                  | bitstring             |
+| 00 | PIDS_A                    | Supported PIDs [01-20]                  | bitarray              |
 | 01 | STATUS                    | Status since DTCs cleared               | [special](Responses.md#status) |
 | 02 | FREEZE_DTC                | DTC that triggered the freeze frame     | [special](Responses.md#diagnostic-trouble-codes-dtcs) |
-| 03 | FUEL_STATUS               | Fuel System Status                      | string                |
+| 03 | FUEL_STATUS               | Fuel System Status                      | [(string, string)](Responses.md#fuel-status) |
 | 04 | ENGINE_LOAD               | Calculated Engine Load                  | Unit.percent          |
 | 05 | COOLANT_TEMP              | Engine Coolant Temperature              | Unit.celsius          |
 | 06 | SHORT_FUEL_TRIM_1         | Short Term Fuel Trim - Bank 1           | Unit.percent          |
@@ -92,7 +92,7 @@ obd.commands.has_pid(1, 12) # True
 | 0F | INTAKE_TEMP               | Intake Air Temp                         | Unit.celsius          |
 | 10 | MAF                       | Air Flow Rate (MAF)                     | Unit.grams_per_second |
 | 11 | THROTTLE_POS              | Throttle Position                       | Unit.percent          |
-| 12 | AIR_STATUS                | Secondary Air Status                    | string                |
+| 12 | AIR_STATUS                | Secondary Air Status                    | [string](Responses.md#air-status) |
 | 13 | O2_SENSORS                | O2 Sensors Present                      | [special](Responses.md#oxygen-sensors-present) |
 | 14 | O2_B1S1                   | O2: Bank 1 - Sensor 1 Voltage           | Unit.volt             |
 | 15 | O2_B1S2                   | O2: Bank 1 - Sensor 2 Voltage           | Unit.volt             |
@@ -106,7 +106,7 @@ obd.commands.has_pid(1, 12) # True
 | 1D | O2_SENSORS_ALT            | O2 Sensors Present (alternate)          | [special](Responses.md#oxygen-sensors-present) |
 | 1E | AUX_INPUT_STATUS          | Auxiliary input status (power take off) | boolean               |
 | 1F | RUN_TIME                  | Engine Run Time                         | Unit.second           |
-| 20 | PIDS_B                    | Supported PIDs [21-40]                  | bitstring             |
+| 20 | PIDS_B                    | Supported PIDs [21-40]                  | bitarray              |
 | 21 | DISTANCE_W_MIL            | Distance Traveled with MIL on           | Unit.kilometer        |
 | 22 | FUEL_RAIL_PRESSURE_VAC    | Fuel Rail Pressure (relative to vacuum) | Unit.kilopascal       |
 | 23 | FUEL_RAIL_PRESSURE_DIRECT | Fuel Rail Pressure (direct inject)      | Unit.kilopascal       |
@@ -138,7 +138,7 @@ obd.commands.has_pid(1, 12) # True
 | 3D | CATALYST_TEMP_B2S1        | Catalyst Temperature: Bank 2 - Sensor 1 | Unit.celsius          |
 | 3E | CATALYST_TEMP_B1S2        | Catalyst Temperature: Bank 1 - Sensor 2 | Unit.celsius          |
 | 3F | CATALYST_TEMP_B2S2        | Catalyst Temperature: Bank 2 - Sensor 2 | Unit.celsius          |
-| 40 | PIDS_C                    | Supported PIDs [41-60]                  | bitstring             |
+| 40 | PIDS_C                    | Supported PIDs [41-60]                  | bitarray              |
 | 41 | *unsupported*             | *unsupported*                           |                       |
 | 42 | *unsupported*             | *unsupported*                           |                       |
 | 43 | *unsupported*             | *unsupported*                           |                       |
@@ -212,7 +212,7 @@ Mode 06 commands are used to monitor various test results from the vehicle. All 
 
 |PID    | Name                        | Description                                | Response Value        |
 |-------|-----------------------------|--------------------------------------------|-----------------------|
-| 00    | MIDS_A                      | Supported MIDs [01-20]                     | bitstring             |
+| 00    | MIDS_A                      | Supported MIDs [01-20]                     | bitarray              |
 | 01    | MONITOR_O2_B1S1             | O2 Sensor Monitor Bank 1 - Sensor 1        | [monitor](Responses.md#monitors-mode-06-responses) |
 | 02    | MONITOR_O2_B1S2             | O2 Sensor Monitor Bank 1 - Sensor 2        | [monitor](Responses.md#monitors-mode-06-responses) |
 | 03    | MONITOR_O2_B1S3             | O2 Sensor Monitor Bank 1 - Sensor 3        | [monitor](Responses.md#monitors-mode-06-responses) |
@@ -230,7 +230,7 @@ Mode 06 commands are used to monitor various test results from the vehicle. All 
 | 0F    | MONITOR_O2_B4S3             | O2 Sensor Monitor Bank 4 - Sensor 3        | [monitor](Responses.md#monitors-mode-06-responses) |
 | 10    | MONITOR_O2_B4S4             | O2 Sensor Monitor Bank 4 - Sensor 4        | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 20    | MIDS_B                      | Supported MIDs [21-40]                     | bitstring             |
+| 20    | MIDS_B                      | Supported MIDs [21-40]                     | bitarray              |
 | 21    | MONITOR_CATALYST_B1         | Catalyst Monitor Bank 1                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | 22    | MONITOR_CATALYST_B2         | Catalyst Monitor Bank 2                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | 23    | MONITOR_CATALYST_B3         | Catalyst Monitor Bank 3                    | [monitor](Responses.md#monitors-mode-06-responses) |
@@ -250,7 +250,7 @@ Mode 06 commands are used to monitor various test results from the vehicle. All 
 | 3C    | MONITOR_EVAP_020            | EVAP Monitor (0.020\")                     | [monitor](Responses.md#monitors-mode-06-responses) |
 | 3D    | MONITOR_PURGE_FLOW          | Purge Flow Monitor                         | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 40    | MIDS_C                      | Supported MIDs [41-60]                     | bitstring             |
+| 40    | MIDS_C                      | Supported MIDs [41-60]                     | bitarray              |
 | 41    | MONITOR_O2_HEATER_B1S1      | O2 Sensor Heater Monitor Bank 1 - Sensor 1 | [monitor](Responses.md#monitors-mode-06-responses) |
 | 42    | MONITOR_O2_HEATER_B1S2      | O2 Sensor Heater Monitor Bank 1 - Sensor 2 | [monitor](Responses.md#monitors-mode-06-responses) |
 | 43    | MONITOR_O2_HEATER_B1S3      | O2 Sensor Heater Monitor Bank 1 - Sensor 3 | [monitor](Responses.md#monitors-mode-06-responses) |
@@ -268,7 +268,7 @@ Mode 06 commands are used to monitor various test results from the vehicle. All 
 | 4F    | MONITOR_O2_HEATER_B4S3      | O2 Sensor Heater Monitor Bank 4 - Sensor 3 | [monitor](Responses.md#monitors-mode-06-responses) |
 | 50    | MONITOR_O2_HEATER_B4S4      | O2 Sensor Heater Monitor Bank 4 - Sensor 4 | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 60    | MIDS_D                      | Supported MIDs [61-80]                     | bitstring             |
+| 60    | MIDS_D                      | Supported MIDs [61-80]                     | bitarray              |
 | 61    | MONITOR_HEATED_CATALYST_B1  | Heated Catalyst Monitor Bank 1             | [monitor](Responses.md#monitors-mode-06-responses) |
 | 62    | MONITOR_HEATED_CATALYST_B2  | Heated Catalyst Monitor Bank 2             | [monitor](Responses.md#monitors-mode-06-responses) |
 | 63    | MONITOR_HEATED_CATALYST_B3  | Heated Catalyst Monitor Bank 3             | [monitor](Responses.md#monitors-mode-06-responses) |
@@ -279,7 +279,7 @@ Mode 06 commands are used to monitor various test results from the vehicle. All 
 | 73    | MONITOR_SECONDARY_AIR_3     | Secondary Air Monitor 3                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | 74    | MONITOR_SECONDARY_AIR_4     | Secondary Air Monitor 4                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| 80    | MIDS_E                      | Supported MIDs [81-A0]                     | bitstring             |
+| 80    | MIDS_E                      | Supported MIDs [81-A0]                     | bitarray              |
 | 81    | MONITOR_FUEL_SYSTEM_B1      | Fuel System Monitor Bank 1                 | [monitor](Responses.md#monitors-mode-06-responses) |
 | 82    | MONITOR_FUEL_SYSTEM_B2      | Fuel System Monitor Bank 2                 | [monitor](Responses.md#monitors-mode-06-responses) |
 | 83    | MONITOR_FUEL_SYSTEM_B3      | Fuel System Monitor Bank 3                 | [monitor](Responses.md#monitors-mode-06-responses) |
@@ -293,7 +293,7 @@ Mode 06 commands are used to monitor various test results from the vehicle. All 
 | 98    | MONITOR_NOX_CATALYST_B1     | NOx Catalyst Monitor Bank 1                | [monitor](Responses.md#monitors-mode-06-responses) |
 | 99    | MONITOR_NOX_CATALYST_B2     | NOx Catalyst Monitor Bank 2                | [monitor](Responses.md#monitors-mode-06-responses) |
 | *gap* |                             |                                            |
-| A0    | MIDS_F                      | Supported MIDs [A1-C0]                     | bitstring             |
+| A0    | MIDS_F                      | Supported MIDs [A1-C0]                     | bitarray              |
 | A1    | MONITOR_MISFIRE_GENERAL     | Misfire Monitor General Data               | [monitor](Responses.md#monitors-mode-06-responses) |
 | A2    | MONITOR_MISFIRE_CYLINDER_1  | Misfire Cylinder 1 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |
 | A3    | MONITOR_MISFIRE_CYLINDER_2  | Misfire Cylinder 2 Data                    | [monitor](Responses.md#monitors-mode-06-responses) |

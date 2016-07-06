@@ -119,6 +119,7 @@ def test_fuel_status():
     assert d.fuel_status(m("0800")) == ("Open loop due to system failure", "")
     assert d.fuel_status(m("0808")) == ("Open loop due to system failure",
                                         "Open loop due to system failure")
+    assert d.fuel_status(m("0008")) == ("", "Open loop due to system failure")
     assert d.fuel_status(m("0000")) == None
     assert d.fuel_status(m("0300")) == None
     assert d.fuel_status(m("0303")) == None

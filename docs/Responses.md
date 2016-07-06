@@ -127,6 +127,34 @@ responce.value = ("P0104", "Mass or Volume Air Flow Circuit Intermittent")
 
 ---
 
+# Fuel Status
+
+The fuel status is a tuple of two strings, telling the status of the first and second fuel systems. Most cars only have one system, so the second element will likely be an empty string. The possible fuel statuses are:
+
+| Fuel Status                                                                                   |
+| ----------------------------------------------------------------------------------------------|
+| `""`                                                                                          |
+| `"Open loop due to insufficient engine temperature"`                                          |
+| `"Closed loop, using oxygen sensor feedback to determine fuel mix"`                           |
+| `"Open loop due to engine load OR fuel cut due to deceleration"`                              |
+| `"Open loop due to system failure"`                                                           |
+| `"Closed loop, using at least one oxygen sensor but there is a fault in the feedback system"` |
+
+---
+
+# Air Status
+
+The air status will be one of these strings:
+
+| Air Status                             |
+| ---------------------------------------|
+| `"Upstream"`                           |
+| `"Downstream of catalytic converter"`  |
+| `"From the outside atmosphere or off"` |
+| `"Pump commanded on for diagnostics"`  |
+
+---
+
 # Oxygen Sensors Present
 
 Returns a 2D structure of tuples (representing bank and sensor number), that holds boolean values for sensor presence.
