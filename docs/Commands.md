@@ -139,7 +139,7 @@ obd.commands.has_pid(1, 12) # True
 | 3E | CATALYST_TEMP_B1S2        | Catalyst Temperature: Bank 1 - Sensor 2 | Unit.celsius          |
 | 3F | CATALYST_TEMP_B2S2        | Catalyst Temperature: Bank 2 - Sensor 2 | Unit.celsius          |
 | 40 | PIDS_C                    | Supported PIDs [41-60]                  | bitarray              |
-| 41 | *unsupported*             | *unsupported*                           |                       |
+| 41 | STATUS_DRIVE_CYCLE        | Monitor status this drive cycle         | [special](Responses.md#status) |
 | 42 | *unsupported*             | *unsupported*                           |                       |
 | 43 | *unsupported*             | *unsupported*                           |                       |
 | 44 | *unsupported*             | *unsupported*                           |                       |
