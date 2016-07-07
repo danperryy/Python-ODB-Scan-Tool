@@ -122,7 +122,7 @@ __mode1__ = [
     OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , b"0141", 4, status,                ECU.ENGINE, True),
     OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , b"0142", 2, uas(0x0B),             ECU.ENGINE, True),
     OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , b"0143", 2, drop,                  ECU.ENGINE, True),
-    OBDCommand("COMMAND_EQUIV_RATIO"        , "Command equivalence ratio"               , b"0144", 2, drop,                  ECU.ENGINE, True),
+    OBDCommand("COMMANDED_EQUIV_RATIO"      , "Commanded equivalence ratio"             , b"0144", 2, uas(0x1E),             ECU.ENGINE, True),
     OBDCommand("RELATIVE_THROTTLE_POS"      , "Relative throttle position"              , b"0145", 1, percent,               ECU.ENGINE, True),
     OBDCommand("AMBIANT_AIR_TEMP"           , "Ambient air temperature"                 , b"0146", 1, temp,                  ECU.ENGINE, True),
     OBDCommand("THROTTLE_POS_B"             , "Absolute throttle position B"            , b"0147", 1, percent,               ECU.ENGINE, True),

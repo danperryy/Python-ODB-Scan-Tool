@@ -142,7 +142,7 @@ obd.commands.has_pid(1, 12) # True
 | 41 | STATUS_DRIVE_CYCLE        | Monitor status this drive cycle         | [special](Responses.md#status) |
 | 42 | CONTROL_MODULE_VOLTAGE    | Control module voltage                  | Unit.volt             |
 | 43 | *unsupported*             | *unsupported*                           |                       |
-| 44 | *unsupported*             | *unsupported*                           |                       |
+| 44 | COMMANDED_EQUIV_RATIO     | Commanded equivalence ratio             | Unit.ratio            |
 | 45 | RELATIVE_THROTTLE_POS     | Relative throttle position              | Unit.percent          |
 | 46 | AMBIANT_AIR_TEMP          | Ambient air temperature                 | Unit.celsius          |
 | 47 | THROTTLE_POS_B            | Absolute throttle position B            | Unit.percent          |
