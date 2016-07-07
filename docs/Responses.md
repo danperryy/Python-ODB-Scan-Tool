@@ -174,8 +174,8 @@ response.value = (
     (),             # bank 0 is invalid, this is merely for correct indexing
     (True,  True),  # bank 1
     (True,  False), # bank 2
-    (False, False), # bank 2
-    (False, False)  # bank 2
+    (False, False), # bank 3
+    (False, False)  # bank 4
 )
 
 # example usage:
