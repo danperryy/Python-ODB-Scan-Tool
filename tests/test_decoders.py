@@ -145,6 +145,10 @@ def test_aux_input_status():
     assert d.aux_input_status(m("00")) == False
     assert d.aux_input_status(m("80")) == True
 
+def test_absolute_load():
+    assert d.absolute_load(m("0000")) == 0 * Unit.percent
+    assert d.absolute_load(m("FFFF")) == 25700 * Unit.percent
+
 def test_elm_voltage():
     # these aren't parsed as standard hex messages, so manufacture our own
     assert d.elm_voltage([ Message([ Frame("12.875") ]) ]) == 12.875 * Unit.volt

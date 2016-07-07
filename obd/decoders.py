@@ -222,6 +222,13 @@ def o2_sensors_alt(messages):
         tuple(bits[6:]), # bank 4
     )
 
+# 0 to 25700 %
+def absolute_load(messages):
+    d = messages[0].data
+    v = bytes_to_int(d)
+    v *= 100.0 / 255.0
+    return v * Unit.percent
+
 def elm_voltage(messages):
     # doesn't register as a normal OBD response,
     # so access the raw frame data
