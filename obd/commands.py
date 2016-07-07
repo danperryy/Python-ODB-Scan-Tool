@@ -286,9 +286,9 @@ __mode7__ = [
 
 __mode9__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU        fast
-    OBDCommand("PIDS_9A"                    , "Supported PIDs [01-20]"                  , b"0900", 4, pid,                   ECU.ENGINE,  True),
-    OBDCommand("VIN_MESSAGE_COUNT"          , "VIN Message Count"                       , b"0901", 1, uas(0x01),             ECU.ENGINE,  True),
-    OBDCommand("VIN"                        , "Get Vehicle Identification Number"       , b"0902", 20, raw_string,           ECU.ENGINE,  True),
+    # OBDCommand("PIDS_9A"                    , "Supported PIDs [01-20]"                  , b"0900", 4, pid,                   ECU.ENGINE,  True),
+    # OBDCommand("VIN_MESSAGE_COUNT"          , "VIN Message Count"                       , b"0901", 1, uas(0x01),             ECU.ENGINE,  True),
+    # OBDCommand("VIN"                        , "Get Vehicle Identification Number"       , b"0902", 20, raw_string,           ECU.ENGINE,  True),
 ]
 
 __misc__ = [
