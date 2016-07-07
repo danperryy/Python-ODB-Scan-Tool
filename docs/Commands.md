@@ -140,7 +140,7 @@ obd.commands.has_pid(1, 12) # True
 | 3F | CATALYST_TEMP_B2S2        | Catalyst Temperature: Bank 2 - Sensor 2 | Unit.celsius          |
 | 40 | PIDS_C                    | Supported PIDs [41-60]                  | bitarray              |
 | 41 | STATUS_DRIVE_CYCLE        | Monitor status this drive cycle         | [special](Responses.md#status) |
-| 42 | *unsupported*             | *unsupported*                           |                       |
+| 42 | CONTROL_MODULE_VOLTAGE    | Control module voltage                  | Unit.volt             |
 | 43 | *unsupported*             | *unsupported*                           |                       |
 | 44 | *unsupported*             | *unsupported*                           |                       |
 | 45 | RELATIVE_THROTTLE_POS     | Relative throttle position              | Unit.percent          |

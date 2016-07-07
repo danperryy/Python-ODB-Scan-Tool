@@ -120,7 +120,7 @@ __mode1__ = [
     #                      name                             description                    cmd  bytes       decoder           ECU       fast
     OBDCommand("PIDS_C"                     , "Supported PIDs [41-60]"                  , b"0140", 4, pid,                   ECU.ENGINE, True),
     OBDCommand("STATUS_DRIVE_CYCLE"         , "Monitor status this drive cycle"         , b"0141", 4, status,                ECU.ENGINE, True),
-    OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , b"0142", 2, drop,                  ECU.ENGINE, True),
+    OBDCommand("CONTROL_MODULE_VOLTAGE"     , "Control module voltage"                  , b"0142", 2, uas(0x0B),             ECU.ENGINE, True),
     OBDCommand("ABSOLUTE_LOAD"              , "Absolute load value"                     , b"0143", 2, drop,                  ECU.ENGINE, True),
     OBDCommand("COMMAND_EQUIV_RATIO"        , "Command equivalence ratio"               , b"0144", 2, drop,                  ECU.ENGINE, True),
     OBDCommand("RELATIVE_THROTTLE_POS"      , "Relative throttle position"              , b"0145", 1, percent,               ECU.ENGINE, True),
