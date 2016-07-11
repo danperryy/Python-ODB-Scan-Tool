@@ -12,7 +12,7 @@ connection = obd.OBD("/dev/ttyUSB0") # create connection with USB 0
 
 # OR
 
-ports = obd.scan_serial()       # return list of valid USB or RF ports
+ports = obd.scan_serial()      # return list of valid USB or RF ports
 print ports                    # ['/dev/ttyUSB0', '/dev/ttyUSB1']
 connection = obd.OBD(ports[0]) # connect to the first port in the list
 ```
@@ -87,7 +87,7 @@ connection.status() == OBDStatus.CAR_CONNECTED
 
 ### port_name()
 
-Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns `"Not connected to any port"`.
+Returns the string name for the currently connected port (`"/dev/ttyUSB0"`). If no connection was made, this function returns an empty string.
 
 ---
 
