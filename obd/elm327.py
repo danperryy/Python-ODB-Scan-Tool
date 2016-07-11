@@ -427,7 +427,7 @@ class ELM327:
         """
         if not self.__port:
             logger.info("cannot perform __read() when unconnected")
-            return ""
+            return []
 
         buffer = bytearray()
 
