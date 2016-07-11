@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 class CANProtocol(Protocol):
 
     TX_ID_ENGINE = 0
+    TX_ID_TRANSMISSION = 1
 
     FRAME_TYPE_SF = 0x00  # single frame
     FRAME_TYPE_FF = 0x10  # first frame of multi-frame message
