@@ -118,7 +118,7 @@ class ELM327:
                                         stopbits = 1, \
                                         bytesize = 8,
                                         timeout = 10) # seconds
-            logger.info("Serial port successfully opened on " + self.port_name())
+            logger.info("Port opened")
 
         except serial.SerialException as e:
             self.__error(e)
@@ -183,6 +183,8 @@ class ELM327:
 
     def manual_protocol(self, protocol):
 
+        logger.debug("Setting fixed protocol: %s" % protocol)
+
         r = self.__send(b"ATTP" + protocol.encode())
         r0100 = self.__send(b"0100")
 
@@ -203,6 +205,8 @@ class ELM327:
             Upon success, the appropriate protocol parser is loaded,
             and this function returns True
         """
+
+        logger.debug("Choosing protocol automatically")
 
         # -------------- try the ELM's auto protocol mode --------------
         r = self.__send(b"ATSP0")
@@ -249,10 +253,12 @@ class ELM327:
         if baud is None:
             # when connecting to pseudo terminal, don't bother with auto baud
             if self.port_name().startswith("/dev/pts"):
+                logger.debug("Detected pseudo terminal, skipping baudrate setup")
                 return True
             else:
                 return self.auto_baudrate()
         else:
+            logger.debug("Setting fixed baudrate: %d" % baud)
             self.__port.baudrate = baud
             return True
 
@@ -315,14 +321,10 @@ class ELM327:
         return False
 
 
-    def __error(self, msg=None):
+    def __error(self, msg):
         """ handles fatal failures, print logger.info info and closes serial """
-
         self.close()
-
-        logger.error("Connection Error:")
-        if msg is not None:
-            logger.error(str(msg))
+        logger.error(str(msg))
 
 
     def port_name(self):
