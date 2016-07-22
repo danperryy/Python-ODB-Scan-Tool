@@ -105,6 +105,13 @@ class ELM327:
     def __init__(self, portname, baudrate, protocol):
         """Initializes port by resetting device and gettings supported PIDs. """
 
+        logger.info("Initializing ELM327: PORT=%s BAUD=%s PROTOCOL=%s" %
+                    (
+                        portname,
+                        "auto" if baudrate is None else baudrate,
+                        "auto" if protocol is None else protocol,
+                    ))
+
         self.__status   = OBDStatus.NOT_CONNECTED
         self.__port     = None
         self.__protocol = UnknownProtocol([])
@@ -112,14 +119,11 @@ class ELM327:
 
         # ------------- open port -------------
         try:
-            logger.info("Opening serial port '%s'" % portname)
             self.__port = serial.Serial(portname, \
                                         parity   = serial.PARITY_NONE, \
                                         stopbits = 1, \
                                         bytesize = 8,
                                         timeout = 10) # seconds
-            logger.info("Port opened")
-
         except serial.SerialException as e:
             self.__error(e)
             return
@@ -164,7 +168,12 @@ class ELM327:
         # try to communicate with the car, and load the correct protocol parser
         if self.set_protocol(protocol):
             self.__status = OBDStatus.CAR_CONNECTED
-            logger.info("Connection successful")
+            logger.info("Connected Successfully: PORT=%s BAUD=%s PROTOCOL=%s" %
+                        (
+                            portname,
+                            self.__protocol.ELM_ID,
+                            self.__port.baudrate,
+                        ))
         else:
             logger.error("Connected to the adapter, but failed to connect to the vehicle")
 
@@ -182,9 +191,6 @@ class ELM327:
 
 
     def manual_protocol(self, protocol):
-
-        logger.debug("Setting fixed protocol: %s" % protocol)
-
         r = self.__send(b"ATTP" + protocol.encode())
         r0100 = self.__send(b"0100")
 
@@ -205,8 +211,6 @@ class ELM327:
             Upon success, the appropriate protocol parser is loaded,
             and this function returns True
         """
-
-        logger.debug("Choosing protocol automatically")
 
         # -------------- try the ELM's auto protocol mode --------------
         r = self.__send(b"ATSP0")
@@ -234,7 +238,7 @@ class ELM327:
             # an unknown protocol
             # this is likely because not all adapter/car combinations work
             # in "auto" mode. Some respond to ATDPN responded with "0"
-            logger.info("ELM responded with unknown protocol. Trying them one-by-one")
+            logger.debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
                 r = self.__send(b"ATTP" + p.encode())
@@ -258,7 +262,6 @@ class ELM327:
             else:
                 return self.auto_baudrate()
         else:
-            logger.debug("Setting fixed baudrate: %d" % baud)
             self.__port.baudrate = baud
             return True
 
@@ -268,8 +271,6 @@ class ELM327:
         Detect the baud rate at which a connected ELM32x interface is operating.
         Returns boolean for success.
         """
-
-        logger.debug("Choosing baudrate automatically")
 
         # before we change the timout, save the "normal" value
         timeout = self.__port.timeout
@@ -399,7 +400,7 @@ class ELM327:
         self.__write(cmd)
 
         if delay is not None:
-            logger.info("wait: %d seconds" % delay)
+            logger.debug("wait: %d seconds" % delay)
             time.sleep(delay)
 
         return self.__read()

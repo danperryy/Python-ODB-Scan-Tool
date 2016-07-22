@@ -99,7 +99,7 @@ class OBD(object):
             logger.warning("Cannot load commands: No connection to car")
             return
 
-        logger.info("querying for supported PIDs (commands)...")
+        logger.info("querying for supported commands")
         pid_getters = commands.pid_getters()
         for get in pid_getters:
             # PID listing commands should sequentialy become supported
@@ -109,9 +109,10 @@ class OBD(object):
 
             # when querying, only use the blocking OBD.query()
             # prevents problems when query is redefined in a subclass (like Async)
-            response = OBD.query(self, get, force=True) # ask nicely
+            response = OBD.query(self, get)
 
             if response.is_null():
+                logger.info("No valid data for PID listing command: %s" % get)
                 continue
 
             # loop through PIDs bitarray
