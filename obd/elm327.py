@@ -171,8 +171,8 @@ class ELM327:
             logger.info("Connected Successfully: PORT=%s BAUD=%s PROTOCOL=%s" %
                         (
                             portname,
-                            self.__protocol.ELM_ID,
                             self.__port.baudrate,
+                            self.__protocol.ELM_ID,
                         ))
         else:
             logger.error("Connected to the adapter, but failed to connect to the vehicle")
