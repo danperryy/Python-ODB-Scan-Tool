@@ -134,7 +134,8 @@ class ELM327:
         # ------------------------ find the ELM's baud ------------------------
 
         if not self.set_baudrate(baudrate):
-            self.__error("Failed to set baudrate");
+            self.__error("Failed to set baudrate")
+            return
 
         # ---------------------------- ATZ (reset) ----------------------------
         try:
