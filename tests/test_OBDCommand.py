@@ -1,6 +1,6 @@
 
 from obd.OBDCommand import OBDCommand
-from obd.OBDResponse import Unit
+from obd.UnitsAndScaling import Unit
 from obd.decoders import noop
 from obd.protocols import *
 
@@ -19,8 +19,8 @@ def test_constructor():
     assert cmd.ecu       == ECU.ENGINE
     assert cmd.fast      == False
 
-    assert cmd.mode_int == 1
-    assert cmd.pid_int  == 35
+    assert cmd.mode == 1
+    assert cmd.pid  == 35
 
     # a case where "fast", and "supported" were set explicitly
     #                 name       description        cmd  bytes decoder ECU         fast
@@ -67,18 +67,18 @@ def test_call():
 
 
 
-def test_get_mode_int():
+def test_get_mode():
     cmd = OBDCommand("", "", "0123", 4, noop, ECU.ENGINE)
-    assert cmd.mode_int == 0x01
+    assert cmd.mode == 0x01
 
     cmd = OBDCommand("", "", "", "23", 4, noop, ECU.ENGINE)
-    assert cmd.mode_int == 0
+    assert cmd.mode == 0
 
 
 
-def test_pid_int():
+def test_pid():
     cmd = OBDCommand("", "", "0123", 4, noop, ECU.ENGINE)
-    assert cmd.pid_int == 0x23
+    assert cmd.pid == 0x23
 
     cmd = OBDCommand("", "", "01", 4, noop, ECU.ENGINE)
-    assert cmd.pid_int == 0
+    assert cmd.pid == 0

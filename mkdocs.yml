@@ -1,10 +1,13 @@
 site_name: python-OBD
 repo_url: https://github.com/brendan-w/python-OBD
 repo_name: GitHub
+extra_javascript:
+- assets/extra.js
 pages:
 - 'Getting Started': 'index.md'
 - 'OBD Connections': 'Connections.md'
-- 'Commands': 'Commands.md'
+- 'Command Lookup': 'Command Lookup.md'
+- 'Command Tables' : 'Command Tables.md'
 - 'Responses': 'Responses.md'
 - 'Async Connections': 'Async Connections.md'
 - 'Custom Commands': 'Custom Commands.md'

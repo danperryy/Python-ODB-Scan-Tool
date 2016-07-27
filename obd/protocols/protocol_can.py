@@ -31,12 +31,17 @@
 
 from binascii import unhexlify
 from obd.utils import contiguous
-from .protocol import *
+from .protocol import Protocol, Message, Frame, ECU
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CANProtocol(Protocol):
 
     TX_ID_ENGINE = 0
+    TX_ID_TRANSMISSION = 1
 
     FRAME_TYPE_SF = 0x00  # single frame
     FRAME_TYPE_FF = 0x10  # first frame of multi-frame message
@@ -66,7 +71,7 @@ class CANProtocol(Protocol):
 
         # Handle odd size frames and drop
         if len(raw) & 1:
-            debug("Dropping frame for being odd")
+            logger.debug("Dropping frame for being odd")
             return False
 
         raw_bytes = bytearray(unhexlify(raw))
@@ -79,11 +84,11 @@ class CANProtocol(Protocol):
             #
             # 00 00 07 E8 10 20 ...
 
-            debug("Dropped frame for being too short")
+            logger.debug("Dropped frame for being too short")
             return False
 
         if len(raw_bytes) > 12:
-            debug("Dropped frame for being too long")
+            logger.debug("Dropped frame for being too long")
             return False
 
 
@@ -127,7 +132,7 @@ class CANProtocol(Protocol):
         if frame.type not in [self.FRAME_TYPE_SF,
                               self.FRAME_TYPE_FF,
                               self.FRAME_TYPE_CF]:
-            debug("Dropping frame carrying unknown PCI frame type")
+            logger.debug("Dropping frame carrying unknown PCI frame type")
             return False
 
 
@@ -169,7 +174,7 @@ class CANProtocol(Protocol):
             frame = frames[0]
 
             if frame.type != self.FRAME_TYPE_SF:
-                debug("Recieved lone frame not marked as single frame")
+                logger.debug("Recieved lone frame not marked as single frame")
                 return False
 
             # extract data, ignore PCI byte and anything after the marked length
@@ -190,19 +195,19 @@ class CANProtocol(Protocol):
                 elif f.type == self.FRAME_TYPE_CF:
                     cf.append(f)
                 else:
-                    debug("Dropping frame in multi-frame response not marked as FF or CF")
+                    logger.debug("Dropping frame in multi-frame response not marked as FF or CF")
 
             # check that we captured only one first-frame
             if len(ff) > 1:
-                debug("Recieved multiple frames marked FF")
+                logger.debug("Recieved multiple frames marked FF")
                 return False
             elif len(ff) == 0:
-                debug("Never received frame marked FF")
+                logger.debug("Never received frame marked FF")
                 return False
 
             # check that there was at least one consecutive-frame
             if len(cf) == 0:
-                debug("Never received frame marked CF")
+                logger.debug("Never received frame marked CF")
                 return False
 
             # calculate proper sequence indices from the lower 4 bits given
@@ -225,7 +230,7 @@ class CANProtocol(Protocol):
             # check contiguity, and that we aren't missing any frames
             indices = [f.seq_index for f in cf]
             if not contiguous(indices, 1, len(cf)):
-                debug("Recieved multiline response with missing frames")
+                logger.debug("Recieved multiline response with missing frames")
                 return False
 
 
@@ -260,17 +265,27 @@ class CANProtocol(Protocol):
             message.data = message.data[:ff[0].data_len]
 
 
+        # TODO: this is an ugly solution, maybe move mode/pid byte ignoring to the decoders?
+
         # chop off the Mode/PID bytes based on the mode number
         mode = message.data[0]
         if mode == 0x43:
 
-            # TODO: confirm this logic. I don't have any raw test data for it yet
+            #    []
+            # 43 03 11 11 22 22 33 33
+            #       [DTC] [DTC] [DTC]
 
             # fetch the DTC count, and use it as a length code
             num_dtc_bytes = message.data[1] * 2
 
             # skip the PID byte and the DTC count,
             message.data = message.data[2:][:num_dtc_bytes]
+
+        elif mode == 0x46:
+            # the monitor test mode only has a mode number
+            # the MID (mode 6's version of a PID) is repeated,
+            # and handled in the decoder
+            message.data  = message.data[1:]
 
         else:
             # skip the Mode and PID bytes

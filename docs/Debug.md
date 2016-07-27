@@ -1,16 +1,17 @@
-python-OBD also contains a debug object that receives status messages and errors. Console printing is disabled by default, but can be enabled manually. A custom debug handler can also be set.
+python-OBD uses python's builtin logging system. By default, it is setup to send output to `stderr` with a level of WARNING. The module's logger can be accessed via the `logger` variable at the root of the module. For instance, to enable console printing of all debug messages, use the following snippet:
 
 ```python
 import obd
 
-obd.debug.console = True
+obd.logger.setLevel(obd.logging.DEBUG) # enables all debug information
+```
 
-# AND / OR
+Or, to silence all logging output from python-OBD:
 
-def log(msg):
-	print msg
+```python
+import obd
 
-obd.debug.handler = log
+obd.logger.removeHandler(obd.console_handler)
 ```
 
 ---

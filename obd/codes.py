@@ -2101,30 +2101,36 @@ DTC = {
 }
 
 IGNITION_TYPE = [
-    "Spark",
-    "Compression",
+    "spark",
+    "compression",
+]
+
+BASE_TESTS = [
+    "MISFIRE_MONITORING",
+    "FUEL_SYSTEM_MONITORING",
+    "COMPONENT_MONITORING",
 ]
 
 SPARK_TESTS = [
-    "EGR System",
-    "Oxygen Sensor Heater",
-    "Oxygen Sensor",
-    "A/C Refrigerant",
-    "Secondary Air System",
-    "Evaporative System",
-    "Heated Catalyst",
-    "Catalyst",
+    "CATALYST_MONITORING",
+    "HEATED_CATALYST_MONITORING",
+    "EVAPORATIVE_SYSTEM_MONITORING",
+    "SECONDARY_AIR_SYSTEM_MONITORING",
+    None,
+    "OXYGEN_SENSOR_MONITORING",
+    "OXYGEN_SENSOR_HEATER_MONITORING",
+    "EGR_VVT_SYSTEM_MONITORING"
 ]
 
 COMPRESSION_TESTS = [
-    "EGR and/or VVT System",
-    "PM filter monitoring",
-    "Exhaust Gas Sensor",
-    "None",
-    "Boost Pressure",
-    "None",
-    "NOx/SCR Monitor",
-    "NMHC Catalyst",
+    "NMHC_CATALYST_MONITORING",
+    "NOX_SCR_AFTERTREATMENT_MONITORING",
+    None,
+    "BOOST_PRESSURE_MONITORING",
+    None,
+    "EXHAUST_GAS_SENSOR_MONITORING",
+    "PM_FILTER_MONITORING",
+    "EGR_VVT_SYSTEM_MONITORING",
 ]
 
 FUEL_STATUS = [
@@ -2205,3 +2211,20 @@ FUEL_TYPES = [
     "Hybrid Regenerative",
     "Bifuel running diesel",
 ]
+
+TEST_IDS = {
+    # <TID> :       <name>                        <description>
+    # 0x0 is reserved
+    0x01 : ("RTL_THRESHOLD_VOLTAGE",    "Rich to lean sensor threshold voltage"),
+    0x02 : ("LTR_THRESHOLD_VOLTAGE",    "Lean to rich sensor threshold voltage"),
+    0x03 : ("LOW_VOLTAGE_SWITCH_TIME",  "Low sensor voltage for switch time calculation"),
+    0x04 : ("HIGH_VOLTAGE_SWITCH_TIME", "High sensor voltage for switch time calculation"),
+    0x05 : ("RTL_SWITCH_TIME",          "Rich to lean sensor switch time"),
+    0x06 : ("LTR_SWITCH_TIME",          "Lean to rich sensor switch time"),
+    0x07 : ("MIN_VOLTAGE",              "Minimum sensor voltage for test cycle"),
+    0x08 : ("MAX_VOLTAGE",              "Maximum sensor voltage for test cycle"),
+    0x09 : ("TRANSITION_TIME",          "Time between sensor transitions"),
+    0x0A : ("SENSOR_PERIOD",            "Sensor period"),
+    0x0B : ("MISFIRE_AVERAGE",          "Average misfire counts for last ten driving cycles"),
+    0x0C : ("MISFIRE_COUNT",            "Misfire counts for last/current driving cycles"),
+}

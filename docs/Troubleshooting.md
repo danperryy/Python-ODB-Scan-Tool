@@ -4,7 +4,7 @@
 If python-OBD is not working properly, the first thing you should do is enable debug output. Add the following line before your connection code to print all of the debug information to your console:
 
 ```python
-obd.debug.console = True
+obd.logger.setLevel(obd.logging.DEBUG)
 ```
 
 Here are some common logs from python-OBD, and their meanings:

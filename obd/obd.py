@@ -30,13 +30,15 @@
 ########################################################################
 
 
+import logging
+
 from .__version__ import __version__
 from .elm327 import ELM327
 from .commands import commands
 from .OBDResponse import OBDResponse
 from .utils import scan_serial, OBDStatus
-from .debug import debug
 
+logger = logging.getLogger(__name__)
 
 
 class OBD(object):
@@ -45,16 +47,16 @@ class OBD(object):
         with it's assorted commands/sensors.
     """
 
-    def __init__(self, portstr=None, baudrate=38400, protocol=None, fast=True):
-        self.port = None
+    def __init__(self, portstr=None, baudrate=None, protocol=None, fast=True):
+        self.interface = None
         self.supported_commands = set(commands.base_commands())
         self.fast = fast
         self.__last_command = "" # used for running the previous command with a CR
 
-        debug("========================== python-OBD (v%s) ==========================" % __version__)
+        logger.info("======================= python-OBD (v%s) =======================" % __version__)
         self.__connect(portstr, baudrate, protocol) # initialize by connecting and loading sensors
         self.__load_commands()            # try to load the car's supported commands
-        debug("=========================================================================")
+        logger.info("===================================================================")
 
 
     def __connect(self, portstr, baudrate, protocol):
@@ -63,26 +65,26 @@ class OBD(object):
         """
 
         if portstr is None:
-            debug("Using scan_serial to select port")
+            logger.info("Using scan_serial to select port")
             portnames = scan_serial()
-            debug("Available ports: " + str(portnames))
+            logger.info("Available ports: " + str(portnames))
 
             if not portnames:
-                debug("No OBD-II adapters found", True)
+                logger.warning("No OBD-II adapters found")
                 return
 
             for port in portnames:
-                debug("Attempting to use port: " + str(port))
-                self.port = ELM327(port, baudrate, protocol)
+                logger.info("Attempting to use port: " + str(port))
+                self.interface = ELM327(port, baudrate, protocol)
 
-                if self.port.status() >= OBDStatus.ELM_CONNECTED:
+                if self.interface.status() >= OBDStatus.ELM_CONNECTED:
                     break # success! stop searching for serial
         else:
-            debug("Explicit port defined")
-            self.port = ELM327(portstr, baudrate, protocol)
+            logger.info("Explicit port defined")
+            self.interface = ELM327(portstr, baudrate, protocol)
 
         # if the connection failed, close it
-        if self.port.status == OBDStatus.NOT_CONNECTED:
+        if self.interface.status() == OBDStatus.NOT_CONNECTED:
             # the ELM327 class will report its own errors
             self.close()
 
@@ -94,32 +96,31 @@ class OBD(object):
         """
 
         if self.status() != OBDStatus.CAR_CONNECTED:
-            debug("Cannot load commands: No connection to car", True)
+            logger.warning("Cannot load commands: No connection to car")
             return
 
-        debug("querying for supported PIDs (commands)...")
+        logger.info("querying for supported commands")
         pid_getters = commands.pid_getters()
         for get in pid_getters:
             # PID listing commands should sequentialy become supported
             # Mode 1 PID 0 is assumed to always be supported
-            if not self.supports(get):
+            if not self.test_cmd(get, warn=False):
                 continue
 
             # when querying, only use the blocking OBD.query()
             # prevents problems when query is redefined in a subclass (like Async)
-            response = OBD.query(self, get, force=True) # ask nicely
+            response = OBD.query(self, get)
 
             if response.is_null():
+                logger.info("No valid data for PID listing command: %s" % get)
                 continue
 
-            supported = response.value # string of binary 01010101010101
+            # loop through PIDs bitarray
+            for i, bit in enumerate(response.value):
+                if bit:
 
-            # loop through PIDs binary
-            for i in range(len(supported)):
-                if supported[i] == "1":
-
-                    mode = get.mode_int
-                    pid  = get.pid_int + i + 1
+                    mode = get.mode
+                    pid  = get.pid + i + 1
 
                     if commands.has_pid(mode, pid):
                         self.supported_commands.add(commands[mode][pid])
@@ -128,7 +129,7 @@ class OBD(object):
                     if mode == 1 and commands.has_pid(2, pid):
                         self.supported_commands.add(commands[2][pid])
 
-        debug("finished querying with %d commands supported" % len(self.supported_commands))
+        logger.info("finished querying with %d commands supported" % len(self.supported_commands))
 
 
     def close(self):
@@ -136,60 +137,54 @@ class OBD(object):
             Closes the connection, and clears supported_commands
         """
 
-        self.supported_commands = []
+        self.supported_commands = set()
 
-        if self.port is not None:
-            debug("Closing connection")
-            self.port.close()
-            self.port = None
+        if self.interface is not None:
+            logger.info("Closing connection")
+            self.interface.close()
+            self.interface = None
 
 
     def status(self):
         """ returns the OBD connection status """
-        if self.port is None:
+        if self.interface is None:
             return OBDStatus.NOT_CONNECTED
         else:
-            return self.port.status()
+            return self.interface.status()
 
 
     # not sure how useful this would be
 
     # def ecus(self):
     #     """ returns a list of ECUs in the vehicle """
-    #     if self.port is None:
+    #     if self.interface is None:
     #         return []
     #     else:
-    #         return self.port.ecus()
+    #         return self.interface.ecus()
 
 
     def protocol_name(self):
         """ returns the name of the protocol being used by the ELM327 """
-        if self.port is None:
+        if self.interface is None:
             return ""
         else:
-            return self.port.protocol_name()
+            return self.interface.protocol_name()
 
 
     def protocol_id(self):
         """ returns the ID of the protocol being used by the ELM327 """
-        if self.port is None:
+        if self.interface is None:
             return ""
         else:
-            return self.port.protocol_id()
-
-
-    def get_port_name(self):
-        # TODO: deprecated, remove later
-        print("OBD.get_port_name() is deprecated, use OBD.port_name() instead")
-        return self.port_name()
+            return self.interface.protocol_id()
 
 
     def port_name(self):
         """ Returns the name of the currently connected port """
-        if self.port is not None:
-            return self.port.port_name()
+        if self.interface is not None:
+            return self.interface.port_name()
         else:
-            return "Not connected to any port"
+            return ""
 
 
     def is_connected(self):
@@ -219,6 +214,26 @@ class OBD(object):
         return cmd in self.supported_commands
 
 
+    def test_cmd(self, cmd, warn=True):
+        """
+            Returns a boolean for whether a command will
+            be sent without using force=True.
+        """
+        # test if the command is supported
+        if not self.supports(cmd):
+            if warn:
+                logger.warning("'%s' is not supported" % str(cmd))
+            return False
+
+        # mode 06 is only implemented for the CAN protocols
+        if cmd.mode == 6 and self.interface.protocol_id() not in ["6", "7", "8", "9"]:
+            if warn:
+                logger.warning("Mode 06 commands are only supported over CAN protocols")
+            return False
+
+        return True
+
+
     def query(self, cmd, force=False):
         """
             primary API function. Sends commands to the car, and
@@ -226,25 +241,24 @@ class OBD(object):
         """
 
         if self.status() == OBDStatus.NOT_CONNECTED:
-            debug("Query failed, no connection available", True)
+            logger.warning("Query failed, no connection available")
             return OBDResponse()
 
-        if not force and not self.supports(cmd):
-            debug("'%s' is not supported" % str(cmd), True)
+        # if the user forces, skip all checks
+        if not force and not self.test_cmd(cmd):
             return OBDResponse()
-
 
         # send command and retrieve message
-        debug("Sending command: %s" % str(cmd))
+        logger.info("Sending command: %s" % str(cmd))
         cmd_string = self.__build_command_string(cmd)
-        messages = self.port.send_and_parse(cmd_string)
+        messages = self.interface.send_and_parse(cmd_string)
 
         # if we're sending a new command, note it
         if cmd_string:
             self.__last_command = cmd_string
 
         if not messages:
-            debug("No valid OBD Messages returned", True)
+            logger.info("No valid OBD Messages returned")
             return OBDResponse()
 
         return cmd(messages) # compute a response object
@@ -256,10 +270,10 @@ class OBD(object):
 
         # only wait for as many ECUs as we've seen
         if self.fast and cmd.fast:
-            cmd_string += str(len(self.port.ecus()))
+            cmd_string += str(len(self.interface.ecus())).encode()
 
         # if we sent this last time, just send
         if self.fast and (cmd_string == self.__last_command):
-            cmd_string = ""
+            cmd_string = b""
 
         return cmd_string

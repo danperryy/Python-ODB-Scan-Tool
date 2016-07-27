@@ -5,8 +5,8 @@ If the command you need is not in python-OBDs tables, you can create a new `OBDC
 |----------------------|----------|----------------------------------------------------------------------------|
 | name                 | string   | (human readability only)                                                   |
 | desc                 | string   | (human readability only)                                                   |
-| command              | string   | OBD command in hex (typically mode + PID                                   |
-| bytes                | int      | Number of bytes expected in response                                       |
+| command              | bytes    | OBD command in hex (typically mode + PID                                   |
+| bytes                | int      | Number of bytes expected in response (zero means unknown)                  |
 | decoder              | callable | Function used for decoding messages from the OBD adapter                   |
 | ecu (optional)       | ECU      | ID of the ECU this command should listen to (`ECU.ALL` by default)         |
 | fast (optional)      | bool     | Allows python-OBD to alter this command for efficieny (`False` by default) |
@@ -21,13 +21,14 @@ from obd.protocols import ECU
 from obd.utils import bytes_to_int
 
 def rpm(messages):
+    """ decoder for RPM messages """
     d = messages[0].data
     v = bytes_to_int(d) / 4.0  # helper function for converting byte arrays to ints
-    return (v, Unit.RPM)
+    return v * Unit.RPM # construct a Pint Quantity
 
 c = OBDCommand("RPM", \          # name
                "Engine RPM", \   # description
-               "010C", \         # command
+               b"010C", \        # command
                2, \              # number of return bytes to expect
                rpm, \            # decoding function
                ECU.ENGINE, \     # (optional) ECU filter
@@ -37,16 +38,14 @@ c = OBDCommand("RPM", \          # name
 By default, custom commands will be treated as "unsupported by the vehicle". There are two ways to handle this:
 
 ```python
+o = obd.OBD()
+
 # use the `force` parameter when querying
-o = obd.OBD()
 o.query(c, force=True)
-```
 
-or
+# OR
 
-```python
 # add your command to the set of supported commands
-o = obd.OBD()
 o.supported_commands.add(c)
 o.query(c)
 ```
@@ -64,10 +63,10 @@ The `decoder` argument is a function of following form.
 ```python
 def <name>(<list_of_messages>):
     ...
-    return (<value>, <unit>)
+    return <value>
 ```
 
-Decoders are given a list of `Message` objects as an argument. If your decoder is called, this list is garaunteed to have at least one message object. Each `Message` object has a `data` property, which holds a parsed byte array, and is also garauteed to have the number of bytes specified by the command.
+The return value of your decoder will be loaded into the `OBDResponse.value` field. Decoders are given a list of `Message` objects as an argument. If your decoder is called, this list is garaunteed to have at least one message object. Each `Message` object has a `data` property, which holds a parsed bytearray, and is also garauteed to have the number of bytes specified by the command.
 
 *NOTE: If you are transitioning from an older version of Python-OBD (where decoders were given raw hex strings as arguments), you can use the `Message.hex()` function as a patch.*
 
@@ -75,7 +74,7 @@ Decoders are given a list of `Message` objects as an argument. If your decoder i
 def <name>(messages):
     _hex = messages[0].hex()
     ...
-    return (<value>, <unit>)
+    return <value>
 ```
 
 *You can also access the original string sent by the adapter using the `Message.raw()` function.*

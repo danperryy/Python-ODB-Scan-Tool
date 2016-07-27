@@ -32,10 +32,11 @@
 import re
 import serial
 import time
+import logging
 from .protocols import *
 from .utils import OBDStatus
-from .debug import debug
 
+logger = logging.getLogger(__name__)
 
 
 class ELM327:
@@ -52,6 +53,8 @@ class ELM327:
             protocol_name()
             ecus()
     """
+
+    ELM_PROMPT = b'>'
 
     _SUPPORTED_PROTOCOLS = {
         #"0" : None, # Automatic Mode. This isn't an actual protocol. If the
@@ -85,9 +88,29 @@ class ELM327:
         "A", # SAE_J1939
     ]
 
+    # 38400, 9600 are the possible boot bauds (unless reprogrammed via
+    # PP 0C).  19200, 38400, 57600, 115200, 230400, 500000 are listed on
+    # p.46 of the ELM327 datasheet.
+    #
+    # Once pyserial supports non-standard baud rates on platforms other
+    # than Linux, we'll add 500K to this list.
+    #
+    # We check the two default baud rates first, then go fastest to
+    # slowest, on the theory that anyone who's using a slow baud rate is
+    # going to be less picky about the time required to detect it.
+    _TRY_BAUDS = [ 38400, 9600, 230400, 115200, 57600, 19200 ]
+
+
 
     def __init__(self, portname, baudrate, protocol):
         """Initializes port by resetting device and gettings supported PIDs. """
+
+        logger.info("Initializing ELM327: PORT=%s BAUD=%s PROTOCOL=%s" %
+                    (
+                        portname,
+                        "auto" if baudrate is None else baudrate,
+                        "auto" if protocol is None else protocol,
+                    ))
 
         self.__status   = OBDStatus.NOT_CONNECTED
         self.__port     = None
@@ -96,15 +119,11 @@ class ELM327:
 
         # ------------- open port -------------
         try:
-            debug("Opening serial port '%s'" % portname)
             self.__port = serial.Serial(portname, \
-                                        baudrate = baudrate, \
                                         parity   = serial.PARITY_NONE, \
                                         stopbits = 1, \
-                                        bytesize = 8, \
-                                        timeout  = 3) # seconds
-            debug("Serial port successfully opened on " + self.port_name())
-
+                                        bytesize = 8,
+                                        timeout = 10) # seconds
         except serial.SerialException as e:
             self.__error(e)
             return
@@ -112,29 +131,34 @@ class ELM327:
             self.__error(e)
             return
 
+        # ------------------------ find the ELM's baud ------------------------
+
+        if not self.set_baudrate(baudrate):
+            self.__error("Failed to set baudrate")
+            return
 
         # ---------------------------- ATZ (reset) ----------------------------
         try:
-            self.__send("ATZ", delay=1) # wait 1 second for ELM to initialize
+            self.__send(b"ATZ", delay=1) # wait 1 second for ELM to initialize
             # return data can be junk, so don't bother checking
         except serial.SerialException as e:
             self.__error(e)
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send("ATE0")
+        r = self.__send(b"ATE0")
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send("ATH1")
+        r = self.__send(b"ATH1")
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
-        r = self.__send("ATL0")
+        r = self.__send(b"ATL0")
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
@@ -143,18 +167,23 @@ class ELM327:
         self.__status = OBDStatus.ELM_CONNECTED
 
         # try to communicate with the car, and load the correct protocol parser
-        if self.load_protocol(protocol):
+        if self.set_protocol(protocol):
             self.__status = OBDStatus.CAR_CONNECTED
-            debug("Connection successful")
+            logger.info("Connected Successfully: PORT=%s BAUD=%s PROTOCOL=%s" %
+                        (
+                            portname,
+                            self.__port.baudrate,
+                            self.__protocol.ELM_ID,
+                        ))
         else:
-            debug("Connected to the adapter, but failed to connect to the vehicle", True)
+            logger.error("Connected to the adapter, but failed to connect to the vehicle")
 
 
-    def load_protocol(self, protocol):
+    def set_protocol(self, protocol):
         if protocol is not None:
             # an explicit protocol was specified
             if protocol not in self._SUPPORTED_PROTOCOLS:
-                debug("%s is not a valid protocol. Please use \"1\" through \"A\"", True)
+                logger.error("%s is not a valid protocol. Please use \"1\" through \"A\"")
                 return False
             return self.manual_protocol(protocol)
         else:
@@ -163,9 +192,8 @@ class ELM327:
 
 
     def manual_protocol(self, protocol):
-
-        r = self.__send("ATTP%s" % protocol)
-        r0100 = self.__send("0100")
+        r = self.__send(b"ATTP" + protocol.encode())
+        r0100 = self.__send(b"0100")
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
@@ -186,15 +214,15 @@ class ELM327:
         """
 
         # -------------- try the ELM's auto protocol mode --------------
-        r = self.__send("ATSP0")
+        r = self.__send(b"ATSP0")
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        r0100 = self.__send("0100")
+        r0100 = self.__send(b"0100")
 
         # ------------------- ATDPN (list protocol number) -------------------
-        r = self.__send("ATDPN")
+        r = self.__send(b"ATDPN")
         if len(r) != 1:
-            debug("Failed to retrieve current protocol", True)
+            logger.error("Failed to retrieve current protocol")
             return False
 
 
@@ -211,17 +239,68 @@ class ELM327:
             # an unknown protocol
             # this is likely because not all adapter/car combinations work
             # in "auto" mode. Some respond to ATDPN responded with "0"
-            debug("ELM responded with unknown protocol. Trying them one-by-one")
+            logger.debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send("ATTP%s" % p)
-                r0100 = self.__send("0100")
+                r = self.__send(b"ATTP" + p.encode())
+                r0100 = self.__send(b"0100")
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
                     self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
                     return True
 
         # if we've come this far, then we have failed...
+        logger.error("Failed to determine protocol")
+        return False
+
+
+    def set_baudrate(self, baud):
+        if baud is None:
+            # when connecting to pseudo terminal, don't bother with auto baud
+            if self.port_name().startswith("/dev/pts"):
+                logger.debug("Detected pseudo terminal, skipping baudrate setup")
+                return True
+            else:
+                return self.auto_baudrate()
+        else:
+            self.__port.baudrate = baud
+            return True
+
+
+    def auto_baudrate(self):
+        """
+        Detect the baud rate at which a connected ELM32x interface is operating.
+        Returns boolean for success.
+        """
+
+        # before we change the timout, save the "normal" value
+        timeout = self.__port.timeout
+        self.__port.timeout = 0.1 # we're only talking with the ELM, so things should go quickly
+
+        for baud in self._TRY_BAUDS:
+            self.__port.baudrate = baud
+            self.__port.flushInput()
+            self.__port.flushOutput()
+
+            # Send a nonsense command to get a prompt back from the scanner
+            # (an empty command runs the risk of repeating a dangerous command)
+            # The first character might get eaten if the interface was busy,
+            # so write a second one (again so that the lone CR doesn't repeat
+            # the previous command)
+            self.__port.write(b"\x7F\x7F\r\n")
+            self.__port.flush()
+            response = self.__port.read(1024)
+            logger.debug("Response from baud %d: %s" % (baud, repr(response)))
+
+            # watch for the prompt character
+            if response.endswith(b">"):
+                logger.debug("Choosing baud %d" % baud)
+                self.__port.timeout = timeout # reinstate our original timeout
+                return True
+
+
+        logger.debug("Failed to choose baud")
+        self.__port.timeout = timeout # reinstate our original timeout
         return False
 
 
@@ -244,21 +323,17 @@ class ELM327:
         return False
 
 
-    def __error(self, msg=None):
-        """ handles fatal failures, print debug info and closes serial """
-
+    def __error(self, msg):
+        """ handles fatal failures, print logger.info info and closes serial """
         self.close()
-
-        debug("Connection Error:", True)
-        if msg is not None:
-            debug('    ' + str(msg), True)
+        logger.error(str(msg))
 
 
     def port_name(self):
         if self.__port is not None:
             return self.__port.portstr
         else:
-            return "No Port"
+            return ""
 
 
     def status(self):
@@ -287,7 +362,8 @@ class ELM327:
         self.__protocol = None
 
         if self.__port is not None:
-            self.__write("ATZ")
+            logger.info("closing port")
+            self.__write(b"ATZ")
             self.__port.close()
             self.__port = None
 
@@ -305,7 +381,7 @@ class ELM327:
         """
 
         if self.__status == OBDStatus.NOT_CONNECTED:
-            debug("cannot send_and_parse() when unconnected", True)
+            logger.info("cannot send_and_parse() when unconnected")
             return None
 
         lines = self.__send(cmd)
@@ -325,7 +401,7 @@ class ELM327:
         self.__write(cmd)
 
         if delay is not None:
-            debug("wait: %d seconds" % delay)
+            logger.debug("wait: %d seconds" % delay)
             time.sleep(delay)
 
         return self.__read()
@@ -337,13 +413,13 @@ class ELM327:
         """
 
         if self.__port:
-            cmd += "\r\n" # terminate
-            debug("write: " + repr(cmd))
+            cmd += b"\r\n" # terminate
+            logger.debug("write: " + repr(cmd))
             self.__port.flushInput() # dump everything in the input buffer
-            self.__port.write(cmd.encode()) # turn the string into bytes and write
+            self.__port.write(cmd) # turn the string into bytes and write
             self.__port.flush() # wait for the output buffer to finish transmitting
         else:
-            debug("cannot perform __write() when unconnected", True)
+            logger.info("cannot perform __write() when unconnected")
 
 
     def __read(self):
@@ -353,46 +429,41 @@ class ELM327:
             accumulates characters until the prompt character is seen
             returns a list of [/r/n] delimited strings
         """
+        if not self.__port:
+            logger.info("cannot perform __read() when unconnected")
+            return []
 
-        attempts = 2
-        buffer = b''
+        buffer = bytearray()
 
-        if self.__port:
-            while True:
-                c = self.__port.read(1)
+        while True:
+            # retrieve as much data as possible
+            data = self.__port.read(self.__port.in_waiting or 1)
 
-                # if nothing was recieved
-                if not c:
+            # if nothing was recieved
+            if not data:
+                logger.warning("Failed to read port")
+                break
 
-                    if attempts <= 0:
-                        debug("Failed to read port, giving up")
-                        break
+            buffer.extend(data)
 
-                    debug("Failed to read port, trying again...")
-                    attempts -= 1
-                    continue
+            # end on chevron (ELM prompt character)
+            if self.ELM_PROMPT in buffer:
+                break
 
-                # end on chevron (ELM prompt character)
-                if c == b'>':
-                    break
+        # log, and remove the "bytearray(   ...   )" part
+        logger.debug("read: " + repr(buffer)[10:-1])
 
-                # skip null characters (ELM spec page 9)
-                if c == b'\x00':
-                    continue
+        # clean out any null characters
+        buffer = re.sub(b"\x00", b"", buffer)
 
-                buffer += c # whatever is left must be part of the response
-        else:
-            debug("cannot perform __read() when unconnected", True)
-            return ""
-
-        debug("read: " + repr(buffer))
+        # remove the prompt character
+        if buffer.endswith(self.ELM_PROMPT):
+            buffer = buffer[:-1]
 
         # convert bytes into a standard string
-        raw = buffer.decode()
+        string = buffer.decode()
 
-        # splits into lines
-        # removes empty lines
-        # removes trailing spaces
-        lines = [ s.strip() for s in re.split("[\r\n]", raw) if bool(s) ]
+        # splits into lines while removing empty lines and trailing spaces
+        lines = [ s.strip() for s in re.split("[\r\n]", string) if bool(s) ]
 
         return lines

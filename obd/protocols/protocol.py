@@ -30,8 +30,11 @@
 ########################################################################
 
 from binascii import hexlify
-from obd.utils import isHex, num_bits_set
-from obd.debug import debug
+from obd.utils import isHex, bitarray
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 """
@@ -124,6 +127,7 @@ class Protocol(object):
 
     # the TX_IDs of known ECUs
     TX_ID_ENGINE = None
+    TX_ID_TRANSMISSION = None
 
 
     def __init__(self, lines_0100):
@@ -145,6 +149,12 @@ class Protocol(object):
         # read the messages and assemble the map
         # subsequent runs will now be tagged correctly
         self.populate_ecu_map(messages)
+
+        # log out the ecu map
+        for tx_id, ecu in self.ecu_map.items():
+            names = [k for k in ECU.__dict__ if ECU.__dict__[k] == ecu ]
+            names = ", ".join(names)
+            logger.debug("map ECU %d --> %s" % (tx_id, names))
 
 
     def __call__(self, lines):
@@ -245,12 +255,16 @@ class Protocol(object):
 
             # if any tx_ids are exact matches to the expected values, record them
             for m in messages:
+                if m.tx_id is None:
+                    logger.debug("parse_frame failed to extract TX_ID")
+                    continue
+
                 if m.tx_id == self.TX_ID_ENGINE:
                     self.ecu_map[m.tx_id] = ECU.ENGINE
                     found_engine = True
+                elif m.tx_id == self.TX_ID_TRANSMISSION:
+                    self.ecu_map[m.tx_id] = ECU.TRANSMISSION
                 # TODO: program more of these when we figure out their constants
-                # elif m.tx_id == self.TX_ID_TRANSMISSION:
-                    # self.ecu_map[m.tx_id] = ECU.TRANSMISSION
 
             if not found_engine:
                 # last resort solution, choose ECU with the most bits set
@@ -259,7 +273,7 @@ class Protocol(object):
                 tx_id = None
 
                 for message in messages:
-                    bits = sum([num_bits_set(b) for b in message.data])
+                    bits = bitarray(message.data).num_set()
 
                     if bits > best:
                         best = bits

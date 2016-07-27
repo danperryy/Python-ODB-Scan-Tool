@@ -1,6 +1,5 @@
 
 import random
-from obd.utils import unhex
 from obd.protocols import *
 from obd.protocols.protocol import Frame, Message
 
@@ -55,10 +54,10 @@ def test_message_hex():
     message.data = b'\x00\x01\x02'
 
     assert message.hex() == b'000102'
-    assert unhex(message.hex()[0:2]) == 0x00
-    assert unhex(message.hex()[2:4]) == 0x01
-    assert unhex(message.hex()[4:6]) == 0x02
-    assert unhex(message.hex()) == 0x000102
+    assert int(message.hex()[0:2], 16) == 0x00
+    assert int(message.hex()[2:4], 16) == 0x01
+    assert int(message.hex()[4:6], 16) == 0x02
+    assert int(message.hex(), 16) == 0x000102
 
 
 def test_populate_ecu_map():
