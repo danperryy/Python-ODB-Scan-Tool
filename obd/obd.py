@@ -104,7 +104,7 @@ class OBD(object):
         for get in pid_getters:
             # PID listing commands should sequentialy become supported
             # Mode 1 PID 0 is assumed to always be supported
-            if not self.supports(get):
+            if not self.test_cmd(get, warn=False):
                 continue
 
             # when querying, only use the blocking OBD.query()
@@ -214,19 +214,21 @@ class OBD(object):
         return cmd in self.supported_commands
 
 
-    def test_cmd(self, cmd):
+    def test_cmd(self, cmd, warn=True):
         """
             Returns a boolean for whether a command will
             be sent without using force=True.
         """
         # test if the command is supported
         if not self.supports(cmd):
-            logger.warning("'%s' is not supported" % str(cmd))
+            if warn:
+                logger.warning("'%s' is not supported" % str(cmd))
             return False
 
         # mode 06 is only implemented for the CAN protocols
         if cmd.mode == 6 and self.interface.protocol_id() not in ["6", "7", "8", "9"]:
-            logger.warning("Mode 06 commands are only supported over CAN protocols")
+            if warn:
+                logger.warning("Mode 06 commands are only supported over CAN protocols")
             return False
 
         return True
