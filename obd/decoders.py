@@ -45,7 +45,7 @@ All decoders take the form:
 
 def <name>(<list_of_messages>):
     ...
-    return (<value>, <unit>)
+    return <value>
 
 '''
 
