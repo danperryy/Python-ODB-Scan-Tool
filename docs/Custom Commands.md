@@ -16,7 +16,7 @@ Example
 -------
 
 ```python
-from obd import OBDCommand
+from obd import OBDCommand, Unit
 from obd.protocols import ECU
 from obd.utils import bytes_to_int
 
