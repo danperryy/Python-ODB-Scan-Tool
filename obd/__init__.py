@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 """
 	A serial module for accessing data from a vehicles OBD-II port
