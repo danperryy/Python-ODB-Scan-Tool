@@ -36,7 +36,7 @@ Available at [python-obd.readthedocs.org](http://python-obd.readthedocs.org/en/l
 Commands
 --------
 
-Here are a handful of the supported commands (sensors). For a full list, see [the docs](http://python-obd.readthedocs.org/en/latest/Commands/#mode-01)
+Here are a handful of the supported commands (sensors). For a full list, see [the docs](http://python-obd.readthedocs.io/en/latest/Command%20Tables/)
 
 *note: support for these commands will vary from car to car*
 
