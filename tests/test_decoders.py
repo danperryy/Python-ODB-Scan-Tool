@@ -129,6 +129,16 @@ def test_air_status():
     assert d.air_status(m("08")) == "Pump commanded on for diagnostics"
     assert d.air_status(m("03")) == None
 
+def test_fuel_type():
+    assert d.fuel_type(m("00")) == "Not available"
+    assert d.fuel_type(m("17")) == "Bifuel running diesel"
+    assert d.fuel_type(m("18")) == None
+
+def test_obd_compliance():
+    assert d.obd_compliance(m("00")) == "Undefined"
+    assert d.obd_compliance(m("21")) == "Heavy Duty Euro OBD Stage VI (HD EOBD-IV)"
+    assert d.obd_compliance(m("22")) == None
+
 def test_o2_sensors():
     assert d.o2_sensors(m("00")) == ((),(False, False, False, False), (False, False, False, False))
     assert d.o2_sensors(m("01")) == ((),(False, False, False, False), (False, False, False, True))

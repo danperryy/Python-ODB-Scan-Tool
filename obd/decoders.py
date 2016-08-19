@@ -327,26 +327,30 @@ def air_status(messages):
     return status
 
 
-def obd_compliance(_hex):
+def obd_compliance(messages):
     d = messages[0].data
     i = d[0]
 
-    v = "Error: Unknown OBD compliance response"
+    v = None
 
     if i < len(OBD_COMPLIANCE):
         v = OBD_COMPLIANCE[i]
+    else:
+        logger.debug("Invalid response for OBD compliance (no table entry)")
 
     return v
 
 
-def fuel_type(_hex):
+def fuel_type(messages):
     d = messages[0].data
     i = d[0] # todo, support second fuel system
 
-    v = "Error: Unknown fuel type response"
+    v = None
 
     if i < len(FUEL_TYPES):
         v = FUEL_TYPES[i]
+    else:
+        logger.debug("Invalid response for fuel type (no table entry)")
 
     return v
 
