@@ -14,7 +14,12 @@ def test_list_integrity():
 
             # make sure the command tables are in mode & PID order
             assert mode == cmd.mode,      "Command is in the wrong mode list: %s" % cmd.name
-            assert pid == cmd.pid,        "The index in the list must also be the PID: %s" % cmd.name
+
+            if len(cmds) > 1:
+                assert pid == cmd.pid,        "The index in the list must also be the PID: %s" % cmd.name
+            else:
+                # lone commands in a mode are allowed to have no PID
+                assert (pid == cmd.pid) or (cmd.pid is None)
 
             # make sure all the fields are set
             assert cmd.name != "",                  "Command names must not be null"
@@ -50,9 +55,12 @@ def test_getitem():
                 continue # this command is reserved
 
             # by [mode][pid]
-            mode = cmd.mode
-            pid  = cmd.pid
-            assert cmd == obd.commands[mode][pid], "mode %d, PID %d could not be accessed through __getitem__" % (mode, pid)
+            if (cmd.pid is None) and (len(cmds) == 1):
+                # lone commands in a mode have no PID, and report a pid
+                # value of None, but can still be accessed by PID 0
+                assert cmd == obd.commands[cmd.mode][0], "lone command in mode %d could not be accessed through __getitem__" % mode
+            else:
+                assert cmd == obd.commands[cmd.mode][cmd.pid], "mode %d, PID %d could not be accessed through __getitem__" % (mode, pid)
 
             # by [name]
             assert cmd == obd.commands[cmd.name], "command name %s could not be accessed through __getitem__" % (cmd.name)
@@ -70,9 +78,12 @@ def test_contains():
             assert obd.commands.has_command(cmd)
 
             # by (mode, pid)
-            mode = cmd.mode
-            pid  = cmd.pid
-            assert obd.commands.has_pid(mode, pid)
+            if cmd.pid is None:
+                # lone commands in a mode can have no PID, and report None
+                # but these commands can still be looked up by (mode, pid=0)
+                assert obd.commands.has_pid(cmd.mode, 0)
+            else:
+                assert obd.commands.has_pid(cmd.mode, cmd.pid)
 
             # by (name)
             assert obd.commands.has_name(cmd.name)

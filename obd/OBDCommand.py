@@ -71,7 +71,7 @@ class OBDCommand():
            isHex(self.command.decode()):
             return int(self.command[:2], 16)
         else:
-            return 0
+            return None
 
     @property
     def pid(self):
@@ -79,7 +79,7 @@ class OBDCommand():
            isHex(self.command.decode()):
             return int(self.command[2:], 16)
         else:
-            return 0
+            return None
 
 
     def __call__(self, messages):
