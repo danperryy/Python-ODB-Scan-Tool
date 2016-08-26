@@ -10,7 +10,7 @@ def test_list_integrity():
             if cmd is None:
                 continue # this command is reserved
 
-            assert cmd.command != "",         "The Command's command string must not be null"
+            assert cmd.command != b"",         "The Command's command string must not be null"
 
             # make sure the command tables are in mode & PID order
             assert mode == cmd.mode,      "Command is in the wrong mode list: %s" % cmd.name
