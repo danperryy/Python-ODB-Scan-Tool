@@ -51,8 +51,9 @@ class OBD(object):
     def __init__(self, portstr=None, baudrate=None, protocol=None, fast=True):
         self.interface = None
         self.supported_commands = set(commands.base_commands())
-        self.fast = fast
-        self.__last_command = "" # used for running the previous command with a CR
+        self.fast = fast # global switch for disabling optimizations
+        self.__last_command = b"" # used for running the previous command with a CR
+        self.__frame_counts = {} # keeps track of the number of return frames for each command
 
         logger.info("======================= python-OBD (v%s) =======================" % __version__)
         self.__connect(portstr, baudrate, protocol) # initialize by connecting and loading sensors
@@ -255,8 +256,15 @@ class OBD(object):
         messages = self.interface.send_and_parse(cmd_string)
 
         # if we're sending a new command, note it
+        # first check that the current command WASN'T sent as an empty CR
+        # (CR is added by the ELM327 class)
         if cmd_string:
             self.__last_command = cmd_string
+
+        # if we don't already know how many frames this command returns,
+        # log it, so we can specify it next time
+        if cmd not in self.__frame_counts:
+            self.__frame_counts[cmd] = sum([len(m.frames) for m in messages])
 
         if not messages:
             logger.info("No valid OBD Messages returned")
@@ -269,11 +277,14 @@ class OBD(object):
         """ assembles the appropriate command string """
         cmd_string = cmd.command
 
-        # only wait for as many ECUs as we've seen
-        if self.fast and cmd.fast:
-            cmd_string += str(len(self.interface.ecus())).encode()
+        # if we know the number of frames that this command returns,
+        # only wait for exactly that number. This avoids some harsh
+        # timeouts from the ELM, thus speeding up queries.
+        if self.fast and cmd.fast and (cmd in self.__frame_counts):
+            cmd_string += str(self.__frame_counts[cmd]).encode()
 
-        # if we sent this last time, just send
+        # if we sent this last time, just send a CR
+        # (CR is added by the ELM327 class)
         if self.fast and (cmd_string == self.__last_command):
             cmd_string = b""
 
