@@ -74,6 +74,8 @@ def test_get_mode():
     cmd = OBDCommand("", "", b"", 4, noop, ECU.ENGINE)
     assert cmd.mode == 0
 
+    cmd = OBDCommand("", "", b"totally not hex", 4, noop, ECU.ENGINE)
+    assert cmd.mode == 0
 
 
 def test_pid():
@@ -82,3 +84,6 @@ def test_pid():
 
     cmd = OBDCommand("", "", b"01", 4, noop, ECU.ENGINE)
     assert cmd.pid == 0
+
+    cmd = OBDCommand("", "", b"totally not hex", 4, noop, ECU.ENGINE)
+    assert cmd.mode == 0
