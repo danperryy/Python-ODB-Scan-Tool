@@ -14,7 +14,7 @@ $ pip install obd
 
 Basic Usage
 -----------
-
+Single Command Query
 ```Python
 import obd
 
@@ -26,6 +26,27 @@ response = connection.query(cmd) # send the command, and parse the response
 
 print(response.value) # returns unit-bearing values thanks to Pint
 print(response.value.to("mph")) # user-friendly unit conversions
+```
+
+Multiple Command Query (CAN ECUs ONLY; 6 Commands MAX)
+```Python
+import obd
+
+connection = obd.OBD() # auto-connects to USB or RF port
+
+# query_multi(command1, ..., command6, force=False/True)
+# function uses an arbitrary argument (*args) for the commands, and keyword arg (**kwargs) for command forcing.
+
+# commands can be input directly into the query_multi call
+speed, rpm = connection.query_multi(obd.commands.SPEED, obd.commands.RPM) # send the command, and parse the response
+
+# or, commands can be placed into a list, and then into the query_multi call. list variable must be unpacked with '*'
+cmds = [obd.commands.SPEED, obd.commands.RPM]
+speed, rpm = connection.query_multi(*cmds) # send the command, and parse the response
+
+# responses will be assigned as OBDCommand objects into the variable order you called them
+print(speed.value)
+print(rpm.value)
 ```
 
 Documentation

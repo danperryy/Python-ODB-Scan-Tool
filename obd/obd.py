@@ -38,6 +38,8 @@ from .elm327 import ELM327
 from .commands import commands
 from .OBDResponse import OBDResponse
 from .utils import scan_serial, OBDStatus
+from .protocols import Message
+from binascii import hexlify, unhexlify
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +57,7 @@ class OBD(object):
         self.__last_command = b"" # used for running the previous command with a CR
         self.__frame_counts = {} # keeps track of the number of return frames for each command
 
-        logger.info("======================= python-OBD (v%s) =======================" % __version__)
+        logger.info("!=================== python-OBD_multi (v%s) ===================!" % __version__)
         self.__connect(portstr, baudrate, protocol) # initialize by connecting and loading sensors
         self.__load_commands()            # try to load the car's supported commands
         logger.info("===================================================================")
@@ -289,3 +291,105 @@ class OBD(object):
             cmd_string = b""
 
         return cmd_string
+
+
+    def query_multi(self, *cmds, **kwargs):
+            """
+                primary API function. Sends multiple commands to
+                the car for CAN ONLY, and protects against sending
+                unsupported commands.
+
+                returns a tuple of OBDCommand objects in the order
+                of *cmds
+
+                -@sommersoft & @brendan-w
+
+            """
+            force = kwargs.pop("force", False)
+
+            if self.status() == OBDStatus.NOT_CONNECTED:
+                logger.warning("Query failed, no connection available")
+                return OBDResponse()
+            elif self.interface.protocol_id() not in ["6", "7", "8", "9"]:
+                logger.warning("Multiple PID requests are only supported in"
+                            " CAN mode")
+                return OBDResponse()
+            elif len(cmds) > 6:
+                logger.warning("Query failed, too many PIDs requested")
+                return OBDResponse()
+            elif len(cmds) == 0:
+                logger.warning("Query failed, zero PIDs requested")
+                return OBDResponse()
+
+            # check each command for support
+            # skip tests if forced
+            if not force and not all([self.test_cmd(cmd) for cmd in cmds]):
+                return
+
+            # check that each command is the same PID mode
+            # first PID request will set the main mode
+            # good: '> 0104 010B 0111' = '> 01 04 0B 11'
+            # bad: '> 0104 020B 0611' = different modes will get chopped
+            if not all([cmd.mode == cmds[0].mode for cmd in cmds]):
+                logger.warning("commands for query_multi() must be of the same mode")
+                return
+
+            # loop through the *cmds list, append them as keys into the
+            # cmd_msg dict, build the command string, then send and
+            # parse the message updating the cmd_msg dict
+            cmd_string = cmds[0].command[:2] # mode part
+            for cmd in cmds:
+                cmd_string += cmd.command[2:]
+
+            # cmd_string built. send off for the response
+            logger.info("cmd_string built: %s" % str(cmd_string)) # TODO: remove after testing
+            messages = self.interface.send_and_parse(cmd_string)
+
+            if not messages:
+                logger.info("No valid OBD Messages returned")
+                return OBDResponse()
+
+            # parse through the returned message finding the associated command
+            # and how many bytes the command response is. then construct a response
+            # message.
+            # @brendan-w wrote this newer version
+            master_blaster = messages #[0] # the message that contains our response
+            mode = master_blaster[0].data.pop(0) # the mode byte (ie, for mode 01 this would be 0x41)
+
+            cmds_by_pid = { cmd.pid:cmd for cmd in cmds }
+            responses = { cmd:OBDResponse() for cmd in cmds }
+
+            for master in master_blaster:
+                while len(master.data) > 0:
+                    pid = master.data[0]
+                    cmd = cmds_by_pid.get(pid)
+
+                    # if the PID we pulled out wasn't one of the commands we were given
+                    # then something is very wrong. Abort, and proceed with whatever
+                    # we've decoded so far
+                    if cmd is None:
+                        logger.info("Unrequested command answered: %s" % str(pid)) # TODO: remove after testing
+                        break
+    
+                    l = cmd.bytes - 1 # this figure INCLUDES the PID byte
+    
+                    # if the message doesn't have enough data left in it to fulfill a
+                    # PID, then abort, and proceed with whatever we've decoded so far
+                    if l > len(master.data):
+                        logger.info("Finished parsing query_multi response") # TODO: remove after testing
+                        break
+    
+                    # construct a new message
+                    message = Message(master.frames) # copy of the original lines
+                    message.ecu = master.ecu
+                    message.data = master.data[:l]
+                    message.data.insert(0, mode) # prepend the original mode byte
+
+                    # NOTE: OBDCommands perform their own length checking
+                    responses[cmd] = cmd([message])
+
+                    # remove what we just read
+                    master.data = master.data[l:]
+
+            # return responses in the order that they were specified
+            return tuple(responses[cmd] for cmd in cmds)

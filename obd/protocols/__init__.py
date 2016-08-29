@@ -32,6 +32,8 @@
 
 from .protocol import ECU
 
+from .protocol import Message # needed for obd.query_multi parsing
+
 from .protocol_unknown import UnknownProtocol
 
 from .protocol_legacy import SAE_J1850_PWM, \
