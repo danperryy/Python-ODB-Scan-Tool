@@ -85,7 +85,7 @@ class OBDCommand():
     def __call__(self, messages):
 
         # filter for applicable messages (from the right ECU(s))
-        for_us = lambda m: self.ecu & m.ecu > 0
+        for_us = lambda m: (self.ecu & m.ecu) > 0
         messages = list(filter(for_us, messages))
 
         # guarantee data size for the decoder
