@@ -265,9 +265,7 @@ class CANProtocol(Protocol):
             # chop to the correct size (as specified in the first frame)
             message.data = message.data[:ff[0].data_len]
 
-
-        # TODO: this is an ugly solution, maybe move mode/pid byte ignoring to the decoders?
-
+        """
         # chop off the Mode/PID bytes based on the mode number
         mode = message.data[0]
         if mode == 0x43:
@@ -284,7 +282,7 @@ class CANProtocol(Protocol):
 
         elif mode == 0x46:
             # the monitor test mode only has a mode number
-            # the MID (mode 6's version of a PID) is repeated,
+            # the MID (mode 6's version of a PID) is needed,
             # and handled in the decoder
             message.data  = message.data[1:]
 
@@ -299,7 +297,7 @@ class CANProtocol(Protocol):
             #       [                     Data                       ]
             # 49 04 01 35 36 30 32 38 39 34 39 41 43 00 00 00 00 00 00
             message.data = message.data[2:]
-
+        """
         return True
 
 
