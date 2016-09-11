@@ -46,24 +46,24 @@ def test_clone():
 
 def test_call():
     p = SAE_J1850_PWM(["48 6B 10 41 00 FF FF FF FF AA"]) # train the ecu_map to identify the engine
-    messages = p(["48 6B 10 41 00 BE 1F B8 11 AA"]) # parse valid data into response object 
+    messages = p(["48 6B 10 41 00 BE 1F B8 11 AA"]) # parse valid data into response object
 
     print(messages[0].data)
 
     # valid response size
-    cmd = OBDCommand("", "", b"0123", 4, noop, ECU.ENGINE)
+    cmd = OBDCommand("", "", b"0123", 6, noop, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == b'\xBE\x1F\xB8\x11'
+    assert r.value == bytearray([0x41, 0x00, 0xBE, 0x1F, 0xB8, 0x11])
 
     # response too short (pad)
-    cmd = OBDCommand("", "", b"0123", 5, noop, ECU.ENGINE)
+    cmd = OBDCommand("", "", b"0123", 7, noop, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == b'\xBE\x1F\xB8\x11\x00'
+    assert r.value == bytearray([0x41, 0x00, 0xBE, 0x1F, 0xB8, 0x11, 0x00])
 
     # response too long (clip)
-    cmd = OBDCommand("", "", b"0123", 3, noop, ECU.ENGINE)
+    cmd = OBDCommand("", "", b"0123", 5, noop, ECU.ENGINE)
     r = cmd(messages)
-    assert r.value == b'\xBE\x1F\xB8'
+    assert r.value == bytearray([0x41, 0x00, 0xBE, 0x1F, 0xB8])
 
 
 
