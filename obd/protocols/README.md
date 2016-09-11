@@ -1,20 +1,18 @@
 Notes
 -----
 
-Each protocol object is callable, and accepts a list of raw input strings, and returns a list of parsed `Message` objects. The `data` field will contain a bytearray, corresponding to all relevant data returned by the command.
-
-*Note: `Message.data` does not refer to the full data field of a message. Things like PCI/Mode/PID bytes are often removed. If you want to see these fields, use `Frame.data` for the full (per-spec) data field.*
+This code is meant to abstract the transport and physical layers of an OBD-II connection. Each protocol is a callable object, and accepts a list of strings as input (from the adapter), and returns a list of parsed `Message` objects. The `Message.data` field will contain a bytearray, corresponding to the application layer data returned by the command. This implementation is specific to the formatting of the ELM327 chip inside the adapter.
 
 For example, these are the resultant `Message.data` fields for some single frame messages:
 
 ```
 A CAN Message:
 7E8 06 41 00 BE 7F B8 13
-             [  data   ]
+       [     data      ]
 
 A J1850 Message:
 48 6B 10 41 00 BE 7F B8 13 FF
-               [  data   ]
+         [       data       ]
 ```
 
 The parsing itself (invoking `__call__`) is stateless. The only stateful part of a `Protocol` is the `ECU_Map`. These objects correlate OBD transmitter IDs (`tx_id`'s) with the various ECUs in the car. This way, `Message` objects can be marked with ECU constants such as:
