@@ -27,12 +27,12 @@ def test_single_frame():
         # minimum valid length
         r = p(["48 6B 10 41 00 FF"])
         assert len(r) == 1
-        check_message(r[0], 1, 0x10, [])
+        check_message(r[0], 1, 0x10, [0x41, 0x00])
 
         # maximum valid length
         r = p(["48 6B 10 41 00 00 01 02 03 04 FF"])
         assert len(r) == 1
-        check_message(r[0], 1, 0x10, list(range(5)))
+        check_message(r[0], 1, 0x10, [0x41, 0x00, 0x00, 0x01, 0x02, 0x03, 0x04])
 
         # to short
         r = p(["48 6B 10 41 FF"])
@@ -76,7 +76,7 @@ def test_hex_straining():
 
         # first message should be the valid, parsable hex message
         # NOTE: the parser happens to process the valid one's first
-        check_message(r[0], 1, 0x10, list(range(4)))
+        check_message(r[0], 1, 0x10, [0x41, 0x00, 0x00, 0x01, 0x02, 0x03])
 
         # second message: invalid, non-parsable non-hex
         assert r[1].ecu == ECU.UNKNOWN
@@ -91,12 +91,12 @@ def test_multi_ecu():
 
 
         test_case = [
-            "48 6B 13 41 00 00 01 02 03 FF",            
+            "48 6B 13 41 00 00 01 02 03 FF",
             "48 6B 10 41 00 00 01 02 03 FF",
             "48 6B 11 41 00 00 01 02 03 FF",
         ]
 
-        correct_data = list(range(4))
+        correct_data = [0x41, 0x00, 0x00, 0x01, 0x02, 0x03]
 
         # seperate ECUs, single frames each
         r = p(test_case)
@@ -124,7 +124,7 @@ def test_multi_line():
             "48 6B 10 49 02 03 08 09 0A 0B FF",
         ]
 
-        correct_data = list(range(12))
+        correct_data = [0x49, 0x02] + list(range(12))
 
         # in-order
         r = p(test_case)
@@ -167,8 +167,7 @@ def test_multi_line_missing_frames():
 def test_multi_line_mode_03():
     """
         Tests the special handling of mode 3 commands.
-        Namely, Mode 03 commands (GET_DTC) return no PID byte.
-        When frames are combined, the parser should account for this.
+        An extra byte is fudged in to make the output look like CAN
     """
 
     for protocol in LEGACY_PROTOCOLS:
@@ -180,7 +179,8 @@ def test_multi_line_mode_03():
             "48 6B 10 43 06 07 08 09 0A 0B FF",
         ]
 
-        correct_data = list(range(12)) # data is stitched in order recieved
+        correct_data = [0x43, 0x00] + list(range(12)) # data is stitched in order recieved
+        #                     ^^^^ this is an arbitrary value in the source code
 
         r = p(test_case)
         assert len(r) == 1
