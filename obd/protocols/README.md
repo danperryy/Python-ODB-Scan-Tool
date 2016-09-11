@@ -31,13 +31,13 @@ All protocol objects must implement the following:
 
 #### parse_frame(self, frame)
 
-Recieves a single `Frame` object with `Frame.raw` preloaded with the raw line recieved from the car (in string form). This function is responsible for parsing `Frame.raw`, and filling the remaining fields in the `Frame` object. If the frame is invalid, or the parse fails, this function should return `False`, and the frame will be dropped.
+Recieves a single `Frame` object with `Frame.raw` preloaded with the raw line recieved from the car (in string form). This function is responsible for parsing `Frame.raw` into a bytearray, and filling the remaining fields in the `Frame` object. If the frame is invalid, or the parse fails, this function should return `False`, and the frame will be dropped.
 
 ----------------------------------------
 
 #### parse_message(self, message)
 
-Recieves a single `Message` object with `Message.frames` preloaded with a list of `Frame` objects. This function is responsible for assembling the frames into the `Frame.data` field in the `Message` object. This is where multi-line responses are assembled. If the message is found to be invalid, this function should return `False`, and the entire message will be dropped.
+Recieves a single `Message` object with `Message.frames` preloaded with a list of `Frame` objects. This function is responsible for assembling the frames into the `Message.data` field in the `Message` object. This is where multi-line responses are assembled. If the message is found to be invalid, this function should return `False`, and the entire message will be dropped.
 
 ----------------------------------------
 
