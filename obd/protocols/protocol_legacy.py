@@ -99,16 +99,25 @@ class LegacyProtocol(Protocol):
         # legacy protocols have different re-assembly
         # procedures for different Modes
 
+        # ~~~~
+        # NOTE: THERE ARE HACKS IN HERE to make some output compatible with CAN
+        #       since CAN is the standard, and this is considered legacy, I'm
+        #       fixing ugly inconsistencies between the two protocols here.
+        # ~~~~
+
         if mode == 0x43:
             # GET_DTC requests return frames with no PID or order bytes
             # accumulate all of the data, minus the Mode bytes of each frame
 
             # Ex.
-            #          [       Frame      ]
+            # insert faux-byte to mimic the CAN style DTC requests
+            #            |
+            #          [ |     Frame      ]
             # 48 6B 10 43 03 00 03 02 03 03 ck
             # 48 6B 10 43 03 04 00 00 00 00 ck
             #             [     Data      ]
 
+            message.data = bytearray([0x43, 0x00]) # forge the mode byte and CAN's DTC_count byte
             for f in frames:
                 message.data += f.data[1:]
 
@@ -117,11 +126,10 @@ class LegacyProtocol(Protocol):
                 # return data, excluding the mode/pid bytes
 
                 # Ex.
-                #          [     Frame     ]
+                #          [  Frame/Data   ]
                 # 48 6B 10 41 00 BE 7F B8 13 ck
-                #                [  Data   ]
 
-                message.data = frames[0].data[2:]
+                message.data = frames[0].data
 
             else: # len(frames) > 1:
                 # generic multiline requests carry an order byte
@@ -133,6 +141,11 @@ class LegacyProtocol(Protocol):
                 # 48 6B 10 49 02 03 30 30 52 35 ck
                 # etc...         [] [  Data   ]
 
+                # becomes:
+                # 49 02 [] 00 00 00 31 44 34 47 50 30 30 52 35
+                #       |  [         ] [         ] [         ]
+                #  order byte is removed
+
                 # sort the frames by the order byte
                 frames = sorted(frames, key=lambda f: f.data[2])
 
@@ -143,7 +156,13 @@ class LegacyProtocol(Protocol):
                     return False
 
                 # now that they're in order, accumulate the data from each frame
-                for f in frames:
+
+                # preserve the first frame's mode and PID bytes (for consistency with CAN)
+                frames[0].data.pop(2) # remove the sequence byte
+                message.data = frames[0].data
+
+                # add the data from the remaining frames
+                for f in frames[1:]:
                     message.data += f.data[3:] # loose the mode/pid/seq bytes
 
         return True
