@@ -265,39 +265,20 @@ class CANProtocol(Protocol):
             # chop to the correct size (as specified in the first frame)
             message.data = message.data[:ff[0].data_len]
 
-        """
-        # chop off the Mode/PID bytes based on the mode number
-        mode = message.data[0]
-        if mode == 0x43:
 
+        # trim DTC requests based on DTC count
+        # this ISN'T in the decoder because the legacy protocols
+        # don't provide a DTC_count bytes, and instead, insert a 0x00
+        # for consistency
+
+        if message.data[0] == 0x43:
             #    []
             # 43 03 11 11 22 22 33 33
             #       [DTC] [DTC] [DTC]
 
-            # fetch the DTC count, and use it as a length code
-            num_dtc_bytes = message.data[1] * 2
+            num_dtc_bytes = message.data[1] * 2 # each DTC is 2 bytes
+            message.data = message.data[:(num_dtc_bytes + 2)] # add 2 to account for mode/DTC_count bytes
 
-            # skip the PID byte and the DTC count,
-            message.data = message.data[2:][:num_dtc_bytes]
-
-        elif mode == 0x46:
-            # the monitor test mode only has a mode number
-            # the MID (mode 6's version of a PID) is needed,
-            # and handled in the decoder
-            message.data  = message.data[1:]
-
-        else:
-            # skip the Mode and PID bytes
-            #
-            # single line response:
-            #                      [  Data   ]
-            # 00 00 07 E8 06 41 00 BE 7F B8 13
-            #
-            # OR, the data from a multiline response:
-            #       [                     Data                       ]
-            # 49 04 01 35 36 30 32 38 39 34 39 41 43 00 00 00 00 00 00
-            message.data = message.data[2:]
-        """
         return True
 
 

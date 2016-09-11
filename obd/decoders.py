@@ -388,7 +388,7 @@ def dtc(messages):
     codes = []
     d = []
     for message in messages:
-        d += message.data
+        d += message.data[2:] # remove the mode and DTC_count bytes
 
     # look at data in pairs of bytes
     # looping through ENDING indices to avoid odd (invalid) code lengths
