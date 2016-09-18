@@ -43,6 +43,7 @@ from binascii import hexlify, unhexlify
 
 logger = logging.getLogger(__name__)
 
+CAN_PROTOCOLS = ("6", "7", "8", "9")
 
 class OBD(object):
     """
@@ -230,7 +231,7 @@ class OBD(object):
             return False
 
         # mode 06 is only implemented for the CAN protocols
-        if cmd.mode == 6 and self.interface.protocol_id() not in ["6", "7", "8", "9"]:
+        if cmd.mode == 6 and self.interface.protocol_id() not in CAN_PROTOCOLS:
             if warn:
                 logger.warning("Mode 06 commands are only supported over CAN protocols")
             return False
@@ -314,7 +315,7 @@ class OBD(object):
             if self.status() == OBDStatus.NOT_CONNECTED:
                 logger.warning("Query failed, no connection available")
                 return response()
-            elif self.interface.protocol_id() not in ["6", "7", "8", "9"]:
+            elif self.interface.protocol_id() not in CAN_PROTOCOLS:
                 logger.info("using query_multi over non-CAN protocol")
                 # slow fallback
                 return tuple( self.query(cmd, **kwargs) for cmd in cmds )
