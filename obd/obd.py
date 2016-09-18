@@ -301,9 +301,6 @@ class OBD(object):
 
                 returns a tuple of OBDCommand objects in the order
                 of *cmds
-
-                -@sommersoft & @brendan-w
-
             """
             force = kwargs.pop("force", False)
 
@@ -326,23 +323,17 @@ class OBD(object):
             if not force and not all([self.test_cmd(cmd) for cmd in cmds]):
                 return
 
-            # check that each command is the same PID mode
-            # first PID request will set the main mode
-            # good: '> 0104 010B 0111' = '> 01 04 0B 11'
-            # bad: '> 0104 020B 0611' = different modes will get chopped
+            # check that all commands are of the same mode
             if not all([cmd.mode == cmds[0].mode for cmd in cmds]):
                 logger.warning("commands for query_multi() must be of the same mode")
                 return
 
-            # loop through the *cmds list, append them as keys into the
-            # cmd_msg dict, build the command string, then send and
-            # parse the message updating the cmd_msg dict
+            # build the request
             cmd_string = cmds[0].command[:2] # mode part
             for cmd in cmds:
                 cmd_string += cmd.command[2:]
 
-            # cmd_string built. send off for the response
-            logger.info("cmd_string built: %s" % str(cmd_string)) # TODO: remove after testing
+            # send request
             messages = self.interface.send_and_parse(cmd_string)
 
             if not messages:
@@ -352,7 +343,6 @@ class OBD(object):
             # parse through the returned message finding the associated command
             # and how many bytes the command response is. then construct a response
             # message.
-            # @brendan-w wrote this newer version
             master_blaster = messages #[0] # the message that contains our response
             mode = master_blaster[0].data.pop(0) # the mode byte (ie, for mode 01 this would be 0x41)
 
@@ -368,7 +358,7 @@ class OBD(object):
                     # then something is very wrong. Abort, and proceed with whatever
                     # we've decoded so far
                     if cmd is None:
-                        logger.info("Unrequested command answered: %s" % str(pid)) # TODO: remove after testing
+                        logger.warning("query_multi encountered unexpected PID: %s" % hex(pid)[2:])
                         break
     
                     l = cmd.bytes - 1 # this figure INCLUDES the PID byte
@@ -376,7 +366,7 @@ class OBD(object):
                     # if the message doesn't have enough data left in it to fulfill a
                     # PID, then abort, and proceed with whatever we've decoded so far
                     if l > len(master.data):
-                        logger.info("Finished parsing query_multi response") # TODO: remove after testing
+                        logger.warning("query_multi did not recieve enough data")
                         break
     
                     # construct a new message
