@@ -299,34 +299,36 @@ class OBD(object):
                 the car for CAN ONLY, and protects against sending
                 unsupported commands.
 
-                returns a tuple of OBDCommand objects in the order
+                returns a tuple of OBDResponse objects in the order
                 of *cmds
             """
             force = kwargs.pop("force", False)
 
+            # setup a dict with empty responses for each command
+            responses = { cmd:OBDResponse() for cmd in cmds }
+
+            # helper function to convert the responses dict into a tuple
+            response = lambda: tuple(responses[cmd] for cmd in cmds)
+
             if self.status() == OBDStatus.NOT_CONNECTED:
                 logger.warning("Query failed, no connection available")
-                return OBDResponse()
+                return response()
             elif self.interface.protocol_id() not in ["6", "7", "8", "9"]:
-                logger.warning("Multiple PID requests are only supported in"
-                            " CAN mode")
-                return OBDResponse()
-            elif len(cmds) > 6:
-                logger.warning("Query failed, too many PIDs requested")
-                return OBDResponse()
-            elif len(cmds) == 0:
-                logger.warning("Query failed, zero PIDs requested")
-                return OBDResponse()
+                logger.warning("Multiple PID requests are only supported in CAN mode")
+                return response()
+            elif (len(cmds) == 0) or (len(cmds) > 6):
+                logger.warning("query_multi accepts between 1 and 6 commands")
+                return response()
 
             # check each command for support
             # skip tests if forced
             if not force and not all([self.test_cmd(cmd) for cmd in cmds]):
-                return
+                return response()
 
             # check that all commands are of the same mode
             if not all([cmd.mode == cmds[0].mode for cmd in cmds]):
                 logger.warning("commands for query_multi() must be of the same mode")
-                return
+                return response()
 
             # build the request
             cmd_string = cmds[0].command[:2] # mode part
@@ -338,7 +340,7 @@ class OBD(object):
 
             if not messages:
                 logger.info("No valid OBD Messages returned")
-                return OBDResponse()
+                return response()
 
             # parse through the returned message finding the associated command
             # and how many bytes the command response is. then construct a response
@@ -347,7 +349,6 @@ class OBD(object):
             mode = master_blaster[0].data.pop(0) # the mode byte (ie, for mode 01 this would be 0x41)
 
             cmds_by_pid = { cmd.pid:cmd for cmd in cmds }
-            responses = { cmd:OBDResponse() for cmd in cmds }
 
             for master in master_blaster:
                 while len(master.data) > 0:
@@ -360,15 +361,15 @@ class OBD(object):
                     if cmd is None:
                         logger.warning("query_multi encountered unexpected PID: %s" % hex(pid)[2:])
                         break
-    
+
                     l = cmd.bytes - 1 # this figure INCLUDES the PID byte
-    
+
                     # if the message doesn't have enough data left in it to fulfill a
                     # PID, then abort, and proceed with whatever we've decoded so far
                     if l > len(master.data):
                         logger.warning("query_multi did not recieve enough data")
                         break
-    
+
                     # construct a new message
                     message = Message(master.frames) # copy of the original lines
                     message.ecu = master.ecu
@@ -382,4 +383,4 @@ class OBD(object):
                     master.data = master.data[l:]
 
             # return responses in the order that they were specified
-            return tuple(responses[cmd] for cmd in cmds)
+            return response()
