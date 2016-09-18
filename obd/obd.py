@@ -325,12 +325,13 @@ class OBD(object):
                 # skip tests if forced
                 return response()
             elif not all([cmd.mode == cmds[0].mode for cmd in cmds]):
-                # check that all commands are of the same mode
                 logger.warning("commands for query_multi() must be of the same mode")
                 return response()
             elif not all([cmd.ecu == cmds[0].ecu for cmd in cmds]):
-                # check that all commands are listening for the same ECU
                 logger.warning("commands for query_multi() must be listening for the same ECU")
+                return response()
+            elif not all([cmd.bytes > 0 for cmd in cmds]):
+                logger.warning("commands for query_multi() must return a definite number of bytes")
                 return response()
 
             # build the request
@@ -354,9 +355,6 @@ class OBD(object):
                 logger.info("query_multi recieved no messages from the ECU of interest")
                 return response()
 
-            # parse through the returned message finding the associated command
-            # and how many bytes the command response is. then construct a response
-            # message.
             master = messages[0] # the message that contains our response
             mode = master.data.pop(0) # the mode byte (ie, for mode 01 this would be 0x41)
 
