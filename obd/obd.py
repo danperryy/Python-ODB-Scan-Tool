@@ -302,7 +302,7 @@ class OBD(object):
                 returns a tuple of OBDResponse objects in the order
                 of *cmds
             """
-            force = kwargs.pop("force", False)
+            force = kwargs.get("force", False)
 
             # setup a dict with empty responses for each command
             responses = { cmd:OBDResponse() for cmd in cmds }
@@ -315,8 +315,9 @@ class OBD(object):
                 logger.warning("Query failed, no connection available")
                 return response()
             elif self.interface.protocol_id() not in ["6", "7", "8", "9"]:
-                logger.warning("Multiple PID requests are only supported in CAN mode")
-                return response()
+                logger.info("using query_multi over non-CAN protocol")
+                # slow fallback
+                return tuple( self.query(cmd, **kwargs) for cmd in cmds )
             elif (len(cmds) == 0) or (len(cmds) > 6):
                 logger.warning("query_multi accepts between 1 and 6 commands")
                 return response()
