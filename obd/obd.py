@@ -266,7 +266,7 @@ class OBD(object):
 
         # if we don't already know how many frames this command returns,
         # log it, so we can specify it next time
-        if cmd not in self.__frame_counts:
+        if (cmd not in self.__frame_counts) and (cmd.bytes > 0):
             self.__frame_counts[cmd] = sum([len(m.frames) for m in messages])
 
         if not messages:
