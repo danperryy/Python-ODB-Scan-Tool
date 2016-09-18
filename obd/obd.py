@@ -345,45 +345,59 @@ class OBD(object):
                 logger.info("No valid OBD Messages returned")
                 return response()
 
+            # filter by ECU, in case multiple messages were returned
+            # (unlikely, though possible with multiple ECUs)
+            for_us = lambda m: (cmds[0].ecu & m.ecu) > 0
+            messages = list(filter(for_us, messages))
+
+            if len(messages) != 1:
+                logger.info("query_multi recieved no messages from the ECU of interest")
+                return response()
+
             # parse through the returned message finding the associated command
             # and how many bytes the command response is. then construct a response
             # message.
-            master_blaster = messages #[0] # the message that contains our response
-            mode = master_blaster[0].data.pop(0) # the mode byte (ie, for mode 01 this would be 0x41)
+            master = messages[0] # the message that contains our response
+            mode = master.data.pop(0) # the mode byte (ie, for mode 01 this would be 0x41)
 
             cmds_by_pid = { cmd.pid:cmd for cmd in cmds }
 
-            for master in master_blaster:
-                while len(master.data) > 0:
-                    pid = master.data[0]
-                    cmd = cmds_by_pid.get(pid)
+            # split the single message into multiple smaller messages.
+            # data is seperated by PID prefixes:
+            #
+            #    04 3F 05 44 0B 21 0C 17 B8
+            #    [   ] [   ] [   ] [      ]
+            #    ^^ first byte is always the PID
+            while len(master.data) > 0:
+                pid = master.data[0]
+                cmd = cmds_by_pid.get(pid)
 
-                    # if the PID we pulled out wasn't one of the commands we were given
-                    # then something is very wrong. Abort, and proceed with whatever
-                    # we've decoded so far
-                    if cmd is None:
-                        logger.warning("query_multi encountered unexpected PID: %s" % hex(pid)[2:])
-                        break
+                # if the PID we pulled out wasn't one of the commands we were given
+                # then something is very wrong. Abort, and proceed with whatever
+                # we've decoded so far
+                if cmd is None:
+                    logger.info("query_multi encountered unexpected PID: %s" % hex(pid)[2:])
+                    break
 
-                    l = cmd.bytes - 1 # this figure INCLUDES the PID byte
+                l = cmd.bytes - 1 # this figure INCLUDES the PID byte
 
-                    # if the message doesn't have enough data left in it to fulfill a
-                    # PID, then abort, and proceed with whatever we've decoded so far
-                    if l > len(master.data):
-                        logger.warning("query_multi did not recieve enough data")
-                        break
+                # if the message doesn't have enough data left in it to fulfill a
+                # PID, then abort, and proceed with whatever we've decoded so far
+                if l > len(master.data):
+                    logger.info("query_multi did not recieve enough data")
+                    break
 
-                    # construct a new message
-                    message = Message(master.frames) # copy of the original lines
-                    message.ecu = master.ecu
-                    message.data = master.data[:l]
-                    message.data.insert(0, mode) # prepend the original mode byte
+                # construct a new message
+                message = Message(master.frames) # copy of the original lines
+                message.ecu = master.ecu
+                message.data = master.data[:l]
+                message.data.insert(0, mode) # prepend the original mode byte
 
-                    # NOTE: OBDCommands perform their own length checking
-                    responses[cmd] = cmd([message])
+                # NOTE: OBDCommands perform their own length checking
+                responses[cmd] = cmd([message])
 
-                    # remove what we just read
-                    master.data = master.data[l:]
+                # remove what we just read
+                master.data = master.data[l:]
 
             # return responses in the order that they were specified
             return response()
