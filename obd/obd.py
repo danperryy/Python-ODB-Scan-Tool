@@ -310,6 +310,7 @@ class OBD(object):
             # helper function to convert the responses dict into a tuple
             response = lambda: tuple(responses[cmd] for cmd in cmds)
 
+            # pre-flight checks
             if self.status() == OBDStatus.NOT_CONNECTED:
                 logger.warning("Query failed, no connection available")
                 return response()
@@ -319,15 +320,17 @@ class OBD(object):
             elif (len(cmds) == 0) or (len(cmds) > 6):
                 logger.warning("query_multi accepts between 1 and 6 commands")
                 return response()
-
-            # check each command for support
-            # skip tests if forced
-            if not force and not all([self.test_cmd(cmd) for cmd in cmds]):
+            elif not force and not all([self.test_cmd(cmd) for cmd in cmds]):
+                # check each command for support
+                # skip tests if forced
                 return response()
-
-            # check that all commands are of the same mode
-            if not all([cmd.mode == cmds[0].mode for cmd in cmds]):
+            elif not all([cmd.mode == cmds[0].mode for cmd in cmds]):
+                # check that all commands are of the same mode
                 logger.warning("commands for query_multi() must be of the same mode")
+                return response()
+            elif not all([cmd.ecu == cmds[0].ecu for cmd in cmds]):
+                # check that all commands are listening for the same ECU
+                logger.warning("commands for query_multi() must be listening for the same ECU")
                 return response()
 
             # build the request
